@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "somnus://profiles/engineering/specification/v1",
+  "title": "Somnus Engineering Specification Profile",
+  "description": "Profile for engineering specification documents. Composes Somnus Core via allOf; scoped payload lives under a single 'specification' key to avoid root collisions.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "somnus://core/v1"
+    }
+  ],
+  "properties": {
+    "specification": {
+      "type": "object",
+      "description": "Specification-scoped payload.",
+      "properties": {
+        "system_target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "compliance_level": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verification_suite": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["system_target", "compliance_level", "verification_suite"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["specification"],
+  "unevaluatedProperties": false
+}

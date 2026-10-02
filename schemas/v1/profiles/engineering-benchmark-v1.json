@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "somnus://profiles/engineering/benchmark/v1",
+  "title": "Somnus Engineering Benchmark Profile",
+  "description": "Profile for engineering benchmark documents. Composes Somnus Core via allOf; scoped payload lives under a single 'benchmark' key to avoid root collisions.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "somnus://core/v1"
+    }
+  ],
+  "properties": {
+    "benchmark": {
+      "type": "object",
+      "description": "Benchmark-scoped payload.",
+      "properties": {
+        "workload": {
+          "type": "string",
+          "minLength": 1
+        },
+        "environment": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "minLength": 1
+            },
+            "memory_gb": {
+              "type": "number"
+            },
+            "os": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["cpu", "memory_gb", "os"],
+          "additionalProperties": false
+        },
+        "metrics": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "type": "number"
+              },
+              "unit": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": ["name", "value", "unit"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["workload", "environment", "metrics"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["benchmark"],
+  "unevaluatedProperties": false
+}

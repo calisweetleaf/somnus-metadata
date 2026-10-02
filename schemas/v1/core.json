@@ -1,0 +1,316 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "somnus://core/v1",
+  "title": "Somnus Core",
+  "description": "Mandatory base schema for Somnus Markdown Metadata Standard v0.1. Covers identity, classification, lifecycle, temporal markers, location, lineage, and two-tier provenance. Profile payloads extend this core via allOf composition.",
+  "type": "object",
+  "properties": {
+    "somnus": {
+      "type": "object",
+      "description": "Schema declaration block (SemVer + core URI).",
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "SemVer version of the Somnus standard (quoted to avoid YAML float coercion).",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "schema": {
+          "type": "string",
+          "description": "Core schema URI.",
+          "pattern": "^somnus://core/v[0-9]+$"
+        }
+      },
+      "required": ["version", "schema"],
+      "additionalProperties": false
+    },
+    "id": {
+      "type": "string",
+      "description": "Stable primary identifier (RFC 9562 UUIDv7, lowercase hex).",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "slug": {
+      "type": "string",
+      "description": "Human-readable secondary alias (kebab-case).",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable document title.",
+      "minLength": 1
+    },
+    "aliases": {
+      "type": "array",
+      "description": "Optional secondary human aliases (kebab-case).",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+      },
+      "uniqueItems": true
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional one-paragraph human summary."
+    },
+    "created_at": {
+      "type": "string",
+      "description": "Wall-clock creation timestamp, ISO 8601 UTC Zulu, quoted in YAML.",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "updated_at": {
+      "type": "string",
+      "description": "Wall-clock last-modification timestamp, ISO 8601 UTC Zulu, quoted in YAML.",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "classification": {
+      "type": "object",
+      "description": "Operational taxonomy; category/type/role/scope route validation.",
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": ["research", "engineering", "operations", "governance", "context", "archive"]
+        },
+        "type": {
+          "type": "string",
+          "enum": ["whitepaper", "specification", "architecture-record", "report", "task", "plan", "notepad", "benchmark", "test-result", "decision-record", "runbook", "index", "state", "memory"]
+        },
+        "subtype": {
+          "type": "string",
+          "description": "Domain specialization without new schema file (kebab-case).",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+        },
+        "profile": {
+          "type": "string",
+          "description": "Versioned profile schema URI.",
+          "pattern": "^somnus://profiles/[a-z0-9/-]+$"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["normative", "informative", "working", "exploratory", "historical"]
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["ecosystem", "fleet", "repository", "subsystem", "module", "component"]
+        },
+        "tags": {
+          "type": "array",
+          "description": "Open discovery keywords (kebab-case).",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": ["category", "type", "role", "scope", "profile"],
+      "additionalProperties": false
+    },
+    "lifecycle": {
+      "type": "object",
+      "description": "Workflow maturity orthogonal to canonical authority.",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["draft", "provisional", "active", "experimental", "superseded", "deprecated", "historical", "archived"]
+        },
+        "is_canonical": {
+          "type": "boolean"
+        },
+        "reviewed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+        }
+      },
+      "required": ["status", "is_canonical"],
+      "additionalProperties": false
+    },
+    "relations": {
+      "type": "object",
+      "description": "Directed lineage graph; targets are URNs or DOIs, never volatile paths.",
+      "properties": {
+        "supersedes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(urn:[a-z0-9][a-z0-9-]*:.+|doi:10\\.[0-9]{4,9}/.+)$"
+          }
+        },
+        "superseded_by": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(urn:[a-z0-9][a-z0-9-]*:.+|doi:10\\.[0-9]{4,9}/.+)$"
+          }
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(urn:[a-z0-9][a-z0-9-]*:.+|doi:10\\.[0-9]{4,9}/.+)$"
+          }
+        },
+        "cites": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(urn:[a-z0-9][a-z0-9-]*:.+|doi:10\\.[0-9]{4,9}/.+)$"
+          }
+        },
+        "complements": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(urn:[a-z0-9][a-z0-9-]*:.+|doi:10\\.[0-9]{4,9}/.+)$"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "location": {
+      "type": "object",
+      "description": "Transient physical placement (mutable); identity stays in id.",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repository_root": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "historical_paths": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": ["repository", "path"],
+      "additionalProperties": false
+    },
+    "origin": {
+      "type": "object",
+      "description": "Immutable birthplace (first repository/path/commit).",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "initial_commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{7,40}$"
+        }
+      },
+      "required": ["repository", "path"],
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "description": "Two-tier provenance: summary in frontmatter, full ledger external.",
+      "properties": {
+        "authors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^(user|agent|system):.+$"
+              },
+              "role": {
+                "type": "string"
+              }
+            },
+            "required": ["name", "id"],
+            "additionalProperties": false
+          }
+        },
+        "operators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^(user|agent|system):.+$"
+              },
+              "role": {
+                "type": "string"
+              },
+              "model": {
+                "type": "string"
+              },
+              "operator": {
+                "type": "string"
+              },
+              "interaction_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+              },
+              "actions": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "enum": ["authored", "generated", "edited", "reviewed", "verified", "tested", "migrated", "reformatted", "canonized", "deprecated"]
+                }
+              }
+            },
+            "required": ["name", "operator", "interaction_at", "actions"],
+            "additionalProperties": false
+          }
+        },
+        "verification": {
+          "type": "object",
+          "properties": {
+            "verified_by": {
+              "type": "string"
+            },
+            "verified_at": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["passed", "failed", "pending"]
+            }
+          },
+          "additionalProperties": false
+        },
+        "history_ledger": {
+          "type": "string"
+        }
+      },
+      "required": ["authors"],
+      "additionalProperties": false
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Open escape hatch for experimental fields; validated as open object.",
+      "additionalProperties": true
+    }
+  },
+  "required": ["somnus", "id", "slug", "title", "classification", "lifecycle", "location", "origin", "provenance"],
+  "unevaluatedProperties": false
+}
