@@ -1,55 +1,57 @@
-# AGENTS.md — somnus-metadata
+# AGENTS.md â€” somnus-metadata
 
 ## What this workspace is
 
-Somnus Markdown Metadata Standard v0.1, research-to-implementation.
-Research defines 9 metadata dimensions, classification enums, two-tier
-provenance, UUIDv7 identity, JSON Schema Draft 2020-12 core+profiles,
-`:::submatter:` directives, and a 3-stage validation pipeline.
-
-## Current state
-
-- Research complete: `Somnus Markdown Metadata Standard Research.md` (685 lines, read-only).
-- Implementation newly added: `schemas/v1/core.json`,
-  `schemas/v1/profiles/engineering-specification-v1.json`,
-  `schemas/v1/profiles/engineering-benchmark-v1.json`,
-  `examples/specification-example.md`, `examples/benchmark-example.md`,
-  `examples/submatter-example.md`, `tools/validate.py`,
-  `tools/operator_docs_audit.py`.
-- TODO: SPEC.md normative spec does not exist yet; do not treat Research as normative.
-- TODO: CONTEXT.md / MEMORY.md / NOTEPAD.md / TASK.md / PLAN.md continuity set missing.
-- TODO: Rust binary, CST migration, full inverse-injection remain future work.
+The Somnus metadata standard, core `somnus://metadata/core/2.0.0`, with a stdlib-only Python
+toolkit (`somnus` CLI, global SQLite registry, terminal UI). Every managed file carries exactly
+one `somnus:` header in frontmatter, a comment envelope, or a `<file>.somnus.yaml` sidecar.
 
 ## Authority map
 
-- `Somnus Markdown Metadata Standard Research.md` = evidence (read-only, do not overwrite).
-- `SPEC.md` = normative if present; currently missing, so Research is evidence only.
-- `schemas/v1/` = validation truth (core + profiles, Draft 2020-12, `unevaluatedProperties: false`).
-- `examples/` = usage truth (valid frontmatter + submatter usage).
-- `tools/validate.py` = runnable truth for the 3-stage pipeline.
+- `SPEC.md` = normative. If code and SPEC disagree, SPEC wins and the code is a bug.
+- `DECISIONS.md` = ratified decisions D1â€“D15 explaining why SPEC is shaped as it is.
+- `tests/test_conformance.py` = executable acceptance criteria (one test per SPEC Â§21 fixture).
+- `src/somnus/` = runnable truth for validation, carriers, and the registry.
+- `Somnus Markdown Metadata Standard Research.md` = evidence only (read-only; never overwrite).
+- `archive/` = historical, NOT normative. Never import from it or cite it as active.
+- `PLAN.md` = implementation plan; `filetree.md` = location map only.
 
 ## Entry points
 
-- Read research first, then `schemas/v1/core.json` for field contracts.
-- Copy `examples/specification-example.md` or `examples/benchmark-example.md` for new docs.
-- See `filetree.md` for spatial locations (map only, not a router).
+- Read `SPEC.md` Â§3â€“Â§13 for field contracts, Â§16â€“Â§17 for carriers, Â§18 for the registry.
+- Use `somnus schema FIELD` for per-field documentation; `somnus brief` for the agent cheat sheet.
+- Create documents with `somnus new`, never by copying another header (that duplicates its `id`).
+
+## Rules for agents working on Somnus-managed files
+
+- Never hand-invent IDs, dates, actors, licenses, evidence, or acceptance records.
+- Never edit `id`. Indexed changes are new revisions (`somnus bump`).
+- Lifecycle changes go through `somnus status`, not hand edits.
+- Unknown fields are errors; tool-specific data goes under `extensions.<owner>`.
+- `normative` role is intent, not acceptance.
+- Registry output is text/TSV; JSON is forbidden in the registry (D4).
 
 ## Validate
 
-Run from workspace root:
+Run from the workspace root:
 
 ```
-python3 tools/validate.py examples/specification-example.md
-python3 tools/validate.py examples/benchmark-example.md
-python3 tools/validate.py examples/submatter-example.md
-python3 tools/operator_docs_audit.py --root .
+python -m unittest discover -s tests
+somnus check SPEC.md DECISIONS.md --level semantic
 ```
 
-Exit codes for `validate.py`: 0 valid, 1 validation failed, 2 I/O or frontmatter error.
-`jsonschema` is optional; the validator falls back to structural checks when missing.
+Without an installed tool, use `$env:PYTHONPATH="src"; python -m somnus.cli ...` (PowerShell).
+Exit codes: `0` ok, `1` validation errors/refusals/conflicts, `2` usage or I/O errors.
+
+Python diagnostics use somnus-debug with two configs: `.somnus-debug/python_doctor.yaml`
+(repo root, for tests) and `.somnus-debug/python_doctor.src.yaml` (scan root `src`, so
+`somnus.*` imports resolve).
 
 ## Constraints
 
+- Stdlib only. `pyproject.toml` declares `dependencies = []`; keep it that way.
 - Never overwrite `Somnus Markdown Metadata Standard Research.md`.
-- Stdlib-first; no new dependencies introduced.
-- Do not invent package manager, VCS, build, or cloud workflows (none declared here).
+- Nothing under `src/` may import from `archive/`.
+- Writes to a host file must leave bytes outside the envelope unchanged (`E_HOST` otherwise).
+- This folder is OneDrive-synced: multi-file Surgeon transactions (`multi_edit`, `prepare/commit`)
+  fail with WinError 5. Edit one file per call.
