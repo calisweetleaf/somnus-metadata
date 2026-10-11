@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.python_doctor/
+.python_doctor-src/
+.somnus-debug/runs/
+.surgeon/
+production_doctor.log
+.somnus-debug/production_doctor.log
+.somnus-debug/reports/
