@@ -109,7 +109,9 @@ def normalize_legacy_ref(value: str) -> str:
     return value
 
 
-_TRANSLIT = {"Ã¸": "o", "Ã˜": "o", "Ã¦": "ae", "Ã†": "ae", "ÃŸ": "ss", "Ä‘": "d", "Å‚": "l", "Å“": "oe", "Ã¾": "th"}
+_TRANSLIT = {"\u00f8": "o", "\u00d8": "o", "\u00e6": "ae", "\u00c6": "ae", "\u00df": "ss", "\u0111": "d",
+             "\u0110": "d", "\u0142": "l", "\u0141": "l", "\u0153": "oe", "\u0152": "oe",
+             "\u00fe": "th", "\u00de": "th"}
 
 
 def slugify(title: str, max_len: int = 80) -> str:

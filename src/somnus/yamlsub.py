@@ -523,6 +523,10 @@ class _Parser:
                 break
             collected.append(raw[block_indent:])
             j += 1
+        if j == len(self.raw) and collected and collected[-1] == "" and self.raw and self.raw[-1] == "":
+            # the empty element after the payload's final newline is not a kept blank line
+            collected.pop()
+            j -= 1
         trailing = 0
         while collected and collected[-1] == "":
             collected.pop()

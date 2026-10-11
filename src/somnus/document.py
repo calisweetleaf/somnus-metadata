@@ -98,7 +98,11 @@ class Document:
         if self.is_sidecar:
             data = self.host_bytes if self.host_bytes is not None else b""
             return hashlib.sha256(data.replace(b"\r\n", b"\n")).hexdigest()
-        return hashlib.sha256("\n".join(self.body_lines()).encode("utf-8")).hexdigest()
+        keep = range(len(self.lines))
+        if self.envelope is not None:
+            keep = [i for i in keep if not self.envelope.start <= i < self.envelope.end]
+        data = "".join(self.lines[i] + ("\n" if self.endings[i] else "") for i in keep)
+        return hashlib.sha256(data.encode("utf-8")).hexdigest()
 
     def payload_digest(self) -> str:
         """SHA-256 of the canonical serialization of the payload."""
@@ -125,7 +129,9 @@ class Document:
     def render(self, payload: dict, style: Optional[str] = None) -> str:
         """Return the full file text with ``payload`` written into the envelope."""
         root = {"somnus": payload}
-        text = canonical_yaml(root, forbid=self.carrier.forbid)
+        kind = self.envelope.kind if self.envelope is not None else style
+        forbid = "html" if kind == "html-comment" else self.carrier.forbid
+        text = canonical_yaml(root, forbid=forbid)
         try:
             splice = self.carrier.render(self.lines, text, self.envelope, style)
         except CarrierError as exc:
