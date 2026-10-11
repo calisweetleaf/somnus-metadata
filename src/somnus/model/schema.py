@@ -1,4 +1,4 @@
-"""Declarative schema tree for core 2.0.0 and its profiles (SPEC Â§4â€“Â§17).
+"""Declarative schema tree for core 2.0.0 and its profiles (SPEC §4–§17).
 
 Nodes describe types, required members, vocabularies, and formats. The
 structural walker lives in ``somnus.model.validate``; the canonical key order
@@ -175,26 +175,26 @@ REF = Obj("reference", (
     F("region", LOCAL, doc="Local region ID in the target"),
     F("claim", LOCAL, doc="Local claim ID in the target"),
     F("locator_hint", TEXT, doc="Path or locator hint; never identity"),
-), "Reference object (SPEC Â§3.3)")
+), "Reference object (SPEC §3.3)")
 
 VALID_TIME = Obj("valid_time", (
     F("basis", enum(vocab.VALID_TIME_BASES), True),
     F("from", TIMESTAMP),
     F("until", TIMESTAMP),
     F("note", TEXT),
-), "Applicability interval (SPEC Â§9)")
+), "Applicability interval (SPEC §9)")
 
 CONSTRAINT = Obj("constraint", (
     F("target_ref", TEXT, True),
     F("language", TEXT, True, "Registered constraint language"),
     F("expression", TEXT, True),
-), "Constraint object (SPEC Â§5.3)")
+), "Constraint object (SPEC §5.3)")
 
 SCOPE = Obj("scope", (
     F("target_ref", REF_STR, True),
     F("aspects", Arr(enum(vocab.ASPECTS), min_items=1, unique=True), True),
     F("conditions", Arr(CONSTRAINT)),
-), "Authority scope (SPEC Â§8)")
+), "Authority scope (SPEC §8)")
 
 CLASSIFICATION = Obj("classification", (
     F("category", enum(vocab.CATEGORIES), True),
@@ -203,13 +203,13 @@ CLASSIFICATION = Obj("classification", (
     F("role", enum(vocab.ROLES), True),
     F("scope", enum(vocab.SCOPES), True),
     F("tags", Arr(TEXT, unique=True), True),
-), "Classification (SPEC Â§5)")
+), "Classification (SPEC §5)")
 
 LIFECYCLE = Obj("lifecycle", (
     F("status", enum(vocab.STATUSES), True),
     F("reason", TEXT),
     F("replacement_refs", Arr(REF)),
-), "Lifecycle (SPEC Â§7)")
+), "Lifecycle (SPEC §7)")
 
 AUTHORITY = Obj("authority", (
     F("standing", enum(vocab.STANDINGS), True),
@@ -217,7 +217,7 @@ AUTHORITY = Obj("authority", (
     F("valid_time", VALID_TIME),
     F("acceptance_ref", REF),
     F("owner_ref", REF),
-), "Scoped authority (SPEC Â§8)")
+), "Scoped authority (SPEC §8)")
 
 TIME = Obj("time", (
     F("created_at", TIMESTAMP),
@@ -225,7 +225,7 @@ TIME = Obj("time", (
     F("reviewed_at", TIMESTAMP),
     F("authored_on", DATE),
     F("note", TEXT),
-), "Authorship clock (SPEC Â§9)")
+), "Authorship clock (SPEC §9)")
 
 ARTIFACT_ALIAS = Obj("artifact_alias", (
     F("id", LOCAL, True),
@@ -237,7 +237,7 @@ ARTIFACT_ALIAS = Obj("artifact_alias", (
 NAMES = Obj("names", (
     F("slug", Str(pattern=KEBAB_PATTERN)),
     F("aliases", Arr(ARTIFACT_ALIAS)),
-), "Artifact names (SPEC Â§10.1)")
+), "Artifact names (SPEC §10.1)")
 
 CONTEXT = Obj("context", (
     F("project_refs", Arr(REF)),
@@ -246,7 +246,7 @@ CONTEXT = Obj("context", (
     F("repository_refs", Arr(REF)),
     F("release_constraints", Arr(CONSTRAINT)),
     F("platform_constraints", Arr(CONSTRAINT)),
-), "Subject context (SPEC Â§5.3)")
+), "Subject context (SPEC §5.3)")
 
 RIGHTS = Obj("rights", (
     F("status", enum(vocab.RIGHTS_STATUSES), True),
@@ -257,7 +257,7 @@ OWNERSHIP = Obj("ownership", (
     F("owner_ref", REF),
     F("maintainer_refs", Arr(REF)),
     F("rights", RIGHTS),
-), "Ownership (SPEC Â§15.2)")
+), "Ownership (SPEC §15.2)")
 
 LOCATION = Obj("location", (
     F("kind", enum(vocab.LOCATION_KINDS), True),
@@ -298,7 +298,7 @@ CONTENT = Obj("content", (
     F("math", MATH),
     F("resources", Arr(RESOURCE)),
     F("extraction", EXTRACTION),
-), "Content and mathematics (SPEC Â§14)")
+), "Content and mathematics (SPEC §14)")
 
 ENTITY_ALIAS = Obj("entity_alias", (
     F("id", LOCAL, True),
@@ -314,7 +314,7 @@ ENTITY = Obj("entity", (
     F("description", TEXT),
     F("aliases", Arr(ENTITY_ALIAS)),
     F("external_refs", Arr(TEXT)),
-), "Entity declaration (SPEC Â§10.2)")
+), "Entity declaration (SPEC §10.2)")
 
 TERM = Obj("term", (
     F("id", LOCAL, True),
@@ -325,7 +325,7 @@ TERM = Obj("term", (
     F("excluded_refs", Arr(REF_STR)),
     F("context_refs", Arr(REF)),
     F("region_ref", LOCAL),
-), "Term (SPEC Â§10.3)")
+), "Term (SPEC §10.3)")
 
 SELECTOR = Tagged("selector", "kind", {
     "marker": Obj("marker", (F("kind", TEXT, True), F("name", LOCAL, True))),
@@ -336,7 +336,7 @@ SELECTOR = Tagged("selector", "kind", {
     "line-range": Obj("line-range", (
         F("kind", TEXT, True), F("from", POS_INT, True), F("until", POS_INT, True), F("revision", POS_INT, True),
     )),
-}, "Region selector (SPEC Â§13.2)")
+}, "Region selector (SPEC §13.2)")
 
 REGION = Obj("region", (
     F("id", LOCAL, True),
@@ -351,7 +351,7 @@ REGION = Obj("region", (
     ))),
     F("valid_time", VALID_TIME),
     F("context_refs", Arr(REF)),
-), "Region record (SPEC Â§13.1)")
+), "Region record (SPEC §13.1)")
 
 CLAIM_OBJECT = Obj("claim_object", (
     F("ref", REF_STR),
@@ -382,7 +382,7 @@ CLAIM = Obj("claim", (
     F("context_refs", Arr(REF)),
     F("conditions", Arr(CONSTRAINT)),
     F("confidence", CONFIDENCE),
-), "Claim record (SPEC Â§11)")
+), "Claim record (SPEC §11)")
 
 RELATION = Obj("relation", (
     F("id", LOCAL, True),
@@ -395,7 +395,7 @@ RELATION = Obj("relation", (
     F("evidence_refs", Arr(REF)),
     F("conditions", Arr(CONSTRAINT)),
     F("note", TEXT),
-), "Qualified relation (SPEC Â§12)")
+), "Qualified relation (SPEC §12)")
 
 KNOWLEDGE = Obj("knowledge", (
     F("coverage", enum(vocab.COVERAGES), True),
@@ -405,12 +405,12 @@ KNOWLEDGE = Obj("knowledge", (
     F("regions", Arr(REGION)),
     F("claims", Arr(CLAIM)),
     F("relations", Arr(RELATION)),
-), "Knowledge module (SPEC Â§10â€“Â§13)")
+), "Knowledge module (SPEC §10–§13)")
 
 ACCESS = Obj("access", (
     F("visibility", enum(vocab.VISIBILITIES), True),
     F("allowed_uses", Arr(enum(vocab.ALLOWED_USES), unique=True), True),
-), "Usage declaration (SPEC Â§15.1)")
+), "Usage declaration (SPEC §15.1)")
 
 INGESTION = Obj("ingestion", (
     F("disposition", enum(vocab.DISPOSITIONS), True),
@@ -419,7 +419,7 @@ INGESTION = Obj("ingestion", (
     F("exclude_regions", Arr(LOCAL, unique=True)),
     F("atomic_regions", Arr(LOCAL, unique=True)),
     F("requires", Arr(TEXT, unique=True)),
-), "Ingestion intent (SPEC Â§15.4)")
+), "Ingestion intent (SPEC §15.4)")
 
 PROFILE_DECL = Obj("profile", (
     F("schema", TEXT, True),
@@ -430,12 +430,12 @@ BINDING = Obj("binding", (
     F("target", Union_((TEXT, REF)), True),
     F("role", enum(vocab.BINDING_ROLES), True),
     F("required", Bool(), True),
-), "Sidecar binding (SPEC Â§17.6)")
+), "Sidecar binding (SPEC §17.6)")
 
 EXTENSION = Obj("extension", (
     F("schema", TEXT, True),
     F("data", AnyValue(), True),
-), "Owner-namespaced extension (SPEC Â§4.3)")
+), "Owner-namespaced extension (SPEC §4.3)")
 
 SOMNUS = Obj("somnus", (
     F("schema", Str(enum=(CORE_SCHEMA,)), True, "Exact core schema release"),
@@ -463,7 +463,7 @@ SOMNUS = Obj("somnus", (
     F("profile_data", MapOf(PROFILE_KEY_PATTERN, AnyValue())),
     F("bindings", Arr(BINDING)),
     F("extensions", MapOf(OWNER_PATTERN, EXTENSION)),
-), "Somnus core payload (SPEC Â§4.1)")
+), "Somnus core payload (SPEC §4.1)")
 
 ROOT = Obj("root", (F("somnus", SOMNUS, True),), "Envelope payload root")
 
@@ -473,7 +473,7 @@ SPECIFICATION_PROFILE = Obj("specification", (
     F("normative_region_refs", Arr(LOCAL, unique=True)),
     F("compliance_level", enum(vocab.COMPLIANCE_LEVELS)),
     F("verification_refs", Arr(REF)),
-), "Specification profile 1.0.0 (SPEC Â§6.1)")
+), "Specification profile 1.0.0 (SPEC §6.1)")
 
 BENCHMARK_PROFILE_NODE = Obj("benchmark", (
     F("workload", TEXT, True),
@@ -493,7 +493,7 @@ BENCHMARK_PROFILE_NODE = Obj("benchmark", (
     )), min_items=1), True),
     F("baseline_ref", REF),
     F("conditions", Arr(TEXT)),
-), "Benchmark profile 1.0.0 (SPEC Â§6.2)")
+), "Benchmark profile 1.0.0 (SPEC §6.2)")
 
 PROFILES: dict[str, Obj] = {
     SPEC_PROFILE: SPECIFICATION_PROFILE,

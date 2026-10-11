@@ -1,4 +1,4 @@
-"""Carrier protocol, registry, and extension-based auto-detection (SPEC Â§17).
+"""Carrier protocol, registry, and extension-based auto-detection (SPEC §17).
 
 A carrier works on a file's lines (without line endings). ``extract`` finds
 the single authoritative envelope; ``render`` returns a splice that replaces

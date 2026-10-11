@@ -1,4 +1,4 @@
-"""SPEC Â§21 conformance fixtures: one test per row, numbered to match the table."""
+"""SPEC §21 conformance fixtures: one test per row, numbered to match the table."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""``somnus migrate``: upgrade v0.1 hybrid documents to core 2.0.0 (SPEC Â§22)."""
+"""``somnus migrate``: upgrade v0.1 hybrid documents to core 2.0.0 (SPEC §22)."""
 
 from __future__ import annotations
 
@@ -147,7 +147,7 @@ def convert_directives(lines: list[str], offset: int) -> tuple[list[str], list[d
 
 
 def build_payload(legacy: dict, cfg: Config, path: Path, regions: list[dict], directives: list[dict]) -> dict:
-    """Map a lenient-parsed v0.1 header to a core 2.0.0 payload (SPEC Â§22 steps 1â€“8)."""
+    """Map a lenient-parsed v0.1 header to a core 2.0.0 payload (SPEC §22 steps 1–8)."""
     rest = copy.deepcopy(legacy)
     unmapped: dict[str, Any] = {}
 

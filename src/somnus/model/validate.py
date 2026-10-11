@@ -1,4 +1,4 @@
-"""Multi-stage validation pipeline: carrier, core, semantic, canon (SPEC Â§19)."""
+"""Multi-stage validation pipeline: carrier, core, semantic, canon (SPEC §19)."""
 
 from __future__ import annotations
 

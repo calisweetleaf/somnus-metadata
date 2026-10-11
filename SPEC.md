@@ -37,11 +37,11 @@ somnus:
     body_role: "specification"
 ---
 
-# Somnus Metadata System â€” Normative Specification
+# Somnus Metadata System — Normative Specification
 
 **Schema release:** `somnus://metadata/core/2.0.0`
 **Reference implementation:** the `somnus` Python package in `src/somnus/`
-**Decisions:** [DECISIONS.md](DECISIONS.md) (D1â€“D15)
+**Decisions:** [DECISIONS.md](DECISIONS.md) (D1–D15)
 
 This document is the only normative statement of the Somnus metadata standard.
 It merges the semantic model of the v2 proposal
@@ -79,7 +79,7 @@ provenance, and network resolution. Digests stored in the registry
 | Artifact | Persistent artifact URN (`somnus.id`) |
 | Artifact revision | Artifact URN plus positive integer `somnus.revision` |
 | Representation | Locator recorded in `representations` or the registry `locations` table |
-| Entity | Persistent entity reference (`urn:somnus:entity:â€¦`, `urn:somnus:concept:â€¦`, â€¦) |
+| Entity | Persistent entity reference (`urn:somnus:entity:…`, `urn:somnus:concept:…`, …) |
 | Region | Artifact URN plus local region ID |
 | Claim | Artifact URN plus revision plus local claim ID |
 
@@ -97,7 +97,7 @@ second location.
 | Artifact URN | `^urn:somnus:artifact:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$` |
 | Example URN (fixtures only) | `^urn:somnus:example:[a-z0-9][a-z0-9-]*$` |
 | Somnus URN (any kind) | `^urn:somnus:(artifact\|entity\|actor\|concept\|example):[A-Za-z0-9][A-Za-z0-9._:-]*$` |
-| External reference | `doi:10.â€¦`, `https://â€¦`, `http://â€¦`, or another `urn:<nid>:â€¦` |
+| External reference | `doi:10.…`, `https://…`, `http://…`, or another `urn:<nid>:…` |
 | Local ID | `^[a-z][a-z0-9_]*(?:-[a-z0-9_]+)*$` |
 
 - `somnus.id` MUST be an artifact URN or an example URN `[E_SCHEMA]`. UUID
@@ -159,7 +159,7 @@ Fields appear in this canonical order. Required fields are marked **R**.
 | --- | --- | --- | --- | --- |
 | 1 | `schema` | string | R | Exactly `somnus://metadata/core/2.0.0` |
 | 2 | `id` | string | R | Artifact or example URN |
-| 3 | `revision` | integer | R | â‰¥ 1 |
+| 3 | `revision` | integer | R | ≥ 1 |
 | 4 | `title` | string | R | Nonempty |
 | 5 | `summary` | string | | Nonempty |
 | 6 | `purpose` | string | | Nonempty |
@@ -175,7 +175,7 @@ Fields appear in this canonical order. Required fields are marked **R**.
 | 16 | `locations` | array | | Section 15.3 |
 | 17 | `representations` | array | | Section 15.3 |
 | 18 | `content` | object | | Section 14 |
-| 19 | `knowledge` | object | R | Sections 10â€“13 |
+| 19 | `knowledge` | object | R | Sections 10–13 |
 | 20 | `access` | object | R | Section 15.1 |
 | 21 | `ingestion` | object | R | Section 15.4 |
 | 22 | `profiles` | array | | Section 6 |
@@ -268,8 +268,8 @@ Lineage: v0.1 `somnus://profiles/engineering/benchmark/v1`.
 | Field | Type | R | Contract |
 | --- | --- | --- | --- |
 | `workload` | string | R | Nonempty workload description |
-| `environment` | object | R | `cpu` R, `memory_gb` R (number â‰¥ 0), `os` R, `accelerator`, `runtime` |
-| `measurements` | array | R | At least one `{name R, value R (number), unit R, repetitions (integer â‰¥ 1), uncertainty (number â‰¥ 0)}` |
+| `environment` | object | R | `cpu` R, `memory_gb` R (number ≥ 0), `os` R, `accelerator`, `runtime` |
+| `measurements` | array | R | At least one `{name R, value R (number), unit R, repetitions (integer ≥ 1), uncertainty (number ≥ 0)}` |
 | `baseline_ref` | reference object | | Baseline benchmark artifact |
 | `conditions` | array of strings | | Explicit measurement conditions |
 
@@ -289,14 +289,14 @@ of reference objects).
 | `provisional` | `active`, `experimental`, `rejected`, `superseded`, `deprecated`, `archived`* |
 | `experimental` | `draft`, `proposed`, `provisional`, `rejected`, `deprecated`, `historical`, `archived`* |
 | `active` | `superseded`, `deprecated`, `historical` |
-| `superseded` | `historical`, `active`â€  |
+| `superseded` | `historical`, `active`† |
 | `deprecated` | `historical`, `archived` |
-| `historical` | `archived`, `active`â€  |
+| `historical` | `archived`, `active`† |
 | `rejected` | `archived` |
-| `archived` | `active`â€  |
+| `archived` | `active`† |
 
 \* Abandonment. Requires `reason` `[E_LIFECYCLE]`.
-â€  Reactivation. Requires `reason` and renewed authority review. The tool
+† Reactivation. Requires `reason` and renewed authority review. The tool
 resets `authority.standing` from `accepted` to `candidate` and drops
 `valid_time`/`acceptance_ref` `[E_LIFECYCLE]`.
 
@@ -430,16 +430,16 @@ and optional `region_ref`, `evidence_refs`, `conditions`, `note`.
 | --- | --- | --- |
 | `supersedes` | `superseded_by` | acyclic `[E_GRAPH]` |
 | `derived_from` | `has_derivative` | acyclic `[E_GRAPH]` |
-| `describes` | `described_by` | â€” |
-| `implements` | `implemented_by` | â€” |
+| `describes` | `described_by` | — |
+| `implements` | `implemented_by` | — |
 | `depends_on` | `required_by` | cycles allowed |
 | `part_of` | `has_part` | acyclic `[E_GRAPH]` |
-| `cites` | `cited_by` | â€” |
-| `supports` | `supported_by` | â€” |
+| `cites` | `cited_by` | — |
+| `supports` | `supported_by` | — |
 | `contradicts` | `contradicts` | symmetric |
-| `renamed_to` | `renamed_from` | â€” |
-| `role_expanded_to` | `role_expanded_from` | â€” |
-| `specializes` | `generalizes` | â€” |
+| `renamed_to` | `renamed_from` | — |
+| `role_expanded_to` | `role_expanded_from` | — |
+| `specializes` | `generalizes` | — |
 | `equivalent_to` | `equivalent_to` | candidate only |
 | `distinct_from` | `distinct_from` | blocks merging |
 
@@ -475,8 +475,8 @@ document's (`operator-only` < `internal` < `public`), and its
 | `tex-label` | `name` | Exactly one `\label{name}` outside TeX comments |
 | `symbol` | `name`, `language` | Python: exactly one top-level or nested `def`/`class`; other languages unresolved |
 | `json-pointer` | `pointer` | RFC 6901 pointer resolves in the bound JSON target |
-| `heading` | `text`, `occurrence` (â‰¥ 1) | The n-th Markdown ATX heading whose text equals `text` |
-| `line-range` | `from`, `until`, `revision` (all â‰¥ 1) | `from < until â‰¤ line count + 1`, `revision` equals the current revision |
+| `heading` | `text`, `occurrence` (≥ 1) | The n-th Markdown ATX heading whose text equals `text` |
+| `line-range` | `from`, `until`, `revision` (all ≥ 1) | `from < until ≤ line count + 1`, `revision` equals the current revision |
 
 Selector objects are closed per kind `[E_SCHEMA]`. Marker selectors are
 resolved at core level; every other kind is resolved at semantic level
@@ -495,14 +495,14 @@ Markdown and HTML hosts use standalone comment lines:
 ```
 
 Line-comment hosts use the host prefix: `# somnus:region:begin r-config`,
-`% somnus:region:begin r-equation`, `// â€¦`, `-- â€¦`. Block-comment hosts use
+`% somnus:region:begin r-equation`, `// …`, `-- …`. Block-comment hosts use
 `/* somnus:region:begin r-x */`.
 
 - Markers occupy their own line. Markdown markers SHOULD be separated from
   body blocks by blank lines (`W_REGION_SPACING`).
 - Pairing is stack-based: nesting is allowed; crossing, unmatched,
   unclosed, or duplicated markers are `[E_REGION]`.
-- Markers inside fenced code (backtick or tilde fences of any length â‰¥ 3),
+- Markers inside fenced code (backtick or tilde fences of any length ≥ 3),
   indented code blocks, or the metadata envelope are inert.
 - A registered marker region with no body markers is `[E_REGION]`. A body
   marker with no registry entry is a warning (`W_REGION_UNREGISTERED`);
@@ -548,7 +548,7 @@ otherwise `[E_SCHEMA]`.
 `mirror`, `historical`), `repository_ref`, `observed_on` (date).
 
 `representations` entries: `locator` R, `media_type` R, `role` R (`source`,
-`rendered`, `translation`, `projection`), `source_revision` (â‰¥ 1),
+`rendered`, `translation`, `projection`), `source_revision` (≥ 1),
 `limitations` (array of strings).
 
 ### 15.4 Ingestion
@@ -580,7 +580,7 @@ The payload is a restricted subset of YAML 1.2.2:
   where a scalar is expected; anchors (`&`), aliases (`*`), merge keys
   (`<<`), tags (`!`), directives (`%`), document markers (`---`, `...`)
   inside the payload, duplicate keys at any depth, non-string keys,
-  integers outside Â±(2^53 âˆ’ 1), and non-finite numbers.
+  integers outside ±(2^53 − 1), and non-finite numbers.
 
 Quoted `"NO"`, `"on"`, `"1.0"`, and `"2026-10-11"` are always strings.
 
@@ -622,14 +622,14 @@ every carrier.
 
 | Host extensions | Carrier | Envelope |
 | --- | --- | --- |
-| `.md .markdown .mdx` | `markdown` | Frontmatter `---` â€¦ `---` (default) or HTML comment envelope |
+| `.md .markdown .mdx` | `markdown` | Frontmatter `---` … `---` (default) or HTML comment envelope |
 | `.py .pyw .sh .bash .zsh .ps1 .psm1 .psd1 .toml .yaml .yml .r .R` | `hash` | `# ` prefixed lines |
 | `.tex .sty .cls .ltx` | `tex` | `% ` prefixed lines |
 | `.js .mjs .cjs .jsx .ts .tsx .rs .c .h .cc .cpp .hpp .go .java .kt .swift .cs` | `slash` | `// ` prefixed lines |
 | `.sql` | `sql` | `-- ` prefixed lines |
-| `.css .scss .less` | `css` | `/* â€¦ */` block |
-| `.html .htm .xhtml .xml .svg` | `xml` | `<!-- â€¦ -->` block |
-| anything else (`.json`, `.pdf`, `.png`, `.ipynb`, â€¦) | `sidecar` | `<file>.somnus.yaml` |
+| `.css .scss .less` | `css` | `/* … */` block |
+| `.html .htm .xhtml .xml .svg` | `xml` | `<!-- … -->` block |
+| anything else (`.json`, `.pdf`, `.png`, `.ipynb`, …) | `sidecar` | `<file>.somnus.yaml` |
 
 Files named `*.somnus.yaml` are always sidecars, never hash carriers.
 
@@ -675,8 +675,8 @@ literals, examples) is inert.
 
 ### 17.4 Block-comment carriers
 
-CSS uses `/* somnus:metadata:v2` â€¦ `somnus:end */`, and the payload MUST NOT
-contain `*/`. XML, HTML, and SVG use `<!-- somnus:metadata:v2` â€¦
+CSS uses `/* somnus:metadata:v2` … `somnus:end */`, and the payload MUST NOT
+contain `*/`. XML, HTML, and SVG use `<!-- somnus:metadata:v2` …
 `somnus:end -->`, and the payload MUST NOT contain `--` `[E_ENVELOPE]`.
 
 ### 17.5 Mandatory preambles
@@ -686,9 +686,9 @@ contain `*/`. XML, HTML, and SVG use `<!-- somnus:metadata:v2` â€¦
 | Python | Line-1 shebang; encoding cookie (`coding[:=]`) on line 1, or on line 2 when line 1 is a comment |
 | Shell, R, JS/TS | Line-1 shebang (`#!`) |
 | PowerShell | Line-1 shebang and leading `#Requires` lines |
-| TeX | Leading `% !TeX â€¦` magic comments (case-insensitive) |
-| CSS | Leading `@charset "â€¦";` |
-| XML/HTML/SVG | Leading `<?xml â€¦?>` declaration and `<!DOCTYPE â€¦>` |
+| TeX | Leading `% !TeX …` magic comments (case-insensitive) |
+| CSS | Leading `@charset "…";` |
+| XML/HTML/SVG | Leading `<?xml …?>` declaration and `<!DOCTYPE …>` |
 
 Inserting at byte 0 regardless of host is forbidden. When the tool cannot
 place the envelope safely, the operation is refused `[E_HOST]`.
@@ -819,18 +819,18 @@ operations, or conflicts. `2` means usage, I/O, or environment errors.
 
 | Command | Effect |
 | --- | --- |
-| `init [--root DIR]â€¦` | Create `$SOMNUS_HOME`, `config.toml`, and the database; register roots |
+| `init [--root DIR]…` | Create `$SOMNUS_HOME`, `config.toml`, and the database; register roots |
 | `new TYPE TITLE [--dir] [--carrier frontmatter\|html-comment] [--status] [--force]` | Scaffold a conformant Markdown artifact with a UUIDv7, revision 1, and config defaults; refuses title collisions |
-| `stamp PATHâ€¦ [--write] [--type] [--title]` | Infer and inject a header into an unmanaged file; dry-run diff unless `--write` |
-| `check [PATHâ€¦] [--all] [--level L]` | Run the pipeline and print diagnostics |
-| `index [ROOTâ€¦] [--full]` | Reconcile roots into the registry |
+| `stamp PATH… [--write] [--type] [--title]` | Infer and inject a header into an unmanaged file; dry-run diff unless `--write` |
+| `check [PATH…] [--all] [--level L]` | Run the pipeline and print diagnostics |
+| `index [ROOT…] [--full]` | Reconcile roots into the registry |
 | `q [SQL] [--docs\|--conflicts\|--history\|--tables] [--limit N]` | Read-only queries in aligned text or TSV |
 | `ls [--type] [--status] [--standing] [--tag] [--path-contains]` | List present artifacts |
-| `status PATH NEW_STATUS [--reason] [--replacement REF]â€¦` | Validated lifecycle transition (new revision) |
+| `status PATH NEW_STATUS [--reason] [--replacement REF]…` | Validated lifecycle transition (new revision) |
 | `bump PATH [--reason]` | New revision; resolves revision conflicts |
 | `fork PATH [--out] [--title]` | New UUIDv7, revision 1, `derived_from` the parent revision |
 | `regions PATH [--sync] [--write]` | Audit markers against the registry; register unregistered markers |
-| `migrate PATHâ€¦ [--write]` | Upgrade v0.1 documents (Section 22) |
+| `migrate PATH… [--write]` | Upgrade v0.1 documents (Section 22) |
 | `stale [--days N]` | Report stale drafts, unreplaced supersessions, missing files, near-duplicate titles, open conflicts |
 | `schema [FIELD] [--json-schema] [--out FILE]` | Show field docs or export JSON Schema Draft 2020-12 |
 | `brief` | Print a Markdown agent cheat sheet |
@@ -877,9 +877,9 @@ in lenient mode (plain scalars allowed) and then:
 
 1. Pins `schema` to core 2.0.0, wraps the UUID as `urn:somnus:artifact:<uuid>`
    without reminting, and sets `revision: 1`.
-2. Maps `title`, `description` â†’ `summary`, and `purpose`; `slug` and
-   `aliases` â†’ `names`; `created_at`/`updated_at`/`lifecycle.reviewed_at`
-   â†’ `time` with precision preserved.
+2. Maps `title`, `description` → `summary`, and `purpose`; `slug` and
+   `aliases` → `names`; `created_at`/`updated_at`/`lifecycle.reviewed_at`
+   → `time` with precision preserved.
 3. Maps vocabulary-valid classification and lifecycle values. `is_canonical`
    never elevates standing, which becomes `candidate` with a self-scope.
 4. Converts `supersedes`, `derived_from`, and `cites` into qualified
@@ -888,7 +888,7 @@ in lenient mode (plain scalars allowed) and then:
    converted.
 5. Converts `location`/`origin` paths into `locations` with
    `primary`/`origin`/`historical` roles.
-6. Converts live (non-code) `:::submatter:<kind>{id=â€¦}` directives into
+6. Converts live (non-code) `:::submatter:<kind>{id=…}` directives into
    marker pairs and region records. Region IDs keep valid local IDs, and
    UUID-style IDs become `r-<kind>-<first 8 hex>`.
 7. Preserves every unmapped key (`provenance`, `origin.initial_commit`,

@@ -1,4 +1,4 @@
-"""Markdown carriers: YAML frontmatter and the hidden HTML comment envelope (SPEC Â§17.1â€“Â§17.2)."""
+"""Markdown carriers: YAML frontmatter and the hidden HTML comment envelope (SPEC §17.1–§17.2)."""
 
 from __future__ import annotations
 

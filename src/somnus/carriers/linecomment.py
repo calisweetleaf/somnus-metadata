@@ -1,4 +1,4 @@
-"""Comment-prefixed carriers: ``# ``, ``% ``, ``// ``, ``-- `` (SPEC Â§17.3, Â§17.5)."""
+"""Comment-prefixed carriers: ``# ``, ``% ``, ``// ``, ``-- `` (SPEC §17.3, §17.5)."""
 
 from __future__ import annotations
 

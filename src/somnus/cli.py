@@ -1,4 +1,4 @@
-"""Argument parsing and lazy command dispatch for the ``somnus`` CLI (SPEC Â§20)."""
+"""Argument parsing and lazy command dispatch for the ``somnus`` CLI (SPEC §20)."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-# AGENTS.md â€” somnus-metadata
+# AGENTS.md — somnus-metadata
 
 ## What this workspace is
 
@@ -9,8 +9,8 @@ one `somnus:` header in frontmatter, a comment envelope, or a `<file>.somnus.yam
 ## Authority map
 
 - `SPEC.md` = normative. If code and SPEC disagree, SPEC wins and the code is a bug.
-- `DECISIONS.md` = ratified decisions D1â€“D15 explaining why SPEC is shaped as it is.
-- `tests/test_conformance.py` = executable acceptance criteria (one test per SPEC Â§21 fixture).
+- `DECISIONS.md` = ratified decisions D1–D15 explaining why SPEC is shaped as it is.
+- `tests/test_conformance.py` = executable acceptance criteria (one test per SPEC §21 fixture).
 - `src/somnus/` = runnable truth for validation, carriers, and the registry.
 - `Somnus Markdown Metadata Standard Research.md` = evidence only (read-only; never overwrite).
 - `archive/` = historical, NOT normative. Never import from it or cite it as active.
@@ -18,7 +18,7 @@ one `somnus:` header in frontmatter, a comment envelope, or a `<file>.somnus.yam
 
 ## Entry points
 
-- Read `SPEC.md` Â§3â€“Â§13 for field contracts, Â§16â€“Â§17 for carriers, Â§18 for the registry.
+- Read `SPEC.md` §3–§13 for field contracts, §16–§17 for carriers, §18 for the registry.
 - Use `somnus schema FIELD` for per-field documentation; `somnus brief` for the agent cheat sheet.
 - Create documents with `somnus new`, never by copying another header (that duplicates its `id`).
 

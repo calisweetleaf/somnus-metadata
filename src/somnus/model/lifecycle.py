@@ -1,4 +1,4 @@
-"""Lifecycle transition state machine (SPEC Â§7)."""
+"""Lifecycle transition state machine (SPEC §7)."""
 
 from __future__ import annotations
 

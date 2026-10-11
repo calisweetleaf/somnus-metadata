@@ -1,4 +1,4 @@
-"""Detached sidecar bindings: ``<file>.somnus.yaml`` (SPEC Â§17.6)."""
+"""Detached sidecar bindings: ``<file>.somnus.yaml`` (SPEC §17.6)."""
 
 from __future__ import annotations
 

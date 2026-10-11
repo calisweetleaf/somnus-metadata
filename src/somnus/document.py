@@ -1,4 +1,4 @@
-"""Document loading and atomic saving with byte preservation (SPEC Â§16.3, Â§17)."""
+"""Document loading and atomic saving with byte preservation (SPEC §16.3, §17)."""
 
 from __future__ import annotations
 

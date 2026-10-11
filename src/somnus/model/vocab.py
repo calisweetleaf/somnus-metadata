@@ -1,4 +1,4 @@
-"""Controlled vocabularies of core schema 2.0.0 (SPEC Â§5, Â§7â€“Â§15)."""
+"""Controlled vocabularies of core schema 2.0.0 (SPEC §5, §7–§15)."""
 
 from __future__ import annotations
 

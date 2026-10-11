@@ -1,4 +1,4 @@
-"""Global SQLite registry: open/migrate, indexing, conflicts, and read-only queries (SPEC Â§18)."""
+"""Global SQLite registry: open/migrate, indexing, conflicts, and read-only queries (SPEC §18)."""
 
 from __future__ import annotations
 

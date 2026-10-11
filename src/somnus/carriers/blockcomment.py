@@ -1,4 +1,4 @@
-"""Block-comment carriers: CSS ``/* */`` and XML/HTML/SVG ``<!-- -->`` (SPEC Â§17.4â€“Â§17.5)."""
+"""Block-comment carriers: CSS ``/* */`` and XML/HTML/SVG ``<!-- -->`` (SPEC §17.4–§17.5)."""
 
 from __future__ import annotations
 

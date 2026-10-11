@@ -26,7 +26,7 @@ _last_seq = 0
 
 
 def uuid7(unix_ms: Optional[int] = None) -> uuid.UUID:
-    """Mint a UUIDv7 (RFC 9562 Â§5.7) with a monotonic 12-bit sequence in rand_a."""
+    """Mint a UUIDv7 (RFC 9562 §5.7) with a monotonic 12-bit sequence in rand_a."""
     global _last_ms, _last_seq
     with _lock:
         ms = int(time.time() * 1000) if unix_ms is None else unix_ms

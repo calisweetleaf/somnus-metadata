@@ -1,4 +1,4 @@
-"""Registry store: indexing semantics of SPEC Â§18.3."""
+"""Registry store: indexing semantics of SPEC §18.3."""
 
 from __future__ import annotations
 

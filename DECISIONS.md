@@ -33,7 +33,7 @@ somnus:
     body_role: "narrative"
 ---
 
-# Somnus Metadata â€” Ratified Decisions D1â€“D15
+# Somnus Metadata — Ratified Decisions D1–D15
 
 These decisions govern [SPEC.md](SPEC.md) and the `somnus` toolkit in `src/somnus/`.
 The operator ratified them by approving the implementation plan ([PLAN.md](PLAN.md)).
@@ -45,25 +45,25 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 
 | # | Decision | Supersedes draft | SPEC |
 | --- | --- | --- | --- |
-| D1 | Single `somnus:` namespace | Draft 2 (Hybrid Semi-Flat), reversed | Â§4 |
-| D2 | Comment-marker regions with a header registry | Draft 1 (container directives), reversed | Â§13 |
-| D3 | URN-wrapped UUIDv7 identity; legacy UUIDs kept | Draft 3, amended | Â§3 |
-| D4 | One global SQLite registry, zero JSON | Draft 4 (two-tier JSON ledger), replaced by operator | Â§18 |
-| D5 | Zero tolerance for unknown fields | Draft 5, accepted | Â§4.2 |
-| D6 | Rich headers populated by tools | new | Â§20 |
-| D7 | Restricted YAML subset and canonical serializer | new | Â§16 |
-| D8 | Carrier matrix with host-preserving placement | new | Â§17 |
-| D9 | Scoped authority, separate from role | new | Â§8 |
-| D10 | Three separate clocks; no invented dates | new | Â§9 |
-| D11 | Qualified relations and typed claims | new | Â§11, Â§12 |
-| D12 | Tool-enforced lifecycle state machine | new | Â§7 |
-| D13 | Exact release resolution and versioned profiles | new | Â§6, Â§23 |
-| D14 | Compiler-grade diagnostics | new | Â§19.2 |
-| D15 | Dead-code isolation in `archive/` | new | Â§1 |
+| D1 | Single `somnus:` namespace | Draft 2 (Hybrid Semi-Flat), reversed | §4 |
+| D2 | Comment-marker regions with a header registry | Draft 1 (container directives), reversed | §13 |
+| D3 | URN-wrapped UUIDv7 identity; legacy UUIDs kept | Draft 3, amended | §3 |
+| D4 | One global SQLite registry, zero JSON | Draft 4 (two-tier JSON ledger), replaced by operator | §18 |
+| D5 | Zero tolerance for unknown fields | Draft 5, accepted | §4.2 |
+| D6 | Rich headers populated by tools | new | §20 |
+| D7 | Restricted YAML subset and canonical serializer | new | §16 |
+| D8 | Carrier matrix with host-preserving placement | new | §17 |
+| D9 | Scoped authority, separate from role | new | §8 |
+| D10 | Three separate clocks; no invented dates | new | §9 |
+| D11 | Qualified relations and typed claims | new | §11, §12 |
+| D12 | Tool-enforced lifecycle state machine | new | §7 |
+| D13 | Exact release resolution and versioned profiles | new | §6, §23 |
+| D14 | Compiler-grade diagnostics | new | §19.2 |
+| D15 | Dead-code isolation in `archive/` | new | §1 |
 
 ---
 
-## D1 â€” Single `somnus:` namespace
+## D1 — Single `somnus:` namespace
 
 - **Status:** ACCEPTED
 - **Context:** The draft recommended Hybrid Semi-Flat roots (`title`, `id`, `tags`
@@ -75,12 +75,12 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 - **Decision:** (B). All standardized metadata lives under `somnus:`. Other
   frontmatter keys belong to the host, are preserved byte-for-byte, and are
   never read as Somnus values.
-- **Consequences:** The same payload is valid in every carrier (SPEC Â§21
+- **Consequences:** The same payload is valid in every carrier (SPEC §21
   fixture 1). Third-party tools that need `title` keep their own root key, and
   the two are never reconciled automatically. v0.1 roots are converted only by
   `somnus migrate`.
 
-## D2 â€” Comment-marker regions with a header registry
+## D2 — Comment-marker regions with a header registry
 
 - **Status:** ACCEPTED
 - **Context:** The draft recommended `:::submatter` container directives. Directives
@@ -88,7 +88,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
   attributes in the body, where agents edit them without validation.
 - **Alternatives:** (A) Container directives. (B) Paired comment markers that carry
   identity only, with attributes held in `knowledge.regions`.
-- **Decision:** (B). Markers are `<!-- somnus:region:begin <id> -->` â€¦
+- **Decision:** (B). Markers are `<!-- somnus:region:begin <id> -->` …
   `<!-- somnus:region:end <id> -->`, or the host's comment prefix. Pairing is
   stack-based: nesting is allowed; crossing, unclosed, and duplicate markers are
   errors. Markers in code fences, indented code, or the envelope are inert.
@@ -97,7 +97,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
   `somnus migrate` converts directives to marker pairs and keeps their attributes
   under `extensions.somnus-migration`.
 
-## D3 â€” URN-wrapped UUIDv7 identity; legacy UUIDs kept
+## D3 — URN-wrapped UUIDv7 identity; legacy UUIDs kept
 
 - **Status:** ACCEPTED (amends draft 3)
 - **Context:** UUIDv7 was already the draft's choice. Two problems remained.
@@ -111,7 +111,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 - **Consequences:** Fixtures 9 and 10 hold. Validators check URN shape, not
   timestamp/creation coherence. A slug never resolves identity.
 
-## D4 â€” One global SQLite registry, zero JSON
+## D4 — One global SQLite registry, zero JSON
 
 - **Status:** ACCEPTED (operator replacement of draft 4)
 - **Context:** The draft recommended a two-tier model with external
@@ -131,7 +131,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
   it: the JSON Schema export (`somnus schema --json-schema`) and json-pointer
   selectors into JSON hosts.
 
-## D5 â€” Zero tolerance for unknown fields
+## D5 — Zero tolerance for unknown fields
 
 - **Status:** ACCEPTED (draft 5 as recommended)
 - **Decision:** Every standardized object is closed. Unknown fields at any depth
@@ -142,7 +142,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
   under `extensions.<owner>`, which tools preserve losslessly but never feed into
   trusted registry tables (fixture 11).
 
-## D6 â€” Rich headers populated by tools
+## D6 — Rich headers populated by tools
 
 - **Context:** Headers carry classification, authority, access, and ingestion.
   Hand-writing them invites invented values.
@@ -154,7 +154,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 - **Consequences:** A configured default standing of `accepted` is refused, because
   it would fabricate acceptance.
 
-## D7 â€” Restricted YAML subset and canonical serializer
+## D7 — Restricted YAML subset and canonical serializer
 
 - **Decision:** Headers use a strict YAML subset, parsed by a stdlib-only parser.
   Strings are double-quoted; anchors, aliases, tags, nulls, duplicate keys, and
@@ -164,7 +164,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 - **Consequences:** `"NO"` stays a string (fixture 5), duplicate nested keys fail
   (fixture 4), and `payload_digest` is stable across tools.
 
-## D8 â€” Carrier matrix with host-preserving placement
+## D8 — Carrier matrix with host-preserving placement
 
 - **Decision:**
   - Markdown uses frontmatter or a hidden HTML comment envelope.
@@ -175,9 +175,9 @@ consequences. SPEC section numbers are cited where the decision is enforced.
   - Everything else uses a `<file>.somnus.yaml` sidecar with one primary binding.
   - Every write re-extracts the result and refuses (`E_HOST`) unless the bytes
     outside the envelope are unchanged.
-- **Consequences:** Fixtures 1â€“3 hold. A leading BOM is accepted and never emitted.
+- **Consequences:** Fixtures 1–3 hold. A leading BOM is accepted and never emitted.
 
-## D9 â€” Scoped authority, separate from role
+## D9 — Scoped authority, separate from role
 
 - **Decision:** `authority.standing` (`unasserted`, `candidate`, `accepted`,
   `retired`, `rejected`) is scoped by `{target_ref, aspects}`, independent of
@@ -188,7 +188,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 - **Consequences:** `normative` describes intent and never grants acceptance.
   Fixture 15 holds. New artifacts default to `candidate` with a self-scope.
 
-## D10 â€” Three separate clocks; no invented dates
+## D10 — Three separate clocks; no invented dates
 
 - **Decision:** Authorship time lives in `somnus.time`. Applicability lives in
   `valid_time` (`bounded`, `open`, `timeless`, `unknown`). Observation lives in
@@ -197,7 +197,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 - **Consequences:** A missing date stays missing. Disappearance during a scan
   marks `present = 0`; it is never a deletion or tombstone (fixture 20).
 
-## D11 â€” Qualified relations and typed claims
+## D11 — Qualified relations and typed claims
 
 - **Decision:** Relations are records with an `assessment` and a `valid_time`,
   replacing v0.1's bare reference buckets. The predicate table defines inverse
@@ -207,15 +207,15 @@ consequences. SPEC section numbers are cited where the decision is enforced.
   verbatim, so a hypothesis in an accepted artifact remains a hypothesis
   (fixture 17). Entity labels never merge identities (fixture 16).
 
-## D12 â€” Tool-enforced lifecycle state machine
+## D12 — Tool-enforced lifecycle state machine
 
-- **Decision:** `lifecycle.status` follows the transition table in SPEC Â§7.1.
+- **Decision:** `lifecycle.status` follows the transition table in SPEC §7.1.
   Abandonment and reactivation require a reason. `superseded` requires
   replacement references. Reactivation resets `accepted` to `candidate`. Every
   transition creates a new revision, applied with `somnus status` rather than by
   hand.
 
-## D13 â€” Exact release resolution and versioned profiles
+## D13 — Exact release resolution and versioned profiles
 
 - **Decision:** A 2.0.0 validator accepts only `somnus://metadata/core/2.0.0`.
   Profiles are versioned URIs (`specification/1.0.0`, `benchmark/1.0.0`) declared
@@ -224,7 +224,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
   documents migrate under the
   `somnus://metadata/extension/migration-v0.1/1.0.0` extension.
 
-## D14 â€” Compiler-grade diagnostics
+## D14 — Compiler-grade diagnostics
 
 - **Decision:** Diagnostics print as `path:line:col: severity CODE field: message`.
   `--tsv` gives the same information tab-separated. Codes are stable (`E_*`
@@ -233,7 +233,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 - **Consequences:** Output is greppable and cheap for agents to consume, with no
   JSON envelope.
 
-## D15 â€” Dead-code isolation in `archive/`
+## D15 — Dead-code isolation in `archive/`
 
 - **Decision:** The v0.1 specification, schemas, examples, tools, and the v2
   proposal live under `archive/` behind a non-truth warning
@@ -247,7 +247,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 
 | Decision | Status | Ratified by |
 | --- | --- | --- |
-| D1â€“D15 | ACCEPTED | Operator approval of PLAN.md implementation plan (2026-10-11) |
+| D1–D15 | ACCEPTED | Operator approval of PLAN.md implementation plan (2026-10-11) |
 
 Changing a decision requires a new revision of this document (`somnus bump`) and a
-matching SPEC release under Â§23.
+matching SPEC release under §23.

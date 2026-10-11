@@ -1,4 +1,4 @@
-"""In-body region markers: lexical scanning, pairing, and registry sync (SPEC Â§13)."""
+"""In-body region markers: lexical scanning, pairing, and registry sync (SPEC §13)."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Restricted YAML 1.2.2 subset: strict parser and canonical serializer (SPEC Â§16).
+"""Restricted YAML 1.2.2 subset: strict parser and canonical serializer (SPEC §16).
 
 The parser accepts block mappings and sequences with space indentation,
 single-line flow collections, quoted scalars, integers, finite decimals,

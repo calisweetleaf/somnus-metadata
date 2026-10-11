@@ -1,4 +1,4 @@
-# ARCHIVE â€” HISTORICAL AND DEVOLVED ASSETS
+# ARCHIVE — HISTORICAL AND DEVOLVED ASSETS
 
 > [!WARNING]
 > The contents of this directory are preserved strictly for historical lineage.
@@ -10,7 +10,7 @@
 | Path | What it was | Superseded by |
 | --- | --- | --- |
 | `v0.1/SOMNUS-METADATA-SPEC-v0.1.md` | v0.1 specification (flat roots, `:::submatter` directives) | `SPEC.md` |
-| `v0.1/GLOSSARY.md` | v0.1 vocabulary | `SPEC.md` Â§2, `src/somnus/model/vocab.py` |
+| `v0.1/GLOSSARY.md` | v0.1 vocabulary | `SPEC.md` §2, `src/somnus/model/vocab.py` |
 | `v0.1/schemas/` | v0.1 JSON Schemas | `somnus schema --json-schema` |
 | `v0.1/examples/` | v0.1 example documents | `somnus new`; still used as `somnus migrate` inputs |
 | `v0.1/tools/` | v0.1 validator and docs audit | `somnus check` |

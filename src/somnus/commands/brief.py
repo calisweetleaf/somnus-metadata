@@ -17,7 +17,7 @@ Normative contract: `SPEC.md`. Every managed file carries exactly one `somnus:` 
 - Never edit `id`. Any change to the header or body that should be indexed is a new `revision` (`somnus bump`).
 - Lifecycle changes go through `somnus status`, never by editing `lifecycle.status` directly.
 - Unknown fields are errors. Put tool-specific data under `extensions.<owner>`.
-- Region markers (`<!-- somnus:region:begin r-id -->` â€¦ `end`) carry identity only; register them with
+- Region markers (`<!-- somnus:region:begin r-id -->` … `end`) carry identity only; register them with
   `somnus regions PATH --sync --write`.
 - `normative` role is intent, not acceptance. Only `authority.standing: accepted` with an acceptance
   record is authoritative.
@@ -28,10 +28,10 @@ Normative contract: `SPEC.md`. Every managed file carries exactly one `somnus:` 
 | --- | --- |
 | New document | `somnus new TYPE "Title" [--dir DIR]` |
 | Adopt an existing file | `somnus stamp PATH` (diff) then `--write` |
-| Validate | `somnus check PATHâ€¦ [--level core\\|semantic\\|canon]` |
-| Change status | `somnus status PATH NEW_STATUS [--reason â€¦] [--replacement URN]` |
-| New revision | `somnus bump PATH [--reason â€¦]` |
-| Derive a copy | `somnus fork PATH [--title â€¦]` |
+| Validate | `somnus check PATH… [--level core\\|semantic\\|canon]` |
+| Change status | `somnus status PATH NEW_STATUS [--reason …] [--replacement URN]` |
+| New revision | `somnus bump PATH [--reason …]` |
+| Derive a copy | `somnus fork PATH [--title …]` |
 | Upgrade v0.1 | `somnus migrate PATH` then `--write` |
 | Registry | `somnus index`, `somnus ls`, `somnus q --docs\\|--conflicts\\|--history`, `somnus stale` |
 | Field docs | `somnus schema classification.type` |
