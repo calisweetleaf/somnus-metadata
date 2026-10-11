@@ -197,7 +197,7 @@ class Store:
     # ------------------------------------------------------------- roots
     def add_root(self, path: Path) -> int:
         """Register a root directory (idempotent); return its id."""
-        resolved = str(Path(path).resolve())
+        resolved = Path(path).resolve().as_posix()
         row = self.conn.execute("SELECT id FROM roots WHERE path = ?", (resolved,)).fetchone()
         if row:
             return row[0]
@@ -371,7 +371,7 @@ class Store:
         header = D.canonical_yaml(doc.data)
         pd, bd = doc.payload_digest(), doc.body_digest()
         now = now_iso()
-        path_text = _join(str(root), rel_path)
+        path_text = _join(root.as_posix(), rel_path)
         cls = somnus["classification"]
         fields = (somnus["title"], cls["type"], cls["category"], cls["role"], cls["scope"],
                   somnus["lifecycle"]["status"], somnus["authority"]["standing"], somnus["access"]["visibility"])
@@ -485,7 +485,7 @@ class Store:
         for loc_id, rel_path, aid, rev in rows:
             if rel_path in seen:
                 continue
-            path_text = _join(str(root), rel_path)
+            path_text = _join(root.as_posix(), rel_path)
             self.conn.execute("UPDATE locations SET present = 0 WHERE id = ?", (loc_id,))
             self.log("missing", aid, rev, path_text, "not observed during scan")
             report.missing += 1
