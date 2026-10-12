@@ -3,6 +3,7 @@
 ## Goal Description
 
 The current workspace contains a split baseline:
+
 1. `DECISIONS.md` adopted an early v0.1 research draft proposing loose JSON-based provenance logs (`provenance/*.json`), a hybrid frontmatter root, and visible `:::submatter` container directives.
 2. `docs/SOMNUS_FRONTMATTER_SPEC_v2.md` designed a significantly more advanced semantic system with a unified `somnus:` namespace, hidden comment region markers, revision/representation separation, and rich knowledge graphs, but was left unintegrated.
 3. The operator explicitly rejected JSON event ledgers and fragmented documentation ("THIS SHOULD BE A GLOBAL .DB WITH A COMPLEX DETAILED YET HUMAN READABLE SCHEMA... JSON IS FORBIDDEN, IT IS SLOW ON INFERENCE").
@@ -10,6 +11,7 @@ The current workspace contains a split baseline:
 
 **The Solution:**
 Unify the system into a single authoritative standard and a production-grade, globally installable tool (`somnus`):
+
 - **Normative Specification (`SPEC.md`)**: A consolidated specification synthesizing v2's semantic model and v0.1's concrete profiles under schema `somnus://metadata/core/2.0.0`.
 - **Ratified Decisions (`DECISIONS.md`)**: Formally ratifying decisions D1–D15, overriding the prior draft.
 - **Archive Legacy Code (`archive/`)**: Move superseded v0.1 files and intermediate proposals into `archive/` with strict warnings against treating dead code as canon.
@@ -24,6 +26,7 @@ Unify the system into a single authoritative standard and a production-grade, gl
 
 > [!IMPORTANT]
 > **Key Architecture Commitments (Ratified Decisions D1–D15):**
+>
 > 1. **D1 Unified Namespace**: Every standardized field resides exclusively under `somnus:`. No flat or hybrid root leakage.
 > 2. **D2 In-Body Regions**: Paired comment markers `<!-- somnus:region:begin <id> -->` and `<!-- somnus:region:end <id> -->`, tracked in the header registry. `:::submatter` directives are deprecated and supported solely via migration.
 > 3. **D3 Identity**: `urn:somnus:artifact:<uuidv7>` for new documents; legacy UUIDv4 identities are preserved without reminting. UUID timestamp is never equated to authored creation date.
@@ -39,6 +42,7 @@ Unify the system into a single authoritative standard and a production-grade, gl
 ## Open Questions
 
 All major architectural questions were resolved during the initial clarification round:
+
 - **Language & Runtime**: Pure Python (stdlib-only), Python ≥ 3.11, globally installed with `uv tool install`.
 - **Header Structure**: Full v2 core schema with automated default population.
 - **Tool Scope**: Complete command suite including interactive TUI and multi-format carriers.
@@ -126,7 +130,9 @@ somnus-metadata/
 ### Component 1: Governance, Specification & Clean Layout
 
 #### [NEW] `SPEC.md`
+
 The single normative specification for the Somnus Metadata System.
+
 - Standardizes schema URI `somnus://metadata/core/2.0.0`.
 - Includes full core field definitions (identity, classification, lifecycle, authority, time, knowledge, access, ingestion).
 - Includes concrete profile schemas for `specification` and `benchmark` under `somnus.profile_data`.
@@ -136,9 +142,11 @@ The single normative specification for the Somnus Metadata System.
 - Standardizes the 21 conformance fixture criteria.
 
 #### [MODIFY] `DECISIONS.md`
+
 Overwrites the prior unratified draft with the ratified decisions D1–D15. Each record documents context, alternatives, decision rationale, and operational consequences.
 
 #### [NEW] `archive/README.md`
+
 ```markdown
 # ARCHIVE — HISTORICAL AND DEVOLVED ASSETS
 
@@ -149,6 +157,7 @@ Overwrites the prior unratified draft with the ratified decisions D1–D15. Each
 ```
 
 #### [MOVE] Relocate Devolved Assets to `archive/`
+
 - Move `SOMNUS-METADATA-SPEC-v0.1.md` → `archive/v0.1/SOMNUS-METADATA-SPEC-v0.1.md`
 - Move `GLOSSARY.md` → `archive/v0.1/GLOSSARY.md`
 - Move `schemas/` → `archive/v0.1/schemas/`
@@ -158,6 +167,7 @@ Overwrites the prior unratified draft with the ratified decisions D1–D15. Each
 - Move `docs/differences.md` → `archive/v2-proposal/differences.md`
 
 #### [MODIFY] `AGENTS.md` and `filetree.md`
+
 Update root routers to direct human and agent contributors to `SPEC.md`, `DECISIONS.md`, and the `somnus` CLI commands.
 
 ---
@@ -165,6 +175,7 @@ Update root routers to direct human and agent contributors to `SPEC.md`, `DECISI
 ### Component 2: Packaging & CLI Framework
 
 #### [NEW] `pyproject.toml`
+
 ```toml
 [build-system]
 requires = ["setuptools>=68.0.0"]
@@ -183,7 +194,9 @@ somnus = "somnus.cli:main"
 ```
 
 #### [NEW] `src/somnus/output.py`
+
 Standardizes diagnostic reporting and process exit codes:
+
 ```python
 from dataclasses import dataclass
 from typing import Literal
@@ -206,6 +219,7 @@ def render(diagnostics: list[Diagnostic], fmt: Literal["text", "tsv"] = "text") 
 ```
 
 #### [NEW] `src/somnus/cli.py`
+
 Implements fast, lazy argument parsing and command dispatch. Global flags include `--version`, `--actor`, `--tsv`, `--no-color`, and `--debug`.
 
 ---
@@ -213,7 +227,9 @@ Implements fast, lazy argument parsing and command dispatch. Global flags includ
 ### Component 3: Core Foundation Modules
 
 #### [NEW] `src/somnus/yamlsub.py`
+
 A zero-dependency parser and canonical serializer for the v2 §13 YAML subset:
+
 - **Parser capabilities**: Supports 2-space indentation, mappings, sequence blocks (`- item`), flow sequences (`["a", "b"]`), double-quoted strings with standard escapes, single-quoted strings, unquoted integers and finite decimals, booleans (`true`/`false`), block scalar literals (`|`), folded scalars (`>`), and `#` comments.
 - **Strict safety rejections**: Rejects tabs, `null`/`~`/omitted scalar values, anchors (`&`), aliases (`*`), merge keys (`<<`), custom tags (`!`), directives (`%`), intra-payload delimiters (`---`), duplicate mapping keys at any depth, and non-string mapping keys.
 - **Canonical Serializer**:
@@ -223,15 +239,20 @@ A zero-dependency parser and canonical serializer for the v2 §13 YAML subset:
   - Guarantees byte-stable round-trips: `dumps(loads(s)) == s`.
 
 #### [NEW] `src/somnus/ids.py`
+
 Identifier minting and parsing:
+
 - `new_artifact_urn() -> str`: Mints `urn:somnus:artifact:<uuidv7>` with millisecond precision and random entropy compliant with RFC 9562.
 - `parse_urn(urn: str) -> tuple[str, str]`: Extracts namespace and entity key.
 - `slugify(title: str) -> str`: Normalizes titles into filesystem-safe kebab-case identifiers.
 
 #### [NEW] `src/somnus/config.py`
+
 Hierarchical configuration reader using standard library `tomllib`:
+
 - Precedence: Explicit CLI flag > Nearest parent `.somnus.toml` > Global `~/.somnus/config.toml` > Built-in defaults.
 - Default configuration provides:
+
   ```toml
   actor = "operator"
   [defaults]
@@ -254,7 +275,9 @@ Hierarchical configuration reader using standard library `tomllib`:
 ### Component 4: Document Modeling, Validation & Regions
 
 #### [NEW] `src/somnus/model/vocab.py`
+
 Comprehensive definition of all standard enums, frozen as immutable tuples:
+
 - `CATEGORIES`: `("research", "engineering", "operations", "governance", "context", "archive")`
 - `TYPES`: `("whitepaper", "specification", "architecture-record", "report", "task", "plan", "notepad", "benchmark", "test-result", "decision-record", "runbook", "index", "state", "memory", "source-code", "configuration", "dataset", "equation-set", "conversation", "asset")`
 - `ROLES`: `("normative", "informative", "working", "exploratory", "historical")`
@@ -268,13 +291,17 @@ Comprehensive definition of all standard enums, frozen as immutable tuples:
 - `REGION_KINDS`: `("section", "definition", "invariant", "decision", "hypothesis", "evidence", "equation", "table", "code", "example", "archive")`
 
 #### [NEW] `src/somnus/model/lifecycle.py`
+
 Implements the formal transition state machine defined in SPEC §6.1:
+
 - Validates transitions (e.g., `draft` → `proposed`/`experimental`/`rejected`; `active` → `superseded`/`deprecated`/`historical`).
 - Enforces requirement of `reason` on abandonment or reactivation.
 - Enforces requirement of `replacement_refs` when transitioning to `superseded`.
 
 #### [NEW] `src/somnus/model/validate.py`
+
 Executes multi-stage document validation:
+
 1. **Stage 1 (Syntax & Parsing)**: Validates restricted YAML syntax, checks duplicate keys, rejects forbidden scalars.
 2. **Stage 2 (Structural & Schema)**: Validates required core properties, exact types, controlled vocabulary values, RFC 3339 timestamp offsets, ISO dates, and local identifier regexes. Enforces closed property set (unknown fields outside `extensions` fail with `E_SCHEMA`).
 3. **Stage 3 (Semantic & Consistency)**:
@@ -285,18 +312,23 @@ Executes multi-stage document validation:
    - Matches header-registered regions with in-body markers.
 
 #### [NEW] `src/somnus/regions.py`
+
 - Scans document bodies for paired region markers:
+
   ```markdown
   <!-- somnus:region:begin r-example -->
   ...
   <!-- somnus:region:end r-example -->
   ```
+
 - Fenced-code awareness: Ignores marker-like text occurring inside Markdown code fences (```` ``` ```` or `~~~` of any length) and indented code blocks.
 - Verifies proper nesting and detects crossing, duplicate, or unclosed markers (`E_REGION`).
 - Provides `sync_registry()` to reconcile body markers with `somnus.knowledge.regions` in the frontmatter.
 
 #### [NEW] `src/somnus/document.py`
+
 Encapsulates loading and atomic saving:
+
 - Detects and preserves line-ending style (`\n` vs `\r\n`).
 - Strips and suppresses UTF-8 BOMs.
 - `save(doc, payload)` performs atomic write via temporary file replacement (`os.replace`).
@@ -307,13 +339,15 @@ Encapsulates loading and atomic saving:
 ### Component 5: Multi-Format Carrier Bindings
 
 #### [NEW] `src/somnus/carriers/`
+
 Implements carrier extraction and injection across document formats per SPEC §14:
+
 - `markdown.py`: Handles standard Markdown frontmatter (`---` ... `---`) and hidden HTML comment envelopes (`<!-- somnus:metadata:v2` ... `somnus:end -->`).
 - `linecomment.py`: Handles comment-prefixed formats preserving required preambles:
-  - Hash (`# `): Python (preserving shebang and encoding cookies on lines 1–2), Shell, PowerShell, TOML, YAML, R.
-  - Percent (`% `): LaTeX (preserving `% !TeX` magic comments).
-  - Slash (`// `): JavaScript, TypeScript, Rust, C, C++, Go.
-  - SQL (`-- `): SQL scripts.
+  - Hash (`#`): Python (preserving shebang and encoding cookies on lines 1–2), Shell, PowerShell, TOML, YAML, R.
+  - Percent (`%`): LaTeX (preserving `% !TeX` magic comments).
+  - Slash (`//`): JavaScript, TypeScript, Rust, C, C++, Go.
+  - SQL (`--`): SQL scripts.
 - `blockcomment.py`: Handles CSS (`/* ... */`) and XML/SVG/HTML (`<!-- ... -->`) with terminator escaping.
 - `sidecar.py`: Handles binary, JSON, and unsupported formats by maintaining `<filename>.somnus.yaml` sidecar files containing an explicit primary binding.
 
@@ -322,7 +356,9 @@ Implements carrier extraction and injection across document formats per SPEC §1
 ### Component 6: Relational Database & Persistence
 
 #### [NEW] `src/somnus/db/schema.sql`
+
 Defines the SQLite database schema at `$SOMNUS_HOME/somnus.db`:
+
 ```sql
 PRAGMA journal_mode = WAL;
 PRAGMA foreign_keys = ON;
@@ -472,7 +508,9 @@ ORDER BY event_id DESC;
 ```
 
 #### [NEW] `src/somnus/db/store.py`
+
 Provides thread-safe persistence access:
+
 - Read-only queries enforced via SQLite `file:...?mode=ro` URI connections.
 - Incremental indexing skipping unchanged `(mtime, size)` tuples.
 - Detection of duplicate IDs across files, flagging `duplicate-id` conflicts.
@@ -485,6 +523,7 @@ Provides thread-safe persistence access:
 ### Component 7: CLI Commands
 
 Each subcommand is encapsulated in `src/somnus/commands/<name>.py`:
+
 - `init.py`: Scaffolds `~/.somnus/config.toml` template, initializes database tables, and registers initial workspace roots.
 - `new.py`: Generates a conformant artifact with a newly minted UUIDv7, default values, initial revision 1, creation timestamp, and slugified filename. Checks for title collisions before creating.
 - `stamp.py`: Analyzes unmanaged files, infers title and classification (via `infer.py`), constructs a valid header, and outputs a unified diff. Injects header only when `--write` is specified.
@@ -506,20 +545,26 @@ Each subcommand is encapsulated in `src/somnus/commands/<name>.py`:
 ### Component 8: Zero-Dependency Interactive Terminal UI (TUI)
 
 #### [NEW] `src/somnus/tui/term.py`
+
 Cross-platform terminal abstraction built without curses:
+
 - **Windows**: Invokes `kernel32.dll` via `ctypes` to enable `ENABLE_VIRTUAL_TERMINAL_PROCESSING` and `ENABLE_PROCESSED_INPUT`. Reads raw keyboard inputs via `msvcrt.getwch()`.
 - **POSIX**: Configures raw mode via `termios` and `tty`.
 - Implements double-buffered screen rendering with ANSI escape codes and alternate screen buffers (`\x1b[?1049h`).
 
 #### [NEW] `src/somnus/tui/widgets.py`
+
 Reusable terminal components:
+
 - Scrollable list selector with arrow navigation and search filtering.
 - Radio list picker for controlled vocabulary enums.
 - Text input box with cursor positioning.
 - Split-screen layout container.
 
 #### [NEW] `src/somnus/tui/app.py` & `src/somnus/commands/edit.py`
+
 Interactive interface:
+
 - **Doc Browser Mode** (invoked via `somnus edit` without arguments): Filterable live view of all indexed documents in the database.
 - **Header Editor Mode** (invoked via `somnus edit <file>`): Interactive form to edit metadata fields with real-time validation feedback. Pressing `e` opens the markdown body in `$EDITOR` or notepad; pressing `s` formats, canonicalizes, auto-bumps revision, and writes changes atomically.
 
@@ -528,7 +573,9 @@ Interactive interface:
 ### Component 9: Verification Suite
 
 #### [NEW] `tests/`
+
 Comprehensive automated tests running under `python -m unittest`:
+
 - `test_yamlsub.py`: Tests restricted YAML parsing, error handling on forbidden syntax, and serialization round-tripping across 60+ cases.
 - `test_ids.py`: Verifies RFC 9562 UUIDv7 structure, version and variant nibbles, and URN parsing.
 - `test_config.py`: Verifies precedence resolution across CLI flags, local `.somnus.toml`, and global config.
@@ -546,43 +593,55 @@ Comprehensive automated tests running under `python -m unittest`:
 ## Verification Plan
 
 ### Automated Tests
+
 Run all unit and integration tests from the workspace root:
+
 ```powershell
 python -m unittest discover -s tests -v
 ```
 
 Verify zero runtime external dependencies:
+
 ```powershell
 python -c "import tomllib, sqlite3, argparse, dataclasses, typing, pathlib, difflib, ctypes; print('Stdlib verification passed')"
 ```
 
 Verify global CLI installation via `uv`:
+
 ```powershell
 uv tool install --editable .
 somnus --version
 ```
 
 Execute full repo validation:
+
 ```powershell
 somnus check --all --level semantic
 ```
 
 ### Manual Verification
+
 1. **Document Creation**:
+
    ```powershell
    somnus new specification "Memory Engine Architecture"
    ```
+
    Verify file generation, valid UUIDv7, revision 1, default fields, and proper registration in `somnus.db`.
 2. **Document Stamping**:
    Create a raw markdown file without frontmatter, run `somnus stamp test.md` to review the dry-run diff, then run `somnus stamp test.md --write` and verify frontmatter insertion with identical body bytes.
 3. **Database Inspection**:
+
    ```powershell
    somnus q --docs
    somnus q --history
    ```
+
    Verify that documents and recorded events are legibly formatted in tabular output.
 4. **Interactive TUI**:
+
    ```powershell
    somnus edit
    ```
+
    Launch the TUI in Windows Terminal, navigate through indexed documents, open a document form, test enum field pickers, and exit cleanly.
