@@ -6,7 +6,7 @@
 .
 ├── AGENTS.md                                      # bootstrap (router)
 ├── SPEC.md                                        # normative standard, core 2.0.0
-├── DECISIONS.md                                   # ratified decisions D1–D15
+├── DECISIONS.md                                   # ratified decisions D1–D17
 ├── PLAN.md                                        # implementation plan
 ├── README.md                                      # install and quick start
 ├── filetree.md                                    # this map
@@ -21,10 +21,11 @@
 │   ├── regions.py                                 # region-marker scanning and pairing
 │   ├── infer.py                                   # header inference for stamp/new
 │   ├── output.py                                  # diagnostics, aligned/TSV tables
+│   ├── mcp.py                                     # `somnus mcp` stdio server; tools generated from cli.py
 │   ├── model/                                     # schema, vocab, lifecycle, validate, JSON Schema export
 │   ├── carriers/                                  # markdown, linecomment, blockcomment, sidecar
 │   ├── db/                                        # schema.sql + store.py (global SQLite registry)
-│   ├── commands/                                  # one module per CLI command
+│   ├── commands/                                  # one module per CLI command (`set` -> set_fields.py)
 │   └── tui/                                       # stdlib terminal UI (`somnus edit`)
 ├── tests/                                         # unittest suites incl. test_conformance.py (SPEC §21)
 └── archive/                                       # historical, NOT normative (see archive/README.md)

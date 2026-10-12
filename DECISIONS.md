@@ -2,8 +2,8 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a12ac7-1fd7-7079-a78f-7426391f187d"
-  revision: 1
-  title: "Somnus Metadata Ratified Decisions D1-D15"
+  revision: 2
+  title: "Somnus Metadata Ratified Decisions D1-D17"
   summary: "Ratified architecture decisions governing SPEC.md and the somnus toolkit."
   classification:
     category: "governance"
@@ -20,6 +20,7 @@ somnus:
         aspects: ["content", "governance"]
   time:
     created_at: "2026-10-11T11:44:15+00:00"
+    updated_at: "2026-10-12T04:22:23+00:00"
   names:
     slug: "somnus-metadata-decisions"
   knowledge:
@@ -33,10 +34,11 @@ somnus:
     body_role: "narrative"
 ---
 
-# Somnus Metadata — Ratified Decisions D1–D15
+# Somnus Metadata — Ratified Decisions D1–D17
 
 These decisions govern [SPEC.md](SPEC.md) and the `somnus` toolkit in `src/somnus/`.
-The operator ratified them by approving the implementation plan ([PLAN.md](PLAN.md)).
+The operator ratified D1–D15 by approving the implementation plan ([PLAN.md](PLAN.md)),
+and D16–D17 during the agent-usability review that followed the 2.0.0 build.
 They supersede the five PROPOSED recommendations in the previous draft of this file.
 That draft is preserved in git history (commit `5f1df5d`).
 
@@ -60,6 +62,8 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 | D13 | Exact release resolution and versioned profiles | new | §6, §23 |
 | D14 | Compiler-grade diagnostics | new | §19.2 |
 | D15 | Dead-code isolation in `archive/` | new | §1 |
+| D16 | Non-interactive header edits with `somnus set` | new | §20 |
+| D17 | MCP server as a thin CLI adapter | new | §20 |
 
 ---
 
@@ -241,6 +245,48 @@ consequences. SPEC section numbers are cited where the decision is enforced.
   `archive/`, and the default index configuration excludes `archive/**`.
   Archived v0.1 examples remain useful as migration test inputs.
 
+## D16 — Non-interactive header edits with `somnus set`
+
+- **Status:** ACCEPTED
+- **Context:** The `somnus edit` form changes ten header fields with vocabulary
+  checks, a revision bump, a host-preserving write, and a registry event. Agents
+  cannot drive a full-screen terminal UI, so they edited the envelope by hand.
+  Hand edits skip the revision bump and the event, and comment envelopes and
+  sidecars are easy to break.
+- **Alternatives:** (A) Hand edits followed by `somnus bump`. (B) A general setter
+  for any field path. (C) A command limited to the form's fields that shares the
+  form's code.
+- **Decision:** (C). `somnus set PATH FIELD=VALUE…` accepts exactly the fields in
+  `FIELDS` (`src/somnus/tui/form.py`) and applies them through the same form
+  model. All assignments land in one new revision, and a call that changes no
+  value writes nothing. Identity, revision, lifecycle, authority, and time stay
+  with their dedicated commands.
+- **Consequences:** The TUI and the CLI cannot disagree about which fields are
+  editable or how values are parsed. Widening the settable set means changing
+  `FIELDS`, which changes both surfaces together.
+
+## D17 — MCP server as a thin CLI adapter
+
+- **Status:** ACCEPTED (applies D4)
+- **Context:** Agents with a shell already use the CLI. Clients without a shell, or
+  that prefer typed tools, need a Model Context Protocol server. The MCP stdio
+  transport is JSON-RPC, while D4 keeps JSON out of the registry and out of
+  toolkit output.
+- **Alternatives:** (A) No server. (B) A server with its own logic and JSON
+  results. (C) A stdlib server whose tools are generated from the CLI's argument
+  parser and whose calls run the CLI.
+- **Decision:** (C). `somnus mcp` serves newline-delimited JSON-RPC 2.0 on stdio.
+  Each tool is one CLI command, except the interactive `edit`. Its input schema
+  comes from that command's argparse definition, and each call runs the command
+  in a child process. The result is the command's text or TSV output, and a
+  non-zero exit sets `isError`. The initialize response carries the `somnus brief`
+  text as server instructions, and `--actor` given to `somnus mcp` is passed to
+  every call.
+- **Consequences:** JSON appears only as MCP framing, which D4 already allows
+  where a format requires it. The registry and every tool result stay JSON-free.
+  A new CLI command or flag becomes an MCP tool or parameter with no server
+  change, and the server keeps no state between calls.
+
 ---
 
 ## Ratification tracker
@@ -248,6 +294,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 | Decision | Status | Ratified by |
 | --- | --- | --- |
 | D1–D15 | ACCEPTED | Operator approval of PLAN.md implementation plan (2026-10-11) |
+| D16–D17 | ACCEPTED | Operator selection during the agent-usability review (2026-10-11) |
 
 Changing a decision requires a new revision of this document (`somnus bump`) and a
 matching SPEC release under §23.

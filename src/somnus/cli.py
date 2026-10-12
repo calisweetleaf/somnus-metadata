@@ -26,8 +26,8 @@ def _globals(parser: argparse.ArgumentParser, suppress: bool) -> None:
                         help="show tracebacks for internal errors")
 
 
-def build_parser() -> argparse.ArgumentParser:
-    """Construct the full argument parser."""
+def build_parser(commands: Optional[dict[str, argparse.ArgumentParser]] = None) -> argparse.ArgumentParser:
+    """Construct the full argument parser; ``commands`` (when given) collects each subcommand's parser."""
     common = argparse.ArgumentParser(add_help=False)
     _globals(common, suppress=True)
     parser = argparse.ArgumentParser(prog="somnus", description="Somnus metadata toolkit (core 2.0.0).")
@@ -36,7 +36,10 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", metavar="<command>")
 
     def cmd(name: str, help_text: str) -> argparse.ArgumentParser:
-        return sub.add_parser(name, help=help_text, description=help_text, parents=[common])
+        sub_parser = sub.add_parser(name, help=help_text, description=help_text, parents=[common])
+        if commands is not None:
+            commands[name] = sub_parser
+        return sub_parser
 
     p = cmd("init", "create $SOMNUS_HOME, config.toml, and the registry; register roots")
     p.add_argument("--root", action="append", default=[], metavar="DIR", help="root directory to register")
@@ -90,6 +93,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("path", metavar="PATH")
     p.add_argument("--reason")
 
+    p = cmd("set", "edit the header fields the edit form exposes (new revision)")
+    p.add_argument("path", metavar="PATH")
+    p.add_argument("assignments", nargs="+", metavar="FIELD=VALUE",
+                   help="title, summary, purpose, classification.category|type|role|scope|tags, "
+                        "access.visibility, ingestion.disposition; tags are comma-separated; "
+                        "an empty summary or purpose removes it")
+    p.add_argument("--reason")
+
     p = cmd("fork", "new artifact derived from an existing revision")
     p.add_argument("path", metavar="PATH")
     p.add_argument("--out")
@@ -116,10 +127,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = cmd("edit", "terminal UI: document browser, or header editor")
     p.add_argument("path", nargs="?", metavar="PATH")
+
+    cmd("mcp", "serve the non-interactive commands as MCP tools over stdio")
     return parser
 
 
-_MODULES = {"q": "query"}
+_MODULES = {"q": "query", "set": "set_fields"}
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:

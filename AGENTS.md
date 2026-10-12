@@ -9,7 +9,7 @@ one `somnus:` header in frontmatter, a comment envelope, or a `<file>.somnus.yam
 ## Authority map
 
 - `SPEC.md` = normative. If code and SPEC disagree, SPEC wins and the code is a bug.
-- `DECISIONS.md` = ratified decisions D1–D15 explaining why SPEC is shaped as it is.
+- `DECISIONS.md` = ratified decisions D1–D17 explaining why SPEC is shaped as it is.
 - `tests/test_conformance.py` = executable acceptance criteria (one test per SPEC §21 fixture).
 - `src/somnus/` = runnable truth for validation, carriers, and the registry.
 - `Somnus Markdown Metadata Standard Research.md` = evidence only (read-only; never overwrite).
@@ -21,12 +21,14 @@ one `somnus:` header in frontmatter, a comment envelope, or a `<file>.somnus.yam
 - Read `SPEC.md` §3–§13 for field contracts, §16–§17 for carriers, §18 for the registry.
 - Use `somnus schema FIELD` for per-field documentation; `somnus brief` for the agent cheat sheet.
 - Create documents with `somnus new`, never by copying another header (that duplicates its `id`).
+- Agents without a shell can use `somnus mcp`, a stdio MCP server exposing the same commands as tools.
 
 ## Rules for agents working on Somnus-managed files
 
 - Never hand-invent IDs, dates, actors, licenses, evidence, or acceptance records.
 - Never edit `id`. Indexed changes are new revisions (`somnus bump`).
 - Lifecycle changes go through `somnus status`, not hand edits.
+- Title, summary, purpose, classification, tags, visibility, and disposition change with `somnus set`.
 - Unknown fields are errors; tool-specific data goes under `extensions.<owner>`.
 - `normative` role is intent, not acceptance.
 - Registry output is text/TSV; JSON is forbidden in the registry (D4).

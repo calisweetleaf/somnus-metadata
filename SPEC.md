@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a12a94-8657-715c-9044-852de0e3f08a"
-  revision: 1
+  revision: 2
   title: "Somnus Metadata System: Normative Specification"
   summary: "The single normative contract for Somnus artifact metadata, carriers, regions, validation, and the global registry."
   classification:
@@ -20,6 +20,7 @@ somnus:
         aspects: ["content", "semantic-model", "ingestion"]
   time:
     created_at: "2026-10-11T10:48:59+00:00"
+    updated_at: "2026-10-12T04:22:23+00:00"
     authored_on: "2026-10-11"
   knowledge:
     coverage: "artifact"
@@ -41,7 +42,7 @@ somnus:
 
 **Schema release:** `somnus://metadata/core/2.0.0`
 **Reference implementation:** the `somnus` Python package in `src/somnus/`
-**Decisions:** [DECISIONS.md](DECISIONS.md) (D1–D15)
+**Decisions:** [DECISIONS.md](DECISIONS.md) (D1–D17)
 
 This document is the only normative statement of the Somnus metadata standard.
 It merges the semantic model of the v2 proposal
@@ -828,6 +829,7 @@ operations, or conflicts. `2` means usage, I/O, or environment errors.
 | `ls [--type] [--status] [--standing] [--tag] [--path-contains]` | List present artifacts |
 | `status PATH NEW_STATUS [--reason] [--replacement REF]…` | Validated lifecycle transition (new revision) |
 | `bump PATH [--reason]` | New revision; resolves revision conflicts |
+| `set PATH FIELD=VALUE… [--reason]` | Change the fields the `edit` form exposes (`title`, `summary`, `purpose`, `classification.*`, `access.visibility`, `ingestion.disposition`) in one validated new revision; other fields are refused (D16) |
 | `fork PATH [--out] [--title]` | New UUIDv7, revision 1, `derived_from` the parent revision |
 | `regions PATH [--sync] [--write]` | Audit markers against the registry; register unregistered markers |
 | `migrate PATH… [--write]` | Upgrade v0.1 documents (Section 22) |
@@ -835,6 +837,7 @@ operations, or conflicts. `2` means usage, I/O, or environment errors.
 | `schema [FIELD] [--json-schema] [--out FILE]` | Show field docs or export JSON Schema Draft 2020-12 |
 | `brief` | Print a Markdown agent cheat sheet |
 | `edit [PATH]` | Terminal UI: document browser, or header editor |
+| `mcp` | Serve every command except `edit` as Model Context Protocol tools over stdio; results are the command's text output (D17) |
 
 Configuration precedence: CLI flag > nearest parent `.somnus.toml` >
 `$SOMNUS_HOME/config.toml` > built-in defaults.

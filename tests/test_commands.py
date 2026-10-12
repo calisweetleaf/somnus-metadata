@@ -313,5 +313,68 @@ class TestMigrate(CliCase):
         self.assertEqual(path.read_bytes(), before)
 
 
+class TestSet(CliCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.init()
+        self.path = Path(self.ok("new", "specification", "Set Doc", "--dir", str(self.ws)).strip())
+
+    def events(self) -> list[tuple]:
+        with self.db() as conn:
+            return conn.execute("SELECT action, revision, detail FROM events WHERE action = 'set'").fetchall()
+
+    def test_fields_change_in_one_revision(self) -> None:
+        self.ok("set", str(self.path), "title=Set Doc Renamed", "classification.tags=b, a, b",
+                "somnus.summary=Short summary.", "classification.role=working", "--reason", "tidy")
+        somnus = self.payload(self.path)
+        self.assertEqual(somnus["revision"], 2)
+        self.assertEqual(somnus["title"], "Set Doc Renamed")
+        self.assertEqual(somnus["classification"]["tags"], ["b", "a"])
+        self.assertEqual(somnus["summary"], "Short summary.")
+        self.assertEqual(somnus["classification"]["role"], "working")
+        self.assertIn("updated_at", somnus["time"])
+        self.assertEqual(self.events(), [("set", 2, "set title, classification.tags, summary, "
+                                                    "classification.role: tidy")])
+        self.ok("check", str(self.path), "--level", "semantic")
+
+    def test_value_may_contain_equals_and_empty_optional_removes(self) -> None:
+        self.ok("set", str(self.path), "summary=a=b")
+        self.assertEqual(self.payload(self.path)["summary"], "a=b")
+        self.ok("set", str(self.path), "summary=")
+        somnus = self.payload(self.path)
+        self.assertNotIn("summary", somnus)
+        self.assertEqual(somnus["revision"], 3)
+
+    def test_unchanged_values_write_nothing(self) -> None:
+        before = self.path.read_bytes()
+        code, _, err = self.cli("set", str(self.path), "title=Set Doc")
+        self.assertEqual(code, 0)
+        self.assertIn("no changes", err)
+        self.assertEqual(self.path.read_bytes(), before)
+        self.assertEqual(self.events(), [])
+
+    def test_refusals_leave_file_untouched(self) -> None:
+        before = self.path.read_bytes()
+        for argv, code in ((("id=urn:somnus:artifact:x",), 2), (("lifecycle.status=active",), 2),
+                           (("title",), 2), (("title=A", "title=B"), 2),
+                           (("classification.type=nonsense",), 1), (("title=",), 1)):
+            got, out, _ = self.cli("set", str(self.path), *argv)
+            self.assertEqual(got, code, f"{argv}: {out}")
+        self.assertIn("E_SCHEMA", self.cli("set", str(self.path), "classification.type=nonsense")[1])
+        self.assertEqual(self.path.read_bytes(), before)
+        self.assertEqual(self.events(), [])
+
+    def test_comment_carrier_host_bytes_preserved(self) -> None:
+        src = '#!/usr/bin/env python\n"""Data loader utility."""\nprint(1)\n'
+        tool = self.write("tool.py", src)
+        self.ok("stamp", str(tool), "--write")
+        self.ok("set", str(tool), "title=Loader", "classification.tags=io")
+        text = tool.read_text(encoding="utf-8")
+        self.assertTrue(text.startswith("#!/usr/bin/env python\n"))
+        self.assertTrue(text.endswith('"""Data loader utility."""\nprint(1)\n'))
+        self.assertEqual(self.payload(tool)["title"], "Loader")
+        compile(text, str(tool), "exec")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -30,10 +30,20 @@ somnus stamp notes.py                # dry-run diff; add --write to apply
 somnus index                         # reconcile roots into the registry
 somnus ls
 somnus q --conflicts
+somnus set my-spec.md "classification.tags=memory, design"   # header edit, new revision
 somnus edit                          # terminal UI
 ```
 
 `somnus brief` prints an agent cheat sheet suitable for pasting into a repository's `AGENTS.md`.
+
+## MCP server
+
+`somnus mcp` serves every command except `edit` as Model Context Protocol tools over stdio.
+Each tool returns the command's text output. Register it with any MCP client by command:
+
+```
+somnus mcp                           # optional: somnus --actor NAME mcp
+```
 
 Exit codes: `0` ok, `1` validation errors, refusals, or conflicts, `2` usage or I/O errors.
 

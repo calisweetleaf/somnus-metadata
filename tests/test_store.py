@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from somnus import DB_USER_VERSION
+from somnus import document as D
 from somnus.db import Store, connect_readonly, glob_regex, matches_any, run_query
 from somnus.db.store import intervals_overlap
 
@@ -130,7 +131,7 @@ class TestIndexing(StoreTestCase):
         self.store.scan([self.root])
         res = self.store.resolver()
         facts = res.artifacts[self._aid()]
-        self.assertEqual(facts.current_revision, 1)
+        self.assertEqual(facts.current_revision, D.load(SPEC).payload["revision"])
         self.assertEqual(len(self.store.list_docs()), 1)
         self.assertEqual(self.store.list_docs(type="index"), [])
         title = self.store.list_docs()[0][1]
