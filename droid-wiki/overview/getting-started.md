@@ -43,6 +43,26 @@ somnus ls                                      # list indexed artifacts
 
 To adopt an existing file instead, run `somnus stamp notes.py` to see the proposed header as a diff, then `somnus stamp notes.py --write` to apply it. See [Adopting files](../features/adopting-files.md).
 
+To change the title or tags later without opening the terminal UI, use `somnus set`. Field names are the dotted header paths, and all the assignments go into one new revision:
+
+```
+somnus set my-spec.md "title=My Better Spec" "classification.tags=draft, core" --reason "rename"
+```
+
+## Connect an agent over MCP
+
+Agents that cannot run shell commands can use `somnus mcp`, which speaks the Model Context Protocol over stdin and stdout. Register the installed command with the MCP client. For Droid, add this to `~/.factory/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "somnus": { "type": "stdio", "command": "somnus", "args": ["mcp"] }
+  }
+}
+```
+
+The server lists one tool per CLI command (16 tools; `edit` and `mcp` are left out) and sends the `somnus brief` text as its instructions. See [Agent integration](../features/agent-integration.md).
+
 ## Run the tests
 
 ```
@@ -50,7 +70,7 @@ $env:PYTHONPATH = "src"
 python -m unittest discover -s tests
 ```
 
-The suite has 443 tests and runs in about three seconds. In PowerShell 5.1 the command can report exit code 1 even when it passes, because unittest writes its progress to stderr; read the final `OK` or `FAILED` line. See [Testing](../how-to-contribute/testing.md).
+The suite has 459 tests and runs in about three seconds. In PowerShell 5.1 the command can report exit code 1 even when it passes, because unittest writes its progress to stderr; read the final `OK` or `FAILED` line. See [Testing](../how-to-contribute/testing.md).
 
 ## Where to go next
 

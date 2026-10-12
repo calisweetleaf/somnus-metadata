@@ -1,6 +1,6 @@
 # Testing
 
-The test suite is 12 stdlib `unittest` modules under `tests/` with 443 test methods, run with `python -m unittest discover -s tests`. One module, `tests/test_conformance.py`, is the executable form of the SPEC section 21 conformance table; the rest are unit and end-to-end suites per subsystem.
+The test suite is 13 stdlib `unittest` modules under `tests/` with 459 test methods, run with `python -m unittest discover -s tests`. One module, `tests/test_conformance.py`, is the executable form of the SPEC section 21 conformance table; the rest are unit and end-to-end suites per subsystem.
 
 ## Running
 
@@ -8,7 +8,7 @@ The test suite is 12 stdlib `unittest` modules under `tests/` with 443 test meth
 $env:PYTHONPATH="src"; python -m unittest discover -s tests
 ```
 
-A full run takes about 3 seconds. In PowerShell 5.1 the command reports exit code 1 whenever anything is written to stderr, even when the summary says `OK`, so read the final `Ran 443 tests ... OK` line instead of `$LASTEXITCODE`. To run one suite: `python -m unittest tests.test_yamlsub`.
+A full run takes about 3 seconds. In PowerShell 5.1 the command reports exit code 1 whenever anything is written to stderr, even when the summary says `OK`, so read the final `Ran 459 tests ... OK` line instead of `$LASTEXITCODE`. `tests/` is not a package, so run one suite with `python -m unittest discover -s tests -p test_yamlsub.py`.
 
 ## Suites
 
@@ -24,11 +24,12 @@ Counts are `def test_` occurrences per file.
 | `tests/test_document.py` | 35 | 335 | Document loading, byte-preserving atomic saves, digests, positions (SPEC 16.3, 17, 18.3) |
 | `tests/test_config.py` | 28 | 198 | Configuration precedence and validation (SPEC 18.1, 20) |
 | `tests/test_ids.py` | 24 | 181 | UUIDv7 minting, Somnus URNs, legacy references, slugs (SPEC 3.1) |
-| `tests/test_commands.py` | 21 | 317 | End-to-end CLI workflows through `somnus.cli.main` in temporary homes |
+| `tests/test_commands.py` | 26 | 380 | End-to-end CLI workflows through `somnus.cli.main` in temporary homes, including `somnus set` |
 | `tests/test_conformance.py` | 21 | 365 | One test per SPEC section 21 fixture |
 | `tests/test_lifecycle.py` | 21 | 193 | Lifecycle state machine against a transcription of the SPEC 7.1 table |
-| `tests/test_store.py` | 15 | 188 | Registry store and the indexing semantics of SPEC 18.3 |
-| **Total** | **443** | **4,111** | |
+| `tests/test_store.py` | 15 | 189 | Registry store and the indexing semantics of SPEC 18.3 |
+| `tests/test_mcp.py` | 11 | 197 | MCP protocol handling, argparse-derived tool schemas, argv round trips, and a live stdio session |
+| **Total** | **459** | **4,372** | |
 
 ## Patterns worth knowing
 

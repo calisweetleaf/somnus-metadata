@@ -1,6 +1,6 @@
 # Design decisions
 
-`DECISIONS.md` records fifteen ratified decisions, D1 to D15, that shape `SPEC.md` and the toolkit. The operator ratified all of them on 2026-10-11 by approving the implementation plan in `PLAN.md`; they replace five PROPOSED recommendations from an earlier draft, which survives in commit `5f1df5d`.
+`DECISIONS.md` records seventeen ratified decisions, D1 to D17, that shape `SPEC.md` and the toolkit. The operator ratified D1 to D15 on 2026-10-11 by approving the implementation plan in `PLAN.md`; they replace five PROPOSED recommendations from an earlier draft, which survives in commit `5f1df5d`. D16 and D17 were ratified the same day during the agent-usability review that followed the build. They add `somnus set` and `somnus mcp` without changing the metadata schema, so the release stays `somnus://metadata/core/2.0.0` and `SPEC.md` moved to revision 2.
 
 ## Summary
 
@@ -21,6 +21,8 @@
 | D13 | Exact release resolution and versioned profiles | New | 6, 23 |
 | D14 | Compiler-grade diagnostics | New | 19.2 |
 | D15 | Dead-code isolation in `archive/` | New | 1 |
+| D16 | Non-interactive header edits with `somnus set` | New (after the build) | 20 |
+| D17 | MCP server as a thin CLI adapter | New (after the build; applies D4) | 20 |
 
 ## The most consequential decisions
 
@@ -60,6 +62,8 @@ Every standardized object is closed. An unknown field at any depth is `E_SCHEMA`
 - **D13.** A 2.0.0 validator accepts only `somnus://metadata/core/2.0.0`. Profiles are versioned URIs bound to `profile_data` keys.
 - **D14.** The `path:line:col: severity CODE field: message` format and the 0/1/2 exit codes. See [debugging](../how-to-contribute/debugging.md).
 - **D15.** Old material lives in `archive/` behind a non-truth warning, `src/` never imports it, and the default index excludes `archive/**`.
+- **D16.** `somnus set` changes exactly the fields the `edit` form exposes, through the same form model, in one new revision. Agents no longer hand-edit envelopes to retitle or retag a document. See [Agent integration](../features/agent-integration.md).
+- **D17.** `somnus mcp` generates its tools from the CLI's argparse definitions and runs the CLI for every call. JSON is limited to the MCP framing, which D4 already permits where a format requires it, and every tool result is the command's text output.
 
 ## Changing a decision
 

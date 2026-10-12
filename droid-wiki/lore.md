@@ -18,6 +18,8 @@ This page tells the history of somnus-metadata using the dates recorded in git a
 | 2026-10-11 06:50 | Terminal UI for `somnus edit` | `b9b8c12` |
 | 2026-10-11 07:05 | 443 unit tests and four bug fixes | `8f0db0d` |
 | 2026-10-11 08:38 | Double-encoded UTF-8 repaired in 26 files | `dc3c981` |
+| 2026-10-11 22:19 | This wiki (36 pages) committed, with blank-line formatting fixes in `PLAN.md` | `f2b1b96` |
+| 2026-10-11 23:42 | `somnus set` and the `somnus mcp` stdio server; D16 and D17 ratified; `SPEC.md` and `DECISIONS.md` move to revision 2 | `43ab360` |
 
 ## Eras
 
@@ -32,6 +34,10 @@ The v2.0.0 proposal is dated 1 October 2026 and calls itself a "candidate for Da
 ### The 2.0.0 build (2026-10-11)
 
 Thirteen commits in about two hours and twelve minutes produced the normative `SPEC.md`, the `somnus` package, the SQLite registry, the CLI, the TUI, and the test suites. The commit order (spec first, then foundation, model, database, commands, conformance tests, ratified decisions) suggests the work followed a plan. `PLAN.md` was committed in `df72af4`, and the ratification tracker in `DECISIONS.md` records D1 to D15 as accepted by "Operator approval of PLAN.md implementation plan (2026-10-11)".
+
+### Agent-usability pass (2026-10-11, evening)
+
+After the wiki landed, a review of how agents use the toolkit found two gaps. The terminal UI was the only way to change a title or tags without hand-editing an envelope, and agents without a shell could not reach the CLI at all. Commit `43ab360` closed both. `somnus set` (D16) reuses the TUI form model to apply the same edits in one revision. `somnus mcp` (D17) is a stdlib JSON-RPC server that builds its tools from the CLI's argparse definitions and runs the CLI for each call. The metadata schema did not change, so the release stayed at core 2.0.0, and the tool recorded the governance changes itself: `somnus set` on `DECISIONS.md` and `somnus bump` on `SPEC.md` took both to revision 2. The ratification tracker records D16 and D17 as an "Operator selection during the agent-usability review (2026-10-11)".
 
 ## Longest-standing pieces
 
@@ -84,5 +90,7 @@ Net tracked lines after each commit (insertions minus deletions, cumulative):
 | `b9b8c12` | 2026-10-11 06:50 | 16,373 |
 | `8f0db0d` | 2026-10-11 07:05 | 19,133 |
 | `dc3c981` | 2026-10-11 08:38 | 19,133 |
+| `f2b1b96` | 2026-10-11 22:19 | 19,192 |
+| `43ab360` | 2026-10-11 23:42 | 19,900 |
 
-The final figure matches the 19,133 physical lines measured at `HEAD` on [the numbers page](by-the-numbers.md). The repository more than tripled in size on 2026-10-11, and the archived pre-git material now makes up about a quarter of it.
+The last two rows leave out the 3,177 net lines of wiki pages under `droid-wiki/`, so the final figure matches the 19,900 physical lines measured at `43ab360` on [the numbers page](by-the-numbers.md). The repository more than tripled in size on 2026-10-11, and the archived pre-git material now makes up about a quarter of it.

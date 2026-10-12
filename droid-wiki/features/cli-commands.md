@@ -1,6 +1,6 @@
 # CLI commands
 
-`somnus` is an argparse CLI with 16 subcommands, each implemented as one module under `src/somnus/commands/` and imported only when invoked. Every command receives the same `Ctx` object, which supplies configuration, output formatting, registry access, and event recording.
+`somnus` is an argparse CLI with 18 subcommands, each implemented as one module under `src/somnus/commands/` and imported only when invoked. Every command receives the same `Ctx` object, which supplies configuration, output formatting, registry access, and event recording.
 
 ## Purpose
 
@@ -21,6 +21,7 @@ The CLI is the only supported way to create, adopt, revise, and retire Somnus-ma
 | `ls` | List present artifacts from the `docs` view. | `--type`, `--status`, `--standing`, `--tag`, `--path-contains` | Read-only | `src/somnus/commands/ls.py` |
 | `status` | Validated lifecycle transition; writes a new revision. | `PATH NEW_STATUS`, `--reason`, `--replacement REF` (repeatable) | Writes file | `src/somnus/commands/status.py` |
 | `bump` | New revision; resolves `revision` and `identity` conflicts. | `PATH`, `--reason` | Writes file | `src/somnus/commands/bump.py` |
+| `set` | Change the header fields the `edit` form exposes, in one new revision. Other fields are refused. | `PATH FIELD=VALUE...`, `--reason` | Writes file; nothing when no value changes | `src/somnus/commands/set_fields.py` |
 | `fork` | New artifact derived from an existing revision. | `PATH`, `--out`, `--title` | Writes a new file | `src/somnus/commands/fork.py` |
 | `regions` | Audit region markers against `knowledge.regions`. | `PATH`, `--sync`, `--write` | Read-only; `--sync` is a dry run unless `--write` | `src/somnus/commands/regions.py` |
 | `migrate` | Upgrade v0.1 documents to core 2.0.0. | `PATH...`, `--write` | Dry run unless `--write` | `src/somnus/commands/migrate.py` |
@@ -28,6 +29,7 @@ The CLI is the only supported way to create, adopt, revise, and retire Somnus-ma
 | `schema` | Field documentation, or JSON Schema Draft 2020-12 export. | `[FIELD]`, `--json-schema`, `--out` | Read-only; `--json-schema --out` writes one file | `src/somnus/commands/schema.py` |
 | `brief` | Print a Markdown cheat sheet for agent instruction files. | none | Read-only | `src/somnus/commands/brief.py` |
 | `edit` | Terminal UI: document browser, or header editor for one file. | `[PATH]` | Interactive; the header editor can write | `src/somnus/commands/edit.py` |
+| `mcp` | Serve every command except `edit` as MCP tools over stdio. | none (global `--actor` is passed to each call) | Runs until stdin closes; each tool call has its command's effect | `src/somnus/commands/mcp.py`, `src/somnus/mcp.py` |
 
 `q`, `ls`, and `stale` open the registry through `connect_readonly`, so they fail with `E_IO` (exit 2) when `somnus init` has not been run. `index` opens the registry for writing with `create=False` and has the same requirement.
 
@@ -35,7 +37,7 @@ The CLI is the only supported way to create, adopt, revise, and retire Somnus-ma
 
 ### Dispatcher
 
-`build_parser()` in `src/somnus/cli.py` builds one subparser per command. `main()` parses arguments, builds a `Ctx`, and imports `somnus.commands.<name>` with `importlib`. The `_MODULES` table maps the one exception: `q` lives in `src/somnus/commands/query.py`. Each module exposes `run(args, ctx) -> int`.
+`build_parser()` in `src/somnus/cli.py` builds one subparser per command. `main()` parses arguments, builds a `Ctx`, and imports `somnus.commands.<name>` with `importlib`. The `_MODULES` table maps the two exceptions: `q` lives in `src/somnus/commands/query.py` and `set` in `src/somnus/commands/set_fields.py`. When `build_parser()` is given a dict, it also collects each subcommand's parser into it; `src/somnus/mcp.py` uses that to generate its tools. Each module exposes `run(args, ctx) -> int`.
 
 ```mermaid
 sequenceDiagram
@@ -81,7 +83,7 @@ somnus stamp notes/ideas.md --write    # apply it
 somnus migrate archive/v0.1/examples/specification-example.md
 ```
 
-`new`, `status`, `bump`, and `fork` write immediately; they have no dry-run mode.
+`new`, `status`, `bump`, `set`, and `fork` write immediately; they have no dry-run mode.
 
 ### The shared context: `_common.Ctx`
 
@@ -105,10 +107,11 @@ Module-level helpers: `load_valid()` (load and refuse unless the document passes
 - Levels and diagnostic codes: [Validation](../systems/validation.md).
 - Events, conflicts, and views: [Registry](../systems/registry.md).
 - `somnus edit`: [Terminal UI](../systems/tui.md).
+- `somnus set` and `somnus mcp`: [Agent integration](agent-integration.md).
 
 ## Entry points for modification
 
-- Add a command: register its parser in `build_parser()` in `src/somnus/cli.py`, create `src/somnus/commands/<name>.py` with `run(args, ctx)`, and add the row to SPEC §20. Add a `_MODULES` entry only if the module name differs from the command name.
+- Add a command: register its parser in `build_parser()` in `src/somnus/cli.py`, create `src/somnus/commands/<name>.py` with `run(args, ctx)`, and add the row to SPEC §20. Add a `_MODULES` entry only if the module name differs from the command name. The new command becomes an MCP tool automatically; add it to `EXCLUDED` in `src/somnus/mcp.py` if it needs a terminal, or to `READ_ONLY` if it never writes.
 - Add a global flag: extend `_globals()` in `src/somnus/cli.py` and the `Ctx` dataclass.
 - Change shared write behavior: `commit()` and `check_text()` in `src/somnus/commands/_common.py`.
 

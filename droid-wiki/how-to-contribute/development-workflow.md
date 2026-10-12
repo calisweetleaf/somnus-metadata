@@ -13,7 +13,7 @@ Changes follow a short loop: read the relevant `SPEC.md` section, edit one file 
    $env:PYTHONPATH="src"; python -m unittest discover -s tests
    ```
 
-   For one suite, use `python -m unittest tests.test_validate` with the same `PYTHONPATH`.
+   For one suite, use `python -m unittest discover -s tests -p test_validate.py` with the same `PYTHONPATH` (`tests/` is not a package, so `tests.test_validate` does not import).
 5. **Check documents.** `somnus check SPEC.md DECISIONS.md --level semantic` (or `python -m somnus.cli check ...` without an installed tool).
 6. **Doctor.** Run somnus-debug with both configs when Python code changed and disposition any new serious finding.
 7. **Commit.** Use a conventional prefix that matches the history: `feat:`, `fix:`, `test:`, `docs:`, `chore:` (for example `fix: repair double-encoded UTF-8 (cp1252 mojibake) in 26 files`).
@@ -48,5 +48,5 @@ SPEC section 21 says each fixture row maps to a test in `tests/test_conformance.
 ## Related pages
 
 - [How to contribute](index.md) for the definition of done
-- [Design decisions](../background/design-decisions.md) for D1 to D15
+- [Design decisions](../background/design-decisions.md) for D1 to D17
 - [Lifecycle and revisions](../features/lifecycle-and-revisions.md) for `bump` and `status`

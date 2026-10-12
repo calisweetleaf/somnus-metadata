@@ -14,7 +14,7 @@ A search of `src/` and `tests/` for `TODO`, `FIXME`, `XXX`, and `HACK` finds no 
 
 ## Large modules and long functions
 
-The four largest modules hold 2,865 of the 7,514 lines in `src/somnus/` (about 38%):
+The four largest modules hold 2,865 of the 7,898 lines in `src/somnus/` (about 36%):
 
 | File | Lines | Notes |
 | --- | --- | --- |
@@ -29,12 +29,12 @@ The longest functions in the package, measured with `ast`:
 | --- | --- |
 | `build_payload` in `src/somnus/commands/migrate.py` | 188 |
 | `consistency` in `src/somnus/model/validate.py` | 148 |
-| `build_parser` in `src/somnus/cli.py` | 91 |
+| `build_parser` in `src/somnus/cli.py` | 104 |
 | `walk` in `src/somnus/model/validate.py` | 86 |
 | `_index_document` in `src/somnus/db/store.py` | 81 |
 | `scan_markers` in `src/somnus/regions.py` | 60 |
 
-`build_payload` maps each v0.1 field family (identity, names, time, classification, relations, locations, leftovers) in one function; splitting it per SPEC section 22 step would match the spec's structure. `consistency` runs many unrelated intra-document checks in sequence and could be split by concern (lifecycle, authority, regions, claims). `build_parser` is long because it declares every subcommand and is not a refactoring priority.
+`build_payload` maps each v0.1 field family (identity, names, time, classification, relations, locations, leftovers) in one function; splitting it per SPEC section 22 step would match the spec's structure. `consistency` runs many unrelated intra-document checks in sequence and could be split by concern (lifecycle, authority, regions, claims). `build_parser` is long because it declares every subcommand, and `src/somnus/mcp.py` reads those declarations to build its tool schemas, so keeping them in one place is deliberate. It is not a refactoring priority.
 
 ## Terminal UI gaps
 

@@ -1,11 +1,12 @@
 # Architecture
 
-The toolkit is a layered, stdlib-only Python package. Text parsing sits at the bottom, a `Document` object wraps a file plus its header, validation and the registry consume documents, and the CLI and TUI sit on top.
+The toolkit is a layered, stdlib-only Python package. Text parsing sits at the bottom, a `Document` object wraps a file plus its header, validation and the registry consume documents, and the CLI and TUI sit on top. The MCP server sits above the CLI and runs it as a child process.
 
 ## Layers
 
 ```mermaid
 graph TD
+    MCP["mcp.py"] -->|tools from build_parser, calls as child processes| CLI
     CLI["cli.py + commands/"] --> Common["commands/_common.py (Ctx)"]
     TUI["tui/"] --> Common
     Common --> Document["document.py"]
@@ -30,7 +31,7 @@ graph TD
 | Document | `src/somnus/document.py` | Load a file, locate its envelope, expose the payload, render and save with host-byte preservation |
 | Model | `src/somnus/model/` | Field order, vocabularies, lifecycle state machine, the four-level validator, JSON Schema export |
 | Registry | `src/somnus/db/schema.sql`, `src/somnus/db/store.py` | Global SQLite registry, scanning, conflict detection, read-only queries |
-| Interface | `src/somnus/cli.py`, `src/somnus/commands/`, `src/somnus/tui/` | 16 subcommands and the terminal UI |
+| Interface | `src/somnus/cli.py`, `src/somnus/commands/`, `src/somnus/tui/`, `src/somnus/mcp.py` | 18 subcommands, the terminal UI, and the stdio MCP server |
 | Support | `src/somnus/config.py`, `src/somnus/infer.py`, `src/somnus/output.py` | Layered config, header inference, diagnostics and table output |
 
 ## Main data flow: writing a header
@@ -66,9 +67,9 @@ Every write goes through `Document.render`, which re-extracts the result and ref
 ```mermaid
 xychart-beta horizontal
     title "Lines of Python/SQL by area"
-    x-axis ["model", "commands", "tui", "db", "yamlsub", "carriers", "document", "regions", "config", "cli", "infer", "ids", "output"]
+    x-axis ["model", "commands", "tui", "db", "yamlsub", "carriers", "document", "mcp", "regions", "config", "cli", "infer", "ids", "output"]
     y-axis "lines" 0 --> 1800
-    bar [1736, 1357, 1167, 855, 757, 559, 332, 210, 176, 156, 145, 130, 92]
+    bar [1736, 1425, 1167, 855, 757, 559, 332, 303, 210, 176, 169, 145, 130, 92]
 ```
 
 ## Related pages

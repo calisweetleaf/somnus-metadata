@@ -1,18 +1,18 @@
 # Fun facts
 
-A few things about somnus-metadata that stood out while measuring it. Counts were taken on 2026-10-11 at commit `dc3c981`. For the full figures, see [by the numbers](by-the-numbers.md) and [lore](lore.md). For what the project is, start at [the overview](overview/index.md).
+A few things about somnus-metadata that stood out while measuring it. Counts were taken on 2026-10-11 at commit `43ab360`. For the full figures, see [by the numbers](by-the-numbers.md) and [lore](lore.md). For what the project is, start at [the overview](overview/index.md).
 
 ## The longest file is the one that was retired
 
-The longest tracked file is `archive/v0.1/SOMNUS-METADATA-SPEC-v0.1.md` at 1,287 lines. The normative spec that replaced it, `SPEC.md`, is 908 lines. The same pattern holds for the validator: the archived `archive/v0.1/tools/validate.py` is 1,115 lines, while its replacement `src/somnus/model/validate.py` is 832. In both cases the 2.0.0 versions came out shorter than what they replaced.
+The longest tracked file is `archive/v0.1/SOMNUS-METADATA-SPEC-v0.1.md` at 1,287 lines. The normative spec that replaced it, `SPEC.md`, is 911 lines. The same pattern holds for the validator: the archived `archive/v0.1/tools/validate.py` is 1,115 lines, while its replacement `src/somnus/model/validate.py` is 832. In both cases the 2.0.0 versions came out shorter than what they replaced.
 
 ## Zero TODOs in live code
 
 Running `rg -n -i "TODO|FIXME|XXX|HACK" src tests` returns exactly one hit, and it isn't a TODO. It is line 15 of `src/somnus/infer.py`, the regex `(r"task|todo", "task")`, which infers the `task` role from a filename. The v0.1 draft of `DECISIONS.md` was the opposite: every one of its five decisions carried a `TODO(needs-owner)` marker until the 2.0.0 ratification.
 
-## The registry forbids JSON, but one command has to emit it
+## The registry forbids JSON, but two commands have to speak it
 
-Decision D4 says "JSON IS FORBIDDEN, IT IS SLOW ON INFERENCE" and bans JSON from the registry entirely: no JSON columns, and query output is aligned text or TSV. Yet `somnus schema --json-schema` exports a JSON Schema Draft 2020-12 document, because that is the format the JSON Schema standard requires. D4 lists this as one of only two places JSON is allowed, the other being json-pointer selectors into JSON host files. The only JSON files committed to the repository are the three retired v0.1 schemas in `archive/v0.1/schemas/v1/`.
+Decision D4 says "JSON IS FORBIDDEN, IT IS SLOW ON INFERENCE" and bans JSON from the registry entirely: no JSON columns, and query output is aligned text or TSV. Yet `somnus schema --json-schema` exports a JSON Schema Draft 2020-12 document, because that is the format the JSON Schema standard requires. D4 lists this as one of only two places JSON is allowed, the other being json-pointer selectors into JSON host files. The MCP server added in `43ab360` brought a third: the protocol's stdio transport is JSON-RPC, so `somnus mcp` speaks JSON on the wire. D17 accepts that under the same "where a format requires it" reasoning, and the text inside every tool result is still the CLI's plain text or TSV. Outside this wiki's own `droid-wiki/.wiki-meta.json`, which the wiki uploader reads, the only JSON files committed to the repository are the three retired v0.1 schemas in `archive/v0.1/schemas/v1/`.
 
 ## Where the names come from
 

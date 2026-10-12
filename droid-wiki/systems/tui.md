@@ -4,7 +4,7 @@
 
 ## Purpose
 
-- Let an operator browse registered documents and edit common header fields without hand-editing YAML.
+- Let an operator browse registered documents and edit common header fields without hand-editing YAML. Agents get the same edits without a terminal through `somnus set`, which reuses this form model (see [Agent integration](../features/agent-integration.md)).
 - Keep the same write rules as the CLI: edits are validated, every save bumps the revision, the write goes through `commit()` (core validation plus atomic write), and the action is recorded in the registry ledger.
 - Keep lifecycle and authority out of the form: status, standing, scopes, ID, and revision are shown read-only, and the screen points to `somnus status` for lifecycle changes.
 
@@ -101,6 +101,8 @@ Editable fields (`FIELDS` in `src/somnus/tui/form.py`):
 
 Read-only rows (`READONLY`): `id`, `revision`, `lifecycle.status`, `authority.standing`, `authority.scopes`.
 
+`FIELDS` is also the complete list of fields `somnus set` accepts (decision D16), and `src/somnus/commands/set_fields.py` applies values through the same `FormModel.apply()`, so the two surfaces parse values identically.
+
 `FormModel` deep-copies the payload twice (original and working copy). `apply()` raises `ValueError` for a choice outside the vocabulary; otherwise it writes the value and calls `revalidate()`, which keeps the error-severity diagnostics of `validate_payload()` (core structural and consistency checks without a body). `status()` returns `valid` or the error count with the first error. `dirty` compares working and original payloads.
 
 ### Screen key bindings
@@ -140,10 +142,11 @@ While an overlay is open every key goes to it. On completion the overlay value i
 - `validate_payload()` in `src/somnus/model/validate.py` drives live form validation; `bump_revision()` in `src/somnus/model/lifecycle.py` creates the new revision. See [Validation](validation.md) and [Lifecycle and revisions](../features/lifecycle-and-revisions.md).
 - Rendering and host-byte preservation come from `Document.render()` in `src/somnus/document.py`. See [Document model](document-model.md) and [Carriers](carriers.md).
 - CLI registration of `edit [PATH]` is described in [CLI commands](../features/cli-commands.md).
+- `src/somnus/commands/set_fields.py` imports `FIELDS`, `Field`, `FormModel`, and `get_path` from `src/somnus/tui/form.py`. The form module has no terminal dependencies, which is what makes that reuse safe.
 
 ## Entry points for modification
 
-- Add an editable field: append a `Field` to `FIELDS` in `src/somnus/tui/form.py`. Choice fields need a vocabulary tuple from `src/somnus/model/vocab.py`. Do not add `id`, `revision`, `lifecycle.status`, or `authority.*`; those have dedicated commands.
+- Add an editable field: append a `Field` to `FIELDS` in `src/somnus/tui/form.py`. Choice fields need a vocabulary tuple from `src/somnus/model/vocab.py`. Do not add `id`, `revision`, `lifecycle.status`, or `authority.*`; those have dedicated commands. A new field also becomes settable with `somnus set` and appears in its usage error, so update the `set` row in SPEC §20 when the list changes.
 - Add a key binding: extend the `actions` mapping in `EditorScreen.handle()` or the branches in `BrowserScreen.handle()` in `src/somnus/tui/app.py`, and update the matching `_help()` or footer text.
 - Add a key name: extend `_WINDOWS_SPECIAL`, `_CSI_LETTERS`, `_CSI_TILDE`, or `_PLAIN` in `src/somnus/tui/term.py`.
 - Tests: `tests/test_tui.py` drives `EditorScreen` with `FakeScreen` and `FakeCtx` stand-ins and tests widgets, decoding, and frame diffing directly. Any change to `Terminal` itself should also be tried by hand in Windows Terminal, the legacy console, and a POSIX terminal, since no automated test runs it.
