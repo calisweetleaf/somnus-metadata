@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Cancel superseded runs for the same branch or pull request.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.11', '3.14']
+        include:
+          - os: ubuntu-latest
+            python: '3.12'
+          - os: ubuntu-latest
+            python: '3.13'
+    defaults:
+      run:
+        shell: bash
+    env:
+      PYTHONPATH: src
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Unit and conformance tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Semantic check of SPEC and DECISIONS
+        run: python -m somnus.cli check SPEC.md DECISIONS.md --level semantic
+
+  policy:
+    name: policy guards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Runtime dependencies stay empty (stdlib only)
+        run: |
+          python - <<'PY'
+          import sys, tomllib
+          deps = tomllib.load(open("pyproject.toml", "rb"))["project"].get("dependencies", [])
+          if deps:
+              sys.exit(f"pyproject.toml declares runtime dependencies: {deps}")
+          print("runtime dependencies: none")
+          PY
+
+      - name: src/ does not import from archive/
+        run: |
+          python - <<'PY'
+          import ast, pathlib, sys
+          bad = []
+          for path in pathlib.Path("src").rglob("*.py"):
+              tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+              for node in ast.walk(tree):
+                  names = []
+                  if isinstance(node, ast.Import):
+                      names = [a.name for a in node.names]
+                  elif isinstance(node, ast.ImportFrom) and node.module:
+                      names = [node.module]
+                  for name in names:
+                      if name == "archive" or name.startswith("archive."):
+                          bad.append(f"{path}:{node.lineno}: import {name}")
+          if bad:
+              sys.exit("\n".join(bad))
+          print("no archive imports in src/")
+          PY
+
+  install:
+    name: installed CLI smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build and install the package
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+          python -m pip install dist/*.whl
+
+      - name: Installed somnus runs from outside the source tree
+        # Run from a temp directory so src/ cannot shadow the installed package.
+        run: |
+          cd "$RUNNER_TEMP"
+          python -c "import somnus, sys; assert 'site-packages' in somnus.__file__, somnus.__file__; print(somnus.__file__)"
+          somnus check "$GITHUB_WORKSPACE/SPEC.md" "$GITHUB_WORKSPACE/DECISIONS.md" --level semantic
