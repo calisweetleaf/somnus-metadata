@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a12ac7-1fd7-7079-a78f-7426391f187d"
-  revision: 2
+  revision: 3
   title: "Somnus Metadata Ratified Decisions D1-D17"
   summary: "Ratified architecture decisions governing SPEC.md and the somnus toolkit."
   classification:
@@ -20,7 +20,7 @@ somnus:
         aspects: ["content", "governance"]
   time:
     created_at: "2026-10-11T11:44:15+00:00"
-    updated_at: "2026-10-12T04:22:23+00:00"
+    updated_at: "2026-10-20T04:38:57+00:00"
   names:
     slug: "somnus-metadata-decisions"
   knowledge:
@@ -279,9 +279,12 @@ consequences. SPEC section numbers are cited where the decision is enforced.
   Each tool is one CLI command, except the interactive `edit`. Its input schema
   comes from that command's argparse definition, and each call runs the command
   in a child process. The result is the command's text or TSV output, and a
-  non-zero exit sets `isError`. The initialize response carries the `somnus brief`
+  non-zero exit sets `isError`. The `initialize` response carries the `somnus brief`
   text as server instructions, and `--actor` given to `somnus mcp` is passed to
-  every call.
+  every call. Tool argument schemas are closed; tool-call output is one text
+  item, while protocol/parameter failures use JSON-RPC errors. The server emits
+  no application state across calls; relative paths resolve from its working
+  directory. The detailed transport behavior is specified in SPEC §20.
 - **Consequences:** JSON appears only as MCP framing, which D4 already allows
   where a format requires it. The registry and every tool result stay JSON-free.
   A new CLI command or flag becomes an MCP tool or parameter with no server

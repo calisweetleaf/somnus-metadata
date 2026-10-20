@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a12a94-8657-715c-9044-852de0e3f08a"
-  revision: 2
+  revision: 3
   title: "Somnus Metadata System: Normative Specification"
   summary: "The single normative contract for Somnus artifact metadata, carriers, regions, validation, and the global registry."
   classification:
@@ -20,7 +20,7 @@ somnus:
         aspects: ["content", "semantic-model", "ingestion"]
   time:
     created_at: "2026-10-11T10:48:59+00:00"
-    updated_at: "2026-10-12T04:22:23+00:00"
+    updated_at: "2026-10-20T04:38:57+00:00"
     authored_on: "2026-10-11"
   knowledge:
     coverage: "artifact"
@@ -838,6 +838,25 @@ operations, or conflicts. `2` means usage, I/O, or environment errors.
 | `brief` | Print a Markdown agent cheat sheet |
 | `edit [PATH]` | Terminal UI: document browser, or header editor |
 | `mcp` | Serve every command except `edit` as Model Context Protocol tools over stdio; results are the command's text output (D17) |
+
+### MCP adapter behavior (D17)
+
+`somnus mcp` reads one UTF-8 JSON-RPC 2.0 message per input line and writes one
+JSON-RPC response per output line. It implements `initialize`, `ping`,
+`tools/list`, and `tools/call`; notifications and stray responses receive no
+reply. The tool set is generated from the CLI argument parser and contains every
+CLI command except the interactive `edit` and server command `mcp` itself.
+
+Each tool has a closed object input schema (`additionalProperties: false`). A
+call converts validated arguments to the corresponding CLI invocation and runs
+that command in a child process. Its stdout/stderr text is returned as one text
+content item; a nonzero command exit sets `isError` and appends `[exit N]`.
+Argument conversion failures are tool errors; malformed JSON-RPC parameters are
+JSON-RPC errors. JSON is transport framing only: registry data and tool content
+remain the CLI's text or TSV output. The server does not maintain application
+state between calls. Relative paths are interpreted from the server process's
+working directory; clients requiring stable path resolution should pass
+absolute paths.
 
 Configuration precedence: CLI flag > nearest parent `.somnus.toml` >
 `$SOMNUS_HOME/config.toml` > built-in defaults.

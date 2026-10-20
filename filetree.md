@@ -1,52 +1,71 @@
-# filetree.md — somnus-metadata (spatial map only)
+# filetree.md — somnus-metadata
 
-> This file is a location map, not a router. For workflow entry points see `AGENTS.md`.
+Spatial/dependency map for the current checkout. For task routing and authority,
+start with [`AGENTS.md`](AGENTS.md); this file is not normative.
 
-```
+```text
 .
-├── AGENTS.md                                      # bootstrap (router)
-├── SPEC.md                                        # normative standard, core 2.0.0
-├── DECISIONS.md                                   # ratified decisions D1–D17
-├── PLAN.md                                        # implementation plan
-├── README.md                                      # install and quick start
-├── filetree.md                                    # this map
-├── pyproject.toml                                 # package `somnus`, stdlib-only, entry point `somnus`
-├── Somnus Markdown Metadata Standard Research.md  # evidence, read-only
+├── AGENTS.md                         # project entry packet, validation, constraints
+├── SPEC.md                           # normative core 2.0.0 contract; §§20–23 CLI/MCP/conformance/versioning
+├── DECISIONS.md                      # ratified rationale D1–D17
+├── PLAN.md                           # current delivery state and maintenance priorities
+├── README.md                         # install and quick start
+├── filetree.md                       # this navigation map
+├── pyproject.toml                    # stdlib-only package, `somnus` entry point
+├── Somnus Markdown Metadata Standard Research.md # original research artifact; read-only
+├── somnus-metadata-v2.zip             # retained historical bundle
+├── somnus-metadata.zip                # retained historical bundle
+├── .somnus-debug/
+│   ├── python_doctor.yaml            # root diagnostics configuration
+│   └── python_doctor.src.yaml        # src import-aware diagnostics configuration
 ├── src/somnus/
-│   ├── cli.py                                     # argparse dispatcher, exit-code mapping
-│   ├── yamlsub.py                                 # restricted YAML subset parser + canonical serializer
-│   ├── ids.py                                     # UUIDv7 / URN minting and parsing
-│   ├── config.py                                  # SOMNUS_HOME, config.toml, .somnus.toml layering
-│   ├── document.py                                # load / locate envelope / save with host preservation
-│   ├── regions.py                                 # region-marker scanning and pairing
-│   ├── infer.py                                   # header inference for stamp/new
-│   ├── output.py                                  # diagnostics, aligned/TSV tables
-│   ├── mcp.py                                     # `somnus mcp` stdio server; tools generated from cli.py
-│   ├── model/                                     # schema, vocab, lifecycle, validate, JSON Schema export
-│   ├── carriers/                                  # markdown, linecomment, blockcomment, sidecar
-│   ├── db/                                        # schema.sql + store.py (global SQLite registry)
-│   ├── commands/                                  # one module per CLI command (`set` -> set_fields.py)
-│   └── tui/                                       # stdlib terminal UI (`somnus edit`)
-├── tests/                                         # unittest suites incl. test_conformance.py (SPEC §21)
-└── archive/                                       # historical, NOT normative (see archive/README.md)
-    ├── v0.1/                                      # v0.1 spec, glossary, schemas, examples, tools
-    └── v2-proposal/                               # intermediate v2 proposal and diff notes
+│   ├── cli.py                        # argparse command surface / dispatch
+│   ├── mcp.py                        # stdio JSON-RPC adapter, D17
+│   ├── yamlsub.py                    # restricted YAML parser / canonical serializer
+│   ├── document.py                   # envelope IO / byte preservation
+│   ├── regions.py                    # in-document metadata regions
+│   ├── ids.py, config.py, infer.py   # identity, config, header inference
+│   ├── model/
+│   │   ├── schema.py, vocab.py       # schema definitions / controlled values
+│   │   ├── validate.py               # validation pipeline
+│   │   └── lifecycle.py              # lifecycle transition rules
+│   ├── carriers/                     # Markdown, comments, sidecar placement
+│   ├── db/                           # SQLite schema and registry store
+│   ├── commands/                     # one command module per CLI operation
+│   │   └── set_fields.py             # `somnus set` implementation (D16)
+│   └── tui/                          # terminal UI implementation
+├── tests/
+│   ├── test_conformance.py           # 21 SPEC acceptance fixtures
+│   ├── test_mcp.py                   # adapter protocol, schema, and call behavior
+│   └── test_*.py                     # module and CLI behavior suites
+├── droid-wiki/                       # explanatory wiki; secondary to SPEC/DECISIONS
+│   ├── background/, features/
+│   ├── how-to-contribute/, overview/
+│   ├── reference/, systems/
+│   └── .wiki-meta.json
+└── archive/                          # historical and non-normative
+    ├── README.md                     # archive boundary warning
+    ├── v0.1/                         # prior spec, schemas, examples, tools
+    ├── v2-proposal/                  # intermediate proposal
 ```
 
-## Ownership
+## Runtime state outside source
 
-- Research: evidence only; frozen.
-- SPEC.md: normative; changes follow SPEC §23 and a DECISIONS.md revision.
-- src/somnus: implementation of SPEC.md; stdlib-only.
-- tests: executable acceptance criteria; `test_conformance.py` mirrors SPEC §21 one-to-one.
-- archive: read-only history; never imported, never indexed.
+- `$SOMNUS_HOME` (default `~/.somnus/`): `config.toml` and `somnus.db`.
+- `.python_doctor/`, `.python_doctor-src/`, `.somnus-debug/runs/`, and
+  `.surgeon/` are generated/ignored tooling state; not authoritative source.
 
-## Runtime state (outside the repo)
+## Dependency / authority spine
 
-- `$SOMNUS_HOME` (default `~/.somnus/`): `config.toml`, `somnus.db` registry.
+```text
+SPEC.md + DECISIONS.md
+        ↓ contract
+src/somnus/model + yamlsub + carriers + document + regions + db
+        ↓ composed by
+commands → cli.py → optional mcp.py / TUI
+        ↓ consumed and checked by
+tests/test_conformance.py + module/CLI/MCP suites
+```
 
-## Tooling state (gitignored)
-
-- `.python_doctor/`, `.python_doctor-src/`: somnus-debug doctor state.
-- `.somnus-debug/`: doctor configs (tracked) and run logs (`runs/`, ignored).
-- `.surgeon/`: Surgeon edit history.
+`archive/` is excluded from the runtime spine. `droid-wiki/` explains behavior
+but does not override the normative specification.

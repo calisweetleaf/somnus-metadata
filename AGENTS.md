@@ -1,59 +1,96 @@
 # AGENTS.md — somnus-metadata
 
-## What this workspace is
+## Project state
 
-The Somnus metadata standard, core `somnus://metadata/core/2.0.0`, with a stdlib-only Python
-toolkit (`somnus` CLI, global SQLite registry, terminal UI). Every managed file carries exactly
-one `somnus:` header in frontmatter, a comment envelope, or a `<file>.somnus.yaml` sidecar.
+Somnus Metadata core `somnus://metadata/core/2.0.0` is the normative standard;
+`src/somnus/` is its stdlib-only Python toolkit (`somnus` CLI, global SQLite
+registry, terminal UI, and stdio MCP adapter). Implemented capability is covered
+by the test suites under `tests/`; do not describe an installed tool or external
+MCP host as validated unless separately exercised.
 
-## Authority map
+## Authority and ownership
 
-- `SPEC.md` = normative. If code and SPEC disagree, SPEC wins and the code is a bug.
-- `DECISIONS.md` = ratified decisions D1–D17 explaining why SPEC is shaped as it is.
-- `tests/test_conformance.py` = executable acceptance criteria (one test per SPEC §21 fixture).
-- `src/somnus/` = runnable truth for validation, carriers, and the registry.
-- `Somnus Markdown Metadata Standard Research.md` = evidence only (read-only; never overwrite).
-- `archive/` = historical, NOT normative. Never import from it or cite it as active.
-- `PLAN.md` = implementation plan; `filetree.md` = location map only.
+- `SPEC.md` is normative. If implementation and SPEC disagree, treat it as a
+  defect; do not change the contract without an explicit decision and version
+  update under SPEC §23.
+- `DECISIONS.md` records ratified rationale D1–D17. Do not silently revise a
+  decision; add a new ratified decision for a material change.
+- `PLAN.md` is a current delivery/maintenance handoff, not the normative source.
+- `tests/test_conformance.py` is the executable 21-fixture acceptance suite.
+- `src/somnus/` is implementation truth; tests are behavioral evidence.
+- `filetree.md` is the navigation map. Use it to locate the subsystem before
+  deep traversal.
+- `Somnus Markdown Metadata Standard Research.md` is evidence-only and frozen;
+  never overwrite it.
+- `archive/` is historical, not normative. Never import from it or cite it as
+  active behavior.
 
-## Entry points
+## High-value paths
 
-- Read `SPEC.md` §3–§13 for field contracts, §16–§17 for carriers, §18 for the registry.
-- Use `somnus schema FIELD` for per-field documentation; `somnus brief` for the agent cheat sheet.
-- Create documents with `somnus new`, never by copying another header (that duplicates its `id`).
-- Agents without a shell can use `somnus mcp`, a stdio MCP server exposing the same commands as tools.
+- `src/somnus/model/`: schema, controlled vocabulary, validation, lifecycle.
+- `src/somnus/yamlsub.py`: restricted YAML parser and canonical serializer.
+- `src/somnus/document.py`, `src/somnus/carriers/`: envelope IO, carrier
+  placement, and host-byte preservation.
+- `src/somnus/db/`: SQLite registry.
+- `src/somnus/commands/`, `src/somnus/cli.py`: command behavior and CLI surface.
+- `src/somnus/tui/`: terminal editor/browser; `set_fields.py` backs `somnus set`.
+- `src/somnus/mcp.py`: stdio JSON-RPC adapter; D17 and SPEC §20 are its contract.
+- `tests/test_conformance.py`, `tests/test_mcp.py`, and the corresponding
+  module-specific tests: consumed behavior checks.
 
-## Rules for agents working on Somnus-managed files
+## Rules for Somnus-managed files
 
-- Never hand-invent IDs, dates, actors, licenses, evidence, or acceptance records.
-- Never edit `id`. Indexed changes are new revisions (`somnus bump`).
-- Lifecycle changes go through `somnus status`, not hand edits.
-- Title, summary, purpose, classification, tags, visibility, and disposition change with `somnus set`.
-- Unknown fields are errors; tool-specific data goes under `extensions.<owner>`.
-- `normative` role is intent, not acceptance.
-- Registry output is text/TSV; JSON is forbidden in the registry (D4).
+- Never invent IDs, dates, actors, licenses, evidence, or acceptance records.
+- Never hand-edit `id`; indexed content changes create revisions through
+  `somnus bump` or the owning command. Lifecycle transitions go through
+  `somnus status`.
+- Use `somnus set` for its documented editable fields; unknown fields are
+  errors. Tool-specific metadata belongs under `extensions.<owner>`.
+- `normative` role expresses intent, not acceptance. Registry output is text/TSV;
+  JSON is forbidden there (D4). MCP JSON-RPC framing is the D17 exception; tool
+  content remains text/TSV.
+- Writes to host files must preserve bytes outside the metadata envelope
+  (`E_HOST` otherwise).
+- `src/` must not import from `archive/`.
+- Keep `pyproject.toml` runtime dependencies empty; stdlib only.
 
-## Validate
+## Verification
 
-Run from the workspace root:
+From the repository root on POSIX:
 
+```sh
+PYTHONPATH=src python -m unittest discover -s tests
+PYTHONPATH=src python -m somnus.cli check SPEC.md DECISIONS.md --level semantic
 ```
+
+PowerShell equivalent for source checkout execution:
+
+```powershell
+$env:PYTHONPATH = "src"
 python -m unittest discover -s tests
-somnus check SPEC.md DECISIONS.md --level semantic
+python -m somnus.cli check SPEC.md DECISIONS.md --level semantic
 ```
 
-Without an installed tool, use `$env:PYTHONPATH="src"; python -m somnus.cli ...` (PowerShell).
-Exit codes: `0` ok, `1` validation errors/refusals/conflicts, `2` usage or I/O errors.
+With an installed `somnus`, the semantic check may use `somnus check ...`.
+Exit codes: `0` success, `1` validation errors/refusals/conflicts, `2` usage,
+I/O, or environment errors. A successful import, parser invocation, or test
+count alone does not prove an external install or MCP client integration.
 
-Python diagnostics use somnus-debug with two configs: `.somnus-debug/python_doctor.yaml`
-(repo root, for tests) and `.somnus-debug/python_doctor.src.yaml` (scan root `src`, so
-`somnus.*` imports resolve).
+Python diagnostics use `somnus-debug` configs:
+`.somnus-debug/python_doctor.yaml` (repository root) and
+`.somnus-debug/python_doctor.src.yaml` (source scan root).
 
-## Constraints
+## Git and working-tree safety
 
-- Stdlib only. `pyproject.toml` declares `dependencies = []`; keep it that way.
-- Never overwrite `Somnus Markdown Metadata Standard Research.md`.
-- Nothing under `src/` may import from `archive/`.
-- Writes to a host file must leave bytes outside the envelope unchanged (`E_HOST` otherwise).
-- This folder is OneDrive-synced: multi-file Surgeon transactions (`multi_edit`, `prepare/commit`)
-  fail with WinError 5. Edit one file per call.
+The repository uses a local `pull.ff=only` policy: ordinary `git pull` may
+advance only when it can fast-forward. Before reconciling divergence, inspect
+`git status`, fetch the remote, compare ahead/behind commits and trees, and
+preserve a named local ref before any re-anchor/reset. Do not force-pull or
+discard a local commit merely because the ahead/behind count looks small; verify
+what it contains first.
+
+## Environment constraint
+
+This folder is OneDrive-synced. Multi-file Surgeon transactions (`multi_edit`,
+`prepare/commit`) fail with WinError 5; edit one file per call. Keep historical
+and user-owned research artifacts untouched.
