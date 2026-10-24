@@ -20,9 +20,9 @@ The counts are the number of literal occurrences of each code in `src/somnus/`, 
 
 | Code | Sites | What it usually means |
 | --- | --- | --- |
-| `E_SCHEMA` | 36 | Unknown field (objects are closed, D5), wrong type, value outside a vocabulary, missing required field, or a `schema` other than `somnus://metadata/core/2.0.0` |
+| `E_SCHEMA` | 37 | Unknown field (objects are closed, D5), wrong type, value outside a vocabulary, missing required field, or a `schema` other than `somnus://metadata/core/2.0.0` |
 | `E_REGION` | 27 | Crossing, unclosed, or duplicate region markers, or a selector that does not resolve (`src/somnus/regions.py`) |
-| `E_ENVELOPE` | 17 | No envelope, two envelopes, envelope plus sidecar, unclosed frontmatter or comment block, a forbidden `--` or `*/` inside a comment envelope, or an empty sidecar (`src/somnus/carriers/`) |
+| `E_ENVELOPE` | 18 | No envelope, two envelopes, envelope plus sidecar, unclosed frontmatter or comment block, a forbidden `--` or `*/` inside a comment envelope, or an empty sidecar (`src/somnus/carriers/`) |
 | `E_IO` | 15 | File missing or not UTF-8, output file already exists, registry missing, root not a directory, SQL query failed |
 | `E_REFERENCE` | 12 | A reference that must resolve does not (semantic level and above) |
 | `E_AUTHORITY` | 8 | `accepted` without `valid_time` or `acceptance_ref`, or overlapping accepted authorities |
@@ -39,13 +39,13 @@ The counts are the number of literal occurrences of each code in `src/somnus/`, 
 | `W_REGION_UNREGISTERED` | 1 | Marker in the body with no matching `knowledge.regions` record; `somnus regions PATH --sync --write` registers it |
 | `W_UNMANAGED` | 1 | File has no Somnus header |
 
-The warning registry is closed: those four codes are the complete set. SPEC section 19.2 no longer lists `W_DUPLICATE_TITLE`; near-duplicate titles are a registry-level advisory reported by `somnus stale` as table rows, not a validation diagnostic (D18).
+The warning registry is closed to the four `W_*` codes above (SPEC section 19.2, D18). D18 removed the undefined `W_DUPLICATE_TITLE` listing; it is not an outstanding implementation defect. `somnus stale` reports near-duplicate titles as advisory rows at similarity 0.85. `somnus new` refuses registered-title collisions at 0.9 with `E_IO` unless `--force` is used (`src/somnus/commands/stale.py`, `src/somnus/commands/new.py`).
 
 ## Common errors
 
-**`E_IO registry ... does not exist; run 'somnus init'`.** Commands that need the registry (`index`, `q`, `ls`, `stale`, `edit`) fail with exit 2 until `$SOMNUS_HOME/somnus.db` exists. Run `somnus init --root DIR`, then `somnus index`. The message comes from `src/somnus/db/store.py` (lines 152 and 657); the TUI raises a similar one from `src/somnus/tui/app.py`.
+**`E_IO registry ... does not exist; run 'somnus init'`.** Commands that need the registry (`index`, `q`, `ls`, `stale`, `edit`) fail with exit 2 until `$SOMNUS_HOME/somnus.db` exists. Run `somnus init --root DIR`, then `somnus index`. The message comes from `src/somnus/db/store.py`; the TUI raises a similar one from `src/somnus/tui/app.py`. For backup, restore, and reconciliation, follow [runbooks/registry-recovery.md](../../runbooks/registry-recovery.md).
 
-**`E_HOST refusing to write: content outside the envelope would change`.** Raised by `src/somnus/document.py` after a write is re-extracted and the host bytes differ. The file is not modified. Typical causes are a host with an unusual preamble or a payload containing the carrier's forbidden sequence; a sidecar (`<file>.somnus.yaml`) is the fallback.
+**`E_HOST refusing to write: content outside the envelope would change`.** Raised by `src/somnus/document.py` when the proposed result is re-extracted and the host bytes differ. The file is not modified. Typical causes are a host with an unusual preamble or a payload containing the carrier's forbidden sequence; a sidecar (`<file>.somnus.yaml`) is the fallback. Follow [runbooks/host-write-incident.md](../../runbooks/host-write-incident.md) rather than weakening the guard.
 
 **`E_ENVELOPE both an embedded envelope and sidecar ... exist`.** A file has its own header and a sidecar. Remove one; exactly one authoritative envelope is allowed (SPEC section 4).
 
@@ -80,7 +80,7 @@ Any other read-only SQL can be passed directly, for example `somnus q "SELECT re
 
 When a mutating command records an event and re-observes the file, registry errors are written to stderr as `registry: CODE message` (`Ctx.record` in `src/somnus/commands/_common.py`). These do not change the exit code of the command that triggered them, so scan stderr after writes.
 
-Inside `somnus edit` the same note goes to the active screen's status line instead of stderr. `_common.note` writes to a process-wide sink while `capture_notes` is active, and the TUI installs one for the whole alternate-screen session, so a registry diagnostic during a save is rendered in the frame rather than drawn over it (D18 is unrelated; see the note-sink mechanism in `src/somnus/tui/app.py`). The full message stays available through `somnus index` and the event ledger.
+Inside `somnus edit`, `capture_notes` routes these notes through `NoteBuffer` to the active screen's status row (`src/somnus/tui/app.py`), not raw stderr. Long messages, including registry-wide `E_GRAPH` cycles, are clipped to the row width. Inspect `somnus index`, `somnus q --conflicts`, and `somnus q --history` for complete diagnosis and context; a successful save is not proof that registry reconciliation is clean. See [Terminal UI](../systems/tui.md).
 
 ## Python diagnostics
 

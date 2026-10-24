@@ -22,7 +22,9 @@ When an operation must stop, code raises `SomnusError` carrying the diagnostics 
 | 1 | `EXIT_INVALID` | Validation errors, refusals, or open conflicts |
 | 2 | `EXIT_USAGE` | Usage, I/O, or environment errors |
 
-Codes starting with `E_` are errors and `W_` are warnings. The list is in [Debugging](debugging.md).
+Codes starting with `E_` are errors and `W_` are warnings. `SPEC.md` section 19.2 defines a closed registry of four warning codes. D18 in `DECISIONS.md` removes the undefined `W_DUPLICATE_TITLE`: near-duplicate titles remain advisory rows from `somnus stale`, not validator warnings. The list is in [Debugging](debugging.md).
+
+Informational notes use `note()` in `src/somnus/commands/_common.py`, normally on stderr. Its re-entrant `capture_notes()` context manager temporarily redirects that channel. The terminal UI installs `NoteBuffer` from `src/somnus/tui/app.py` for its alternate-screen session and drains notes into the status row before rendering. CLI diagnostics keep their normal channel. See [Terminal UI](../systems/tui.md).
 
 ## Host-byte preservation
 
@@ -38,7 +40,7 @@ Commands that rewrite files (`stamp`, `migrate`, `regions --sync`) print a unifi
 
 ## Output formats
 
-Tables are aligned plain text, or TSV with `--tsv`. There is no JSON output mode; the registry and CLI avoid JSON by operator decision (D4). The one exception is `somnus schema --json-schema`, because JSON Schema is itself a JSON format.
+Tables are aligned plain text, or TSV with `--tsv`. Registry data has no JSON output mode (D4). The external-format exceptions are `somnus schema --json-schema` and JSON-RPC framing in `src/somnus/mcp.py` (D17). MCP wraps the command's output in one text content item; it does not turn registry rows into JSON. See [Agent integration](../features/agent-integration.md).
 
 ## Closed schemas
 
@@ -54,6 +56,12 @@ Every standardized object rejects unknown keys (`E_SCHEMA`), and `null` is refus
 ## Paths
 
 Registry paths are stored as POSIX strings (`Path.as_posix()`) so the same root reads the same on every platform.
+
+The MCP adapter runs each command in a child process from the server's working directory (`src/somnus/mcp.py`). Use absolute file paths in MCP calls when the client needs stable path resolution. The adapter keeps no application state between calls; writes persist through the files and registry.
+
+## Policy checks
+
+`.github/workflows/ci.yml` rejects non-empty runtime dependencies in `pyproject.toml` and statically checks imports under `src/` for references to `archive`. These checks supplement the rules in `AGENTS.md`; they do not authorize contract changes. A material change to a ratified decision needs an explicit new decision and the versioning steps in `SPEC.md` section 23.
 
 ## Related pages
 

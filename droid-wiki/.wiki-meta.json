@@ -1,8 +1,18 @@
 {
-  "generatedAt": "2026-10-12T04:49:13Z",
-  "commitHash": "43ab36002eb8a17f2cf39a2a44e87cbbe0de6466",
+  "generatedAt": "2026-10-24T06:23:27.627Z",
+  "commitHash": "13bb88873b9a3d6dc9b514d88f4965569d2dbd26",
   "branch": "main",
-  "pageCount": 36,
+  "pageCount": 37,
+  "warnings": [
+    "Phase 3.5 skipped: no .factory/skills/qa/config.yaml. Run /install-qa to enable screenshots.",
+    "Checkout tests passed (476); semantic validation passed (0 errors, 0 warnings). Mypy 1.18.2 passed 49 source files, while 1.9.0 reported two existing console-adapter typing errors; see PLAN.md. Installed acceptance and external MCP hosts were not rerun."
+  ],
+  "videoOverview": {
+    "status": "failed",
+    "warnings": [
+      "HyperFrames 0.4.44 doctor reported failed checks: FFmpeg and FFprobe were not found, despite command exit 0. Rendering was skipped in non-interactive mode; no video was generated."
+    ]
+  },
   "topLevelSections": [
     "overview",
     "by-the-numbers",
@@ -11,6 +21,7 @@
     "how-to-contribute",
     "features",
     "systems",
+    "deployment",
     "background",
     "cleanup-opportunities",
     "reference"
@@ -43,6 +54,7 @@
     "systems/validation.md",
     "systems/registry.md",
     "systems/tui.md",
+    "deployment.md",
     "background/index.md",
     "background/design-decisions.md",
     "background/pitfalls.md",

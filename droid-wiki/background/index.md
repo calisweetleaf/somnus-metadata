@@ -17,3 +17,5 @@ This section explains why the Somnus standard and toolkit look the way they do, 
 3. **Core 2.0.0.** The current standard. `SPEC.md` was written fresh (`db1fd5a`), the old material was moved behind the archive warning (`91a7195`), and the toolkit was built in layers: foundation, model and carriers, registry, CLI, conformance suite, TUI, and finally per-module unit suites (443 tests, `8f0db0d`). The decisions were ratified in `df72af4`, with D4 written to match the operator's override.
 
 See [lore](../lore.md) for a fuller account of the project's history.
+
+The current managed documents are `SPEC.md` revision 5 and `DECISIONS.md` revision 4. D18 removes the undefined `W_DUPLICATE_TITLE` listing as a non-breaking documentation correction; core stays `somnus://metadata/core/2.0.0`. The closed warning registry contains `W_PREDICATE`, `W_REGION_SPACING`, `W_REGION_UNREGISTERED`, and `W_UNMANAGED`. Near-duplicate titles remain registry advisories, not validation warning codes.

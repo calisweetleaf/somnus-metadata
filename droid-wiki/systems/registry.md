@@ -24,7 +24,7 @@ src/somnus/db/
 | --- | --- | --- |
 | `Store` | `src/somnus/db/store.py` | Writable connection plus actor name; context manager that commits on exit and rolls back on exception. |
 | `Store.open(db_path, actor, create)` | `src/somnus/db/store.py` | Creates the parent directory when allowed, connects with a 10 s timeout, sets `foreign_keys = ON` and `journal_mode = WAL`, then runs `_migrate()`. |
-| `Store._migrate()` | `src/somnus/db/store.py` | Reads `PRAGMA user_version`; refuses a newer version, returns when equal to `DB_USER_VERSION` (1, in `src/somnus/__init__.py`), otherwise runs `schema.sql` and sets the version. |
+| `Store._migrate()` | `src/somnus/db/store.py` | Reads `PRAGMA user_version`; refuses a newer version, returns when equal to `DB_USER_VERSION` (1, in `src/somnus/__init__.py`), otherwise runs `src/somnus/db/schema.sql` and sets the version. |
 | `ScanReport` | `src/somnus/db/store.py` | Counters (scanned, indexed, unchanged, unmanaged, examples, invalid, missing, new revisions, conflicts opened/resolved) and diagnostics for one pass. |
 | `Store.log()` | `src/somnus/db/store.py` | Inserts one `events` row with `now_iso()`, the actor, action, artifact, revision, path, and detail. |
 | `Store.scan()`, `Store.observe()` | `src/somnus/db/store.py` | Full reconciliation of roots, or re-indexing of one file under a registered root. |
@@ -132,7 +132,7 @@ graph TD
 
 - Schema changes: edit `src/somnus/db/schema.sql`, increase `DB_USER_VERSION` in `src/somnus/__init__.py`, and extend `_migrate()`. The current migration only runs the full DDL (all statements use `IF NOT EXISTS`), so a version 2 change to existing tables would need explicit `ALTER` steps.
 - New conflict kind: extend the `CHECK` constraint on `conflicts.kind`, add a reconcile step in `_reconcile()`, and map it to a diagnostic code in `canon()` in `src/somnus/model/validate.py`.
-- New materialized knowledge: add a table to `schema.sql`, write it in `_materialize()`, and read it in `resolver()` if validation needs it.
+- New materialized knowledge: add a table to `src/somnus/db/schema.sql`, write it in `_materialize()`, and read it in `resolver()` if validation needs it.
 - Tests live in `tests/test_store.py`.
 
 ## Key source files

@@ -1,10 +1,10 @@
 # Fun facts
 
-A few things about somnus-metadata that stood out while measuring it. Counts were taken on 2026-10-11 at commit `43ab360`. For the full figures, see [by the numbers](by-the-numbers.md) and [lore](lore.md). For what the project is, start at [the overview](overview/index.md).
+A few things about somnus-metadata that stood out while measuring it. Current measurements use committed HEAD `13bb888` on 2026-10-24 UTC; historical observations retain their original commit references. For the full figures, see [by the numbers](by-the-numbers.md) and [lore](lore.md). For what the project is, start at [the overview](overview/index.md).
 
-## The longest file is the one that was retired
+## The retired specification is still longer
 
-The longest tracked file is `archive/v0.1/SOMNUS-METADATA-SPEC-v0.1.md` at 1,287 lines. The normative spec that replaced it, `SPEC.md`, is 911 lines. The same pattern holds for the validator: the archived `archive/v0.1/tools/validate.py` is 1,115 lines, while its replacement `src/somnus/model/validate.py` is 832. In both cases the 2.0.0 versions came out shorter than what they replaced.
+The retired `archive/v0.1/SOMNUS-METADATA-SPEC-v0.1.md` has 1,287 physical lines. The normative spec that replaced it, `SPEC.md`, is 936 lines. The same pattern holds for the validator: the archived `archive/v0.1/tools/validate.py` is 1,115 lines, while its replacement `src/somnus/model/validate.py` is 844. In both cases the 2.0.0 versions came out shorter than what they replaced.
 
 ## Zero TODOs in live code
 
@@ -12,11 +12,11 @@ Running `rg -n -i "TODO|FIXME|XXX|HACK" src tests` returns exactly one hit, and 
 
 ## The registry forbids JSON, but two commands have to speak it
 
-Decision D4 says "JSON IS FORBIDDEN, IT IS SLOW ON INFERENCE" and bans JSON from the registry entirely: no JSON columns, and query output is aligned text or TSV. Yet `somnus schema --json-schema` exports a JSON Schema Draft 2020-12 document, because that is the format the JSON Schema standard requires. D4 lists this as one of only two places JSON is allowed, the other being json-pointer selectors into JSON host files. The MCP server added in `43ab360` brought a third: the protocol's stdio transport is JSON-RPC, so `somnus mcp` speaks JSON on the wire. D17 accepts that under the same "where a format requires it" reasoning, and the text inside every tool result is still the CLI's plain text or TSV. Outside this wiki's own `droid-wiki/.wiki-meta.json`, which the wiki uploader reads, the only JSON files committed to the repository are the three retired v0.1 schemas in `archive/v0.1/schemas/v1/`.
+Decision D4 says "JSON IS FORBIDDEN, IT IS SLOW ON INFERENCE" and bans JSON from the registry entirely: no JSON columns, and query output is aligned text or TSV. Yet `somnus schema --json-schema` exports a JSON Schema Draft 2020-12 document, because that is the format the JSON Schema standard requires. D4 lists this as one of only two places JSON is allowed, the other being json-pointer selectors into JSON host files. The MCP server added in `43ab360` brought a third: the protocol's stdio transport is JSON-RPC, so `somnus mcp` speaks JSON on the wire. D17 accepts that under the same "where a format requires it" reasoning, and the text inside every tool result is still the CLI's plain text or TSV. The three retired v0.1 schemas remain in `archive/v0.1/schemas/v1/`, but they are not an inventory of every JSON configuration file in the repository. Runtime implementation remains Python plus `src/somnus/db/schema.sql`.
 
 ## Where the names come from
 
-"Somnus" is Latin for sleep and the name of the Roman god of sleep. The repository never explains the choice, so any link to the meaning is a guess. The operator's name is clearer. The v2 proposal is addressed as a "candidate for Daeron's adoption", the v0.1 spec mentions a working path under `/home/daeron/LAB/`, and the all-caps override quoted in D4 is the operator's message demanding "A GLOBAL .DB". The `DAERON-MESSAGE` label for that override does not appear anywhere in tracked history. Only the quoted text survived into `DECISIONS.md` in `df72af4`.
+"Somnus" is Latin for sleep and the name of the Roman god of sleep. The repository never explains the choice, so any link to the meaning is a guess. The operator's name is clearer. The v2 proposal is addressed as a "candidate for Daeron's adoption", and the all-caps override quoted in D4 is the operator's message demanding "A GLOBAL .DB". The `DAERON-MESSAGE` label for that override does not appear anywhere in tracked history. Only the quoted text survived into `DECISIONS.md` in `df72af4`.
 
 ## The mojibake was there from the first spec commit
 
