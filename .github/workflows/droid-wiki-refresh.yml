@@ -27,7 +27,7 @@ jobs:
   wiki-refresh:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Full history: /wiki diffs against the commit the previous wiki
           # was generated from to update only the affected pages.
@@ -57,7 +57,7 @@ jobs:
         # the pull request action cannot work from, and its wiki would
         # describe unmerged code. The hosted wiki still refreshes on such runs.
         if: github.event_name != 'pull_request' && github.event_name != 'pull_request_target'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: droid-wiki
           # The pages and their metadata only: the video overview and the
@@ -82,10 +82,10 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Pick up the generated wiki
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: droid-wiki
           path: droid-wiki
