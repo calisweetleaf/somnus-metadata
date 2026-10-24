@@ -14,7 +14,7 @@ from somnus import carriers, yamlsub
 from somnus.carriers import CarrierError, Envelope, Issue, Splice
 from somnus.carriers.sidecar import SIDECAR
 from somnus.model.schema import make_order
-from somnus.output import Diagnostic, SomnusError, EXIT_USAGE
+from somnus.output import EXIT_USAGE, Diagnostic, Severity, SomnusError
 
 
 def _split(text: str) -> tuple[list[str], list[str]]:
@@ -69,8 +69,10 @@ class Document:
     @property
     def payload(self) -> Optional[dict]:
         """The ``somnus`` mapping, when it parsed."""
-        if isinstance(self.data, dict) and isinstance(self.data.get("somnus"), dict):
-            return self.data["somnus"]
+        if isinstance(self.data, dict):
+            payload = self.data.get("somnus")
+            if isinstance(payload, dict):
+                return payload
         return None
 
     @property
@@ -98,11 +100,11 @@ class Document:
         if self.is_sidecar:
             data = self.host_bytes if self.host_bytes is not None else b""
             return hashlib.sha256(data.replace(b"\r\n", b"\n")).hexdigest()
-        keep = range(len(self.lines))
+        keep: list[int] = list(range(len(self.lines)))
         if self.envelope is not None:
             keep = [i for i in keep if not self.envelope.start <= i < self.envelope.end]
-        data = "".join(self.lines[i] + ("\n" if self.endings[i] else "") for i in keep)
-        return hashlib.sha256(data.encode("utf-8")).hexdigest()
+        text = "".join(self.lines[i] + ("\n" if self.endings[i] else "") for i in keep)
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
     def payload_digest(self) -> str:
         """SHA-256 of the canonical serialization of the payload."""
@@ -118,7 +120,7 @@ class Document:
         line, col = self.spans.get(p, (1, 1))
         return (self.envelope.payload_start + line, col + self.envelope.col_offset)
 
-    def diag(self, path: tuple, code: str, message: str, severity: str = "error",
+    def diag(self, path: tuple, code: str, message: str, severity: Severity = "error",
              line: Optional[int] = None, col: Optional[int] = None) -> Diagnostic:
         """Build a diagnostic anchored at a payload path (or explicit position)."""
         if line is None:

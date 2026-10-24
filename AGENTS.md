@@ -13,13 +13,19 @@ MCP host as validated unless separately exercised.
 - `SPEC.md` is normative. If implementation and SPEC disagree, treat it as a
   defect; do not change the contract without an explicit decision and version
   update under SPEC §23.
-- `DECISIONS.md` records ratified rationale D1–D17. Do not silently revise a
+- `DECISIONS.md` records ratified rationale D1–D18. Do not silently revise a
   decision; add a new ratified decision for a material change.
 - `PLAN.md` is a current delivery/maintenance handoff, not the normative source.
 - `tests/test_conformance.py` is the executable 21-fixture acceptance suite.
 - `src/somnus/` is implementation truth; tests are behavioral evidence.
 - `filetree.md` is the navigation map. Use it to locate the subsystem before
   deep traversal.
+- `CONTRIBUTING.md` documents contributor setup, the observed naming
+  conventions, and the dependency release-age policy (dev and CI dependency
+  bumps wait at least 7 days after release).
+- `runbooks/` holds incident runbooks: registry recovery and reconciliation
+  (`runbooks/registry-recovery.md`) and host-write incidents / E_HOST response
+  (`runbooks/host-write-incident.md`).
 - `Somnus Markdown Metadata Standard Research.md` is evidence-only and frozen;
   never overwrite it.
 - `archive/` is historical, not normative. Never import from it or cite it as
@@ -61,6 +67,7 @@ From the repository root on POSIX:
 ```sh
 PYTHONPATH=src python -m unittest discover -s tests
 PYTHONPATH=src python -m somnus.cli check SPEC.md DECISIONS.md --level semantic
+python -m mypy   # dev tool; install with: pip install "mypy>=1.9"
 ```
 
 PowerShell equivalent for source checkout execution:
@@ -94,3 +101,34 @@ what it contains first.
 This folder is OneDrive-synced. Multi-file Surgeon transactions (`multi_edit`,
 `prepare/commit`) fail with WinError 5; edit one file per call. Keep historical
 and user-owned research artifacts untouched.
+
+
+## Composed operator route (2026-10-23)
+
+- Read `PLAN.md` for current evidence/frontier and `CONTEXT.md` for relationships
+  and tool-state boundaries. Do not reconstruct the whole repository each turn.
+- Follow `.codex/OPERATING.md` for the Golden Path state transitions and the
+  BB7 + topology + Surgeon + Doctor + Code Forge composition. Use the instruments
+  proactively; do not replace judgment with compulsory bootstrap ceremonies.
+- On first adoption, read
+  `docs/references-unrelated-to-codebase/The-House-that-Had-to-be-Real.md` fully.
+  Preserve authored mechanisms, carry connections into runtime, and leave a
+  working surface. Small construction units do not shrink the system objective.
+- BB7 owns cognitive continuity; inspect live schemas before calls. Codex uses
+  ALL_TOOLS/direct calls; search_tool/use_tool is conditional on the actual host.
+  Degraded recommendations do not authorize abandoning the working substrate or
+  stopping independent work. No shared-data/model mutation is implied.
+- For code connections, use a fresh graph/caller/impact surface before repeated
+  text hunting, then inspect decisive source with Surgeon. Doctor is static
+  diagnostics, graphs are structural evidence, and native execution proves only
+  the exercised boundary. Do not conflate them.
+- For Python work, apply the forge construction/promotion discipline and
+  fieldkit baseline/repair/native-test/rescan loop. Preserve src/somnus and tests;
+  resolve skill-layout conflicts explicitly before claiming full promotion.
+- Record diagnostic failures and dispositions in PLAN; no suppressed findings,
+  threshold weakening, or mass reformatting to satisfy a readiness score.
+- Existing global hooks remain owned by their installed adapters. The local
+  .codex route is documentation, not a claim that a project hook is installed.
+- `AGENTS.template.v2.md` remains a preserved imported proposal;
+  `AGENTS.somnus.v2.md` is the project-specific comparison candidate. Neither
+  silently replaces this active entry file. Do not delete or auto-swap them.

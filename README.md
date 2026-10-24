@@ -15,10 +15,26 @@ revisions, relations, claims, and conflicts. It contains no JSON.
 
 Requires Python 3.11+ and has no third-party dependencies.
 
-```
-uv tool install --editable .
+```sh
+uv tool install somnus-metadata
 somnus --version
 ```
+
+Alternatively, use `pipx install somnus-metadata`. For a Python virtual
+ environment, use `python -m pip install somnus-metadata`.
+
+The distribution is **somnus-metadata**; the command and Python import remain
+**somnus**. Do not install the unrelated PyPI distribution named `somnus` into
+this same environment: it owns the same command/import names.
+
+For development from a source checkout, use `uv tool install --editable .`.
+The installed tool works outside this repository; register the project roots you
+want to manage with `somnus init --root /path/to/project`.
+
+Somnus Metadata **2.0.0** implements metadata core **2.0.0**.
+The material under `archive/v2-proposal/` is historical, not the active release.
+The CLI, terminal UI and stdio MCP adapter share one backend. A distributable
+coding-agent plugin is not included in this release.
 
 ## Quick start
 
@@ -38,7 +54,8 @@ somnus edit                          # terminal UI
 
 ## MCP server
 
-`somnus mcp` serves every command except `edit` as Model Context Protocol tools over stdio.
+`somnus mcp` serves non-interactive commands (excluding `edit` and `mcp` itself)
+as Model Context Protocol tools over stdio.
 Each tool returns the command's text output. Register it with any MCP client by command:
 
 ```
@@ -50,5 +67,5 @@ Exit codes: `0` ok, `1` validation errors, refusals, or conflicts, `2` usage or 
 ## Tests
 
 ```
-python -m unittest discover -s tests
+PYTHONPATH=src python -m unittest discover -s tests
 ```

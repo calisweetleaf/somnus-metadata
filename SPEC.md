@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a12a94-8657-715c-9044-852de0e3f08a"
-  revision: 3
+  revision: 5
   title: "Somnus Metadata System: Normative Specification"
   summary: "The single normative contract for Somnus artifact metadata, carriers, regions, validation, and the global registry."
   classification:
@@ -20,7 +20,7 @@ somnus:
         aspects: ["content", "semantic-model", "ingestion"]
   time:
     created_at: "2026-10-11T10:48:59+00:00"
-    updated_at: "2026-10-20T04:38:57+00:00"
+    updated_at: "2026-10-24T04:18:31+00:00"
     authored_on: "2026-10-11"
   knowledge:
     coverage: "artifact"
@@ -42,7 +42,7 @@ somnus:
 
 **Schema release:** `somnus://metadata/core/2.0.0`
 **Reference implementation:** the `somnus` Python package in `src/somnus/`
-**Decisions:** [DECISIONS.md](DECISIONS.md) (D1–D17)
+**Decisions:** [DECISIONS.md](DECISIONS.md) (D1–D18)
 
 This document is the only normative statement of the Somnus metadata standard.
 It merges the semantic model of the v2 proposal
@@ -807,7 +807,13 @@ or `-`.
 | `E_POLICY` | Usage or capability policy violation |
 | `E_LIFECYCLE` | Forbidden transition or missing transition reason |
 | `E_IO` | File cannot be read or written |
-| `W_*` | Warnings (`W_PREDICATE`, `W_REGION_SPACING`, `W_REGION_UNREGISTERED`, `W_UNMANAGED`, `W_DUPLICATE_TITLE`) |
+| `W_*` | Warnings (`W_PREDICATE`, `W_REGION_SPACING`, `W_REGION_UNREGISTERED`, `W_UNMANAGED`) |
+
+The warning registry above is closed: the validator emits exactly those four
+warning codes. Near-duplicate titles are a registry-level advisory, not a
+validation diagnostic. `somnus stale` reports them as `near-duplicate-title`
+rows, and `somnus new` refuses a title that collides with a registered artifact
+(`[E_IO]`) unless `--force` is given (D18).
 
 ### 19.3 Exit codes
 

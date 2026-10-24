@@ -10,7 +10,7 @@ import textwrap
 from pathlib import Path
 from typing import Any, Mapping, Optional, Sequence
 
-from somnus.commands._common import Ctx, commit, load_valid
+from somnus.commands._common import Ctx, capture_notes, commit, load_valid
 from somnus.db import Store
 from somnus.model.lifecycle import bump_revision
 from somnus.output import EXIT_OK, EXIT_USAGE, SomnusError
@@ -22,6 +22,27 @@ QUIT_KEYS = ("q", "esc", "ctrl-c")
 ROW_LABELS = ("ID", "Title", "Type", "Status", "Standing", "Revision", "Path")
 BROWSER_RATIO = 0.55
 LABEL_WIDTH = 12
+
+
+class NoteBuffer:
+    """Collects informational notes so the active screen can show them instead of stderr.
+
+    ``app.main`` installs one as the process-wide note sink for the whole alternate-screen
+    session; each screen drains it into its status line before every frame.
+    """
+
+    def __init__(self) -> None:
+        """Start with no notes collected."""
+        self._pending: list[str] = []
+
+    def __call__(self, message: str) -> None:
+        """Accept one note; used directly as the ``capture_notes`` sink."""
+        self._pending.append(message)
+
+    def drain(self) -> str:
+        """Return every note collected since the last drain, joined with ``; ``."""
+        pending, self._pending = self._pending, []
+        return "; ".join(pending)
 
 
 def first_message(exc: SomnusError) -> str:
@@ -86,10 +107,11 @@ def _frame_size(screen: Terminal) -> tuple[int, int]:
 class EditorScreen:
     """Header editor for one loaded document."""
 
-    def __init__(self, ctx: Ctx, screen: Terminal, doc: Any) -> None:
+    def __init__(self, ctx: Ctx, screen: Terminal, doc: Any, notes: Optional[NoteBuffer] = None) -> None:
         self.ctx = ctx
         self.screen = screen
         self.doc = doc
+        self.notes = notes
         self.form = FormModel(doc.copy_payload())
         self.cursor = 0
         self.overlay: Optional[Picker | TextInput] = None
@@ -102,6 +124,7 @@ class EditorScreen:
     def run(self) -> None:
         """Interact until the user quits."""
         while True:
+            self._absorb_notes()
             self.screen.draw(self.render(*_frame_size(self.screen)))
             try:
                 key = self.screen.read_key()
@@ -109,6 +132,14 @@ class EditorScreen:
                 return
             if not self.handle(key):
                 return
+
+    def _absorb_notes(self) -> None:
+        """Fold notes captured since the last frame into the status line."""
+        if self.notes is None:
+            return
+        pending = self.notes.drain()
+        if pending:
+            self.message = f"{self.message}; {pending}" if self.message else pending
 
     def handle(self, key: str) -> bool:
         """Apply one key; return False when the editor should close."""
@@ -157,6 +188,8 @@ class EditorScreen:
 
     def _handle_overlay(self, key: str) -> None:
         overlay = self.overlay
+        if overlay is None:
+            return
         overlay.handle(key)
         if not overlay.done:
             return
@@ -280,15 +313,18 @@ class EditorScreen:
 class BrowserScreen:
     """Filterable registry list with a detail pane; enter opens the header editor."""
 
-    def __init__(self, ctx: Ctx, screen: Terminal, rows: Sequence[tuple]) -> None:
+    def __init__(self, ctx: Ctx, screen: Terminal, rows: Sequence[tuple],
+                 notes: Optional[NoteBuffer] = None) -> None:
         self.ctx = ctx
         self.screen = screen
+        self.notes = notes
         self.list = ListView(rows, render_row, match_text=match_row)
         self.message = f"{len(rows)} documents"
 
     def run(self) -> None:
         """Interact until the user quits."""
         while True:
+            self._absorb_notes()
             self.screen.draw(self.render(*_frame_size(self.screen)))
             try:
                 key = self.screen.read_key()
@@ -296,6 +332,14 @@ class BrowserScreen:
                 return
             if not self.handle(key):
                 return
+
+    def _absorb_notes(self) -> None:
+        """Fold notes captured since the last frame into the status line."""
+        if self.notes is None:
+            return
+        pending = self.notes.drain()
+        if pending:
+            self.message = f"{self.message}; {pending}" if self.message else pending
 
     def handle(self, key: str) -> bool:
         """Apply one key; return False when the browser should close."""
@@ -332,7 +376,7 @@ class BrowserScreen:
         except OSError as exc:
             self.message = f"cannot edit {row[6]}: {exc}"
             return
-        EditorScreen(self.ctx, self.screen, doc).run()
+        EditorScreen(self.ctx, self.screen, doc, self.notes).run()
         self.screen.invalidate()
         self.reload()
 
@@ -351,15 +395,17 @@ class BrowserScreen:
 
 def main(ctx: Ctx, path: Optional[Path]) -> int:
     """Run the browser (``path`` is None) or the editor for ``path``; return the exit code."""
+    notes = NoteBuffer()
     try:
-        if path is not None:
-            doc = load_valid(path)
-            with Terminal() as term:
-                EditorScreen(ctx, term, doc).run()
-        else:
-            rows = load_rows(ctx)
-            with Terminal() as term:
-                BrowserScreen(ctx, term, rows).run()
+        with capture_notes(notes):
+            if path is not None:
+                doc = load_valid(path)
+                with Terminal() as term:
+                    EditorScreen(ctx, term, doc, notes).run()
+            else:
+                rows = load_rows(ctx)
+                with Terminal() as term:
+                    BrowserScreen(ctx, term, rows, notes).run()
     except TerminalError as exc:
         raise SomnusError(f"cannot use the terminal: {exc}", EXIT_USAGE) from exc
     return EXIT_OK

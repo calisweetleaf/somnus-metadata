@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import contextlib
 import difflib
 import os
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable, Iterator, Optional, Sequence
+from typing import Callable, Iterable, Iterator, Literal, Optional, Sequence
 
 from somnus import CORE_SCHEMA, carriers, config, ids
 from somnus import document as D
@@ -18,9 +19,14 @@ from somnus.output import EXIT_USAGE, Diagnostic, SomnusError, emit, render, tab
 
 _COLORS = {"error": "\x1b[31m", "warning": "\x1b[33m"}
 
+# Informational notes normally go to stderr. The terminal UI installs a sink for the
+# duration of its alternate-screen session so registry diagnostics reach its status
+# line instead of being written over the frame (issue #3).
+_note_sink: Optional[Callable[[str], None]] = None
+
 
 def _enable_vt() -> bool:
-    if os.name != "nt":
+    if sys.platform != "win32":
         return True
     try:
         import ctypes
@@ -63,7 +69,7 @@ class Ctx:
         return self.cfg.actor
 
     @property
-    def fmt(self) -> str:
+    def fmt(self) -> Literal["text", "tsv"]:
         """Output format: ``text`` or ``tsv``."""
         return "tsv" if self.tsv else "text"
 
@@ -132,8 +138,30 @@ class Ctx:
 
 
 def note(message: str) -> None:
-    """Write an informational line to stderr."""
-    sys.stderr.write(message.rstrip("\n") + "\n")
+    """Write an informational line to stderr, or to the active sink when one is installed."""
+    text = message.rstrip("\n")
+    sink = _note_sink
+    if sink is not None:
+        sink(text)
+        return
+    sys.stderr.write(text + "\n")
+
+
+@contextlib.contextmanager
+def capture_notes(sink: Callable[[str], None]) -> Iterator[None]:
+    """Route :func:`note` output to ``sink`` for the duration of the block.
+
+    The terminal UI uses this so a registry diagnostic produced during a save is shown
+    in the active screen's status line rather than drawn over the alternate screen.
+    Ordinary commands never install a sink and keep the stderr channel unchanged.
+    """
+    global _note_sink
+    previous = _note_sink
+    _note_sink = sink
+    try:
+        yield
+    finally:
+        _note_sink = previous
 
 
 def path_text(path: Path) -> str:

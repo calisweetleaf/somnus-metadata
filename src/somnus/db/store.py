@@ -200,11 +200,13 @@ class Store:
         resolved = Path(path).resolve().as_posix()
         row = self.conn.execute("SELECT id FROM roots WHERE path = ?", (resolved,)).fetchone()
         if row:
-            return row[0]
+            return int(row[0])
         cur = self.conn.execute("INSERT INTO roots (path, added_at) VALUES (?, ?)", (resolved, now_iso()))
         self.log("root.add", path=resolved)
         self.conn.commit()
-        return cur.lastrowid
+        new_id = cur.lastrowid
+        assert new_id is not None  # sqlite3 assigns lastrowid on INSERT
+        return new_id
 
     def roots(self) -> list[tuple[int, Path]]:
         """Registered roots as ``(id, path)``."""
@@ -355,20 +357,25 @@ class Store:
             report.diagnostics.extend(problems)
             report.invalid += 1
             return host_rel
-        if ids.is_example_urn(doc.payload["id"]):
+        somnus = doc.payload
+        if somnus is None:
+            report.diagnostics.append(Diagnostic(str(file_path), 0, 0, "error", "E_ENVELOPE", "-",
+                                                 "no metadata envelope found"))
+            report.invalid += 1
+            return host_rel
+        if ids.is_example_urn(somnus["id"]):
             report.examples += 1
             return None
-        self._index_document(root_id, root, host_rel, doc, mtime, size, report)
+        self._index_document(root_id, root, host_rel, doc, somnus, mtime, size, report)
         report.indexed += 1
         self.conn.commit()
         return host_rel
 
-    def _index_document(self, root_id: int, root: Path, rel_path: str, doc: D.Document,
+    def _index_document(self, root_id: int, root: Path, rel_path: str, doc: D.Document, somnus: dict,
                         mtime: float, size: int, report: ScanReport) -> None:
-        somnus = doc.payload
         aid = somnus["id"]
         rev = somnus["revision"]
-        header = D.canonical_yaml(doc.data)
+        header = D.canonical_yaml(doc.data or {})
         pd, bd = doc.payload_digest(), doc.body_digest()
         now = now_iso()
         path_text = _join(root.as_posix(), rel_path)

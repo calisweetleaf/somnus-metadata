@@ -219,9 +219,9 @@ def build_payload(legacy: dict, cfg: Config, path: Path, regions: list[dict], di
     relations: list[dict] = []
     used_rel: set = set()
     for bucket in _RELATION_BUCKETS:
-        values = rel_in.pop(bucket, []) or []
+        bucket_values = rel_in.pop(bucket, []) or []
         leftovers = []
-        for value in values if isinstance(values, list) else [values]:
+        for value in bucket_values if isinstance(bucket_values, list) else [bucket_values]:
             ref = ids.normalize_legacy_ref(value.strip()) if isinstance(value, str) else None
             if ref is None or not ids.is_reference_string(ref):
                 leftovers.append(value)
@@ -263,7 +263,9 @@ def build_payload(legacy: dict, cfg: Config, path: Path, regions: list[dict], di
     elif slug is not None:
         unmapped["slug"] = slug
     aliases_in = rest.pop("aliases", []) or []
-    aliases, used_alias, bad_aliases = [], set(), []
+    aliases: list[dict] = []
+    used_alias: set[str] = set()
+    bad_aliases: list[Any] = []
     for alias in aliases_in if isinstance(aliases_in, list) else [aliases_in]:
         if isinstance(alias, str) and alias.strip():
             aliases.append({"id": _unique(f"alias-{ids.slugify(alias)}", used_alias), "label": alias,

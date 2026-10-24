@@ -15,7 +15,7 @@ from somnus.carriers.sidecar import SIDECAR, binding_issues, primary_target
 from somnus.document import Document
 from somnus.model import schema as S
 from somnus.model import vocab
-from somnus.output import Diagnostic
+from somnus.output import Diagnostic, Severity
 from somnus.regions import MarkerScan, headings, scan_markers, tex_labels
 
 LEVEL_RANK = {name: i for i, name in enumerate(vocab.LEVELS)}
@@ -55,14 +55,14 @@ class Resolver:
             return
         rev = somnus.get("revision") if isinstance(somnus.get("revision"), int) else 0
         facts = self.artifacts.setdefault(aid, ArtifactFacts(aid))
-        cls = somnus.get("classification", {}) if isinstance(somnus.get("classification"), dict) else {}
+        cls = _mapping(somnus.get("classification"))
         if rev >= facts.current_revision:
             facts.current_revision = rev
             facts.type = cls.get("type", facts.type)
             facts.status = (somnus.get("lifecycle") or {}).get("status", facts.status)
             facts.standing = (somnus.get("authority") or {}).get("standing", facts.standing)
         facts.revisions.add(rev)
-        knowledge = somnus.get("knowledge", {}) if isinstance(somnus.get("knowledge"), dict) else {}
+        knowledge = _mapping(somnus.get("knowledge"))
         facts.regions[rev] = {r.get("id") for r in knowledge.get("regions", []) if isinstance(r, dict)}
         facts.claims[rev] = {c.get("id") for c in knowledge.get("claims", []) if isinstance(c, dict)}
         for ent in knowledge.get("entities", []):
@@ -86,6 +86,16 @@ def _canon(value: Any) -> str:
     return json.dumps(value, sort_keys=True, ensure_ascii=False)
 
 
+def _mapping(value: Any) -> dict:
+    """Return ``value`` when it is a dict, else an empty dict."""
+    return value if isinstance(value, dict) else {}
+
+
+def _seq(value: Any) -> list:
+    """Return ``value`` when it is a list, else an empty list."""
+    return value if isinstance(value, list) else []
+
+
 class _Run:
     """Accumulates diagnostics for one document."""
 
@@ -99,7 +109,7 @@ class _Run:
     def warn(self, path: tuple, code: str, message: str) -> None:
         self.out.append(self.doc.diag(path, code, message, severity="warning"))
 
-    def at(self, line: int, col: int, code: str, message: str, severity: str = "error") -> None:
+    def at(self, line: int, col: int, code: str, message: str, severity: Severity = "error") -> None:
         self.out.append(Diagnostic(self.doc.display, line, col, severity, code, "-", message))
 
 
@@ -278,7 +288,7 @@ def _unique_ids(run: _Run, items: list, path: tuple, label: str) -> set:
 def consistency(run: _Run, somnus: dict) -> None:
     """Intra-document conditional requirements (core level)."""
     P = ("somnus",)
-    authority = somnus.get("authority") if isinstance(somnus.get("authority"), dict) else {}
+    authority = _mapping(somnus.get("authority"))
     standing = authority.get("standing")
     if isinstance(authority.get("scopes"), list) and not authority["scopes"] and standing not in (None, "unasserted"):
         run.err(P + ("authority", "scopes"), "E_AUTHORITY", "scopes may be empty only when standing is 'unasserted'")
@@ -287,11 +297,11 @@ def consistency(run: _Run, somnus: dict) -> None:
             if req not in authority:
                 run.err(P + ("authority",), "E_AUTHORITY", f"standing 'accepted' requires {req}")
 
-    lifecycle = somnus.get("lifecycle") if isinstance(somnus.get("lifecycle"), dict) else {}
+    lifecycle = _mapping(somnus.get("lifecycle"))
     if lifecycle.get("status") == "superseded" and not lifecycle.get("replacement_refs"):
         run.err(P + ("lifecycle",), "E_SCHEMA", "status 'superseded' requires replacement_refs")
 
-    time = somnus.get("time") if isinstance(somnus.get("time"), dict) else {}
+    time = _mapping(somnus.get("time"))
     created = _parse_ts(str(time.get("created_at", "")))
     updated = _parse_ts(str(time.get("updated_at", "")))
     if created and updated and updated < created:
@@ -300,7 +310,7 @@ def consistency(run: _Run, somnus: dict) -> None:
     for path, vt in _iter_valid_times(somnus, P):
         _check_valid_time(run, path, vt)
 
-    ownership = somnus.get("ownership") if isinstance(somnus.get("ownership"), dict) else {}
+    ownership = _mapping(somnus.get("ownership"))
     rights = ownership.get("rights") if isinstance(ownership.get("rights"), dict) else None
     if rights is not None:
         if rights.get("status") == "specified" and "license_expression" not in rights:
@@ -309,10 +319,10 @@ def consistency(run: _Run, somnus: dict) -> None:
             run.err(P + ("ownership", "rights", "license_expression"), "E_SCHEMA",
                     "license_expression is only allowed when status is 'specified'")
 
-    names = somnus.get("names") if isinstance(somnus.get("names"), dict) else {}
+    names = _mapping(somnus.get("names"))
     _unique_ids(run, names.get("aliases", []), P + ("names", "aliases"), "alias")
 
-    knowledge = somnus.get("knowledge") if isinstance(somnus.get("knowledge"), dict) else {}
+    knowledge = _mapping(somnus.get("knowledge"))
     K = P + ("knowledge",)
     regions = _dicts(knowledge.get("regions"))
     claims = _dicts(knowledge.get("claims"))
@@ -333,8 +343,8 @@ def consistency(run: _Run, somnus: dict) -> None:
             _unique_ids(run, ent.get("aliases", []) if isinstance(ent.get("aliases"), list) else [],
                         K + ("entities", i, "aliases"), "entity alias")
 
-    doc_vis = (somnus.get("access") or {}).get("visibility") if isinstance(somnus.get("access"), dict) else None
-    doc_uses = set((somnus.get("access") or {}).get("allowed_uses", []) or []) if isinstance(somnus.get("access"), dict) else set()
+    doc_vis = _mapping(somnus.get("access")).get("visibility")
+    doc_uses = set(_mapping(somnus.get("access")).get("allowed_uses", []) or [])
     claims_by_id = {c.get("id"): c for c in claims}
     for i, reg in enumerate(knowledge.get("regions", []) if isinstance(knowledge.get("regions"), list) else []):
         if not isinstance(reg, dict):
@@ -346,10 +356,10 @@ def consistency(run: _Run, somnus: dict) -> None:
             elif claims_by_id[cid].get("region_ref") != reg.get("id"):
                 run.err(rp + ("claim_ids", j), "E_REGION",
                         f"claim {cid!r} has region_ref {claims_by_id[cid].get('region_ref')!r}, not {reg.get('id')!r}")
-        r_auth = reg.get("authority") if isinstance(reg.get("authority"), dict) else {}
+        r_auth = _mapping(reg.get("authority"))
         if r_auth.get("standing") == "accepted" and standing != "accepted":
             run.err(rp + ("authority", "standing"), "E_AUTHORITY", "a region cannot be accepted unless its document is")
-        r_acc = reg.get("access") if isinstance(reg.get("access"), dict) else {}
+        r_acc = _mapping(reg.get("access"))
         r_vis = r_acc.get("visibility")
         if r_vis in vocab.VISIBILITY_RANK and doc_vis in vocab.VISIBILITY_RANK:
             if vocab.VISIBILITY_RANK[r_vis] > vocab.VISIBILITY_RANK[doc_vis]:
@@ -411,13 +421,13 @@ def consistency(run: _Run, somnus: dict) -> None:
         if isinstance(term, dict) and isinstance(term.get("region_ref"), str) and term["region_ref"] not in region_ids:
             run.err(K + ("terms", i, "region_ref"), "E_REGION", f"region {term['region_ref']!r} is not declared")
 
-    ingestion = somnus.get("ingestion") if isinstance(somnus.get("ingestion"), dict) else {}
+    ingestion = _mapping(somnus.get("ingestion"))
     for key in ("include_regions", "exclude_regions", "atomic_regions"):
         for j, rid in enumerate(ingestion.get(key, []) if isinstance(ingestion.get(key), list) else []):
             if rid not in region_ids:
                 run.err(P + ("ingestion", key, j), "E_REGION", f"region {rid!r} is not declared")
-    content = somnus.get("content") if isinstance(somnus.get("content"), dict) else {}
-    math = content.get("math") if isinstance(content.get("math"), dict) else {}
+    content = _mapping(somnus.get("content"))
+    math = _mapping(content.get("math"))
     for j, rid in enumerate(math.get("equation_region_ids", []) if isinstance(math.get("equation_region_ids"), list) else []):
         if rid not in region_ids:
             run.err(P + ("content", "math", "equation_region_ids", j), "E_REGION", f"region {rid!r} is not declared")
@@ -460,9 +470,9 @@ def find_cycle(graph: dict[str, set[str]]) -> Optional[list[str]]:
 
 def _profiles(run: _Run, somnus: dict, region_ids: set) -> None:
     P = ("somnus",)
-    decls = somnus.get("profiles") if isinstance(somnus.get("profiles"), list) else []
-    data = somnus.get("profile_data") if isinstance(somnus.get("profile_data"), dict) else {}
-    keys: dict[str, str] = {}
+    decls = _seq(somnus.get("profiles"))
+    data = _mapping(somnus.get("profile_data"))
+    keys: dict[str, Any] = {}
     schemas: set = set()
     for i, decl in enumerate(decls):
         if not isinstance(decl, dict):
@@ -501,8 +511,8 @@ def marker_regions(run: _Run, somnus: dict) -> Optional[MarkerScan]:
     """Pair body markers and match them against marker-selector regions."""
     doc = run.doc
     style = getattr(doc.carrier, "region_style", ())
-    knowledge = somnus.get("knowledge") if isinstance(somnus.get("knowledge"), dict) else {}
-    regions = knowledge.get("regions") if isinstance(knowledge.get("regions"), list) else []
+    knowledge = _mapping(somnus.get("knowledge"))
+    regions = _seq(knowledge.get("regions"))
     marker_regs = [(i, r) for i, r in enumerate(regions)
                    if isinstance(r, dict) and isinstance(r.get("selector"), dict) and r["selector"].get("kind") == "marker"]
     if not style:
@@ -550,7 +560,8 @@ def _collect_refs(node: Any, value: Any, path: tuple, out: list) -> None:
             if f.name in value and not (obj is S.ENTITY and f.name == "ref"):
                 _collect_refs(f.node, value[f.name], path + (f.name,), out)
     elif isinstance(node, S.MapOf) and isinstance(value, dict):
-        if node is S.SOMNUS.get("extensions").node:
+        extensions = S.SOMNUS.get("extensions")
+        if extensions is not None and node is extensions.node:
             return
         for k, v in value.items():
             _collect_refs(node.value, v, path + (k,), out)
@@ -565,13 +576,14 @@ def references(run: _Run, somnus: dict, resolver: Resolver) -> None:
     found: list = []
     _collect_refs(S.SOMNUS, somnus, ("somnus",), found)
     profiles = {d.get("key"): d.get("schema") for d in somnus.get("profiles", []) if isinstance(d, dict)}
-    for key, payload in (somnus.get("profile_data") or {}).items() if isinstance(somnus.get("profile_data"), dict) else []:
-        node = S.PROFILES.get(profiles.get(key))
+    for key, payload in _mapping(somnus.get("profile_data")).items():
+        uri = profiles.get(key)
+        node = S.PROFILES.get(uri) if isinstance(uri, str) else None
         if node is not None:
             _collect_refs(node, payload, ("somnus", "profile_data", key), found)
     own_id = somnus.get("id")
     own_rev = somnus.get("revision")
-    knowledge = somnus.get("knowledge") if isinstance(somnus.get("knowledge"), dict) else {}
+    knowledge = _mapping(somnus.get("knowledge"))
     declared = {e.get("ref") for e in _dicts(knowledge.get("entities"))}
     own_regions = {r.get("id") for r in _dicts(knowledge.get("regions"))}
     own_claims = {c.get("id") for c in _dicts(knowledge.get("claims"))}
@@ -618,8 +630,8 @@ def references(run: _Run, somnus: dict, resolver: Resolver) -> None:
 def selectors(run: _Run, somnus: dict) -> None:
     """Resolve non-marker region selectors."""
     doc = run.doc
-    knowledge = somnus.get("knowledge") if isinstance(somnus.get("knowledge"), dict) else {}
-    regions = knowledge.get("regions") if isinstance(knowledge.get("regions"), list) else []
+    knowledge = _mapping(somnus.get("knowledge"))
+    regions = _seq(knowledge.get("regions"))
     lines = doc.lines
     for i, reg in enumerate(regions):
         sel = reg.get("selector") if isinstance(reg, dict) else None
@@ -692,7 +704,7 @@ def semantic_policies(run: _Run, somnus: dict) -> None:
     """Resources, constraint languages, and required capabilities."""
     P = ("somnus",)
     base = run.doc.meta_path.parent
-    content = somnus.get("content") if isinstance(somnus.get("content"), dict) else {}
+    content = _mapping(somnus.get("content"))
     missing_required = False
     for i, res in enumerate(_dicts(content.get("resources"))):
         ref = res.get("ref")
@@ -700,20 +712,20 @@ def semantic_policies(run: _Run, somnus: dict) -> None:
             if not (base / ref).exists():
                 missing_required = True
                 run.err(P + ("content", "resources", i, "ref"), "E_EXTRACTION", f"required resource {ref!r} is missing")
-    math = content.get("math") if isinstance(content.get("math"), dict) else {}
-    for i, ref in enumerate(math.get("macro_refs", []) if isinstance(math.get("macro_refs"), list) else []):
+    math = _mapping(content.get("math"))
+    for i, ref in enumerate(_seq(math.get("macro_refs"))):
         if isinstance(ref, str) and not ids.is_reference_string(ref) and not (base / ref).exists():
             missing_required = True
             run.err(P + ("content", "math", "macro_refs", i), "E_EXTRACTION", f"macro source {ref!r} is missing")
-    extraction = content.get("extraction") if isinstance(content.get("extraction"), dict) else {}
+    extraction = _mapping(content.get("extraction"))
     if missing_required and extraction.get("state") == "complete":
         run.err(P + ("content", "extraction", "state"), "E_EXTRACTION",
                 "extraction declared complete while required sources are missing")
     for path, constraint in _constraints(somnus, P):
         if constraint.get("language") not in vocab.CONSTRAINT_LANGUAGES:
             run.err(path + ("language",), "E_REFERENCE", f"unregistered constraint language {constraint.get('language')!r}")
-    ingestion = somnus.get("ingestion") if isinstance(somnus.get("ingestion"), dict) else {}
-    for i, cap in enumerate(ingestion.get("requires", []) if isinstance(ingestion.get("requires"), list) else []):
+    ingestion = _mapping(somnus.get("ingestion"))
+    for i, cap in enumerate(_seq(ingestion.get("requires"))):
         if cap not in vocab.CAPABILITIES:
             run.err(P + ("ingestion", "requires", i), "E_POLICY", f"required capability {cap!r} is not available")
 
@@ -737,7 +749,7 @@ def _constraints(value: Any, path: tuple) -> Iterable[tuple[tuple, dict]]:
 def canon(run: _Run, somnus: dict, resolver: Resolver) -> None:
     """Canon-level checks: verified acceptance, current status, no open conflicts."""
     P = ("somnus",)
-    authority = somnus.get("authority") if isinstance(somnus.get("authority"), dict) else {}
+    authority = _mapping(somnus.get("authority"))
     if authority.get("standing") != "accepted":
         run.err(P + ("authority", "standing"), "E_AUTHORITY", "canon requires standing 'accepted'")
     acc = authority.get("acceptance_ref")
@@ -814,19 +826,19 @@ def validate_payload(somnus: dict, path: str = "<payload>") -> list[Diagnostic]:
 
 def permits_use(somnus: dict, use: str, region_id: Optional[str] = None) -> bool:
     """Header-level usage decision (external policy may be stricter)."""
-    access = somnus.get("access") if isinstance(somnus.get("access"), dict) else {}
+    access = _mapping(somnus.get("access"))
     allowed = set(access.get("allowed_uses", []) or [])
-    disposition = (somnus.get("ingestion") or {}).get("disposition") if isinstance(somnus.get("ingestion"), dict) else None
+    disposition = _mapping(somnus.get("ingestion")).get("disposition")
     if disposition == "excluded":
         allowed &= {"archive"}
     elif disposition == "archive-only":
         allowed &= {"archive", "search"}
     if region_id is not None:
-        knowledge = somnus.get("knowledge") if isinstance(somnus.get("knowledge"), dict) else {}
+        knowledge = _mapping(somnus.get("knowledge"))
         for reg in _dicts(knowledge.get("regions")):
             if reg.get("id") == region_id and isinstance(reg.get("access"), dict) and "allowed_uses" in reg["access"]:
                 allowed &= set(reg["access"]["allowed_uses"])
-        excluded = (somnus.get("ingestion") or {}).get("exclude_regions", []) if isinstance(somnus.get("ingestion"), dict) else []
+        excluded = _mapping(somnus.get("ingestion")).get("exclude_regions", [])
         if region_id in excluded:
             allowed &= {"archive"}
     return use in allowed

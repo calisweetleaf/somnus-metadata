@@ -1,22 +1,36 @@
-"""Terminal UI: pure widget logic, key decoding, frame diffing, and the header form model."""
+"""Terminal UI: pure widget logic, key decoding, frame diffing, the header form model,
+and the real-terminal paths exercised through a POSIX PTY (issues #3 and #4)."""
 
 from __future__ import annotations
 
 import contextlib
+import io
+import os
+import re
 import shutil
+import struct
+import sys
 import tempfile
+import threading
+import time
 import unittest
 from pathlib import Path
 
-from somnus import CORE_SCHEMA, ids
+from somnus import CORE_SCHEMA, cli, ids
 from somnus import document as D
-from somnus.commands._common import load_valid
+from somnus.commands import _common
+from somnus.commands._common import Ctx, load_valid
 from somnus.output import Diagnostic, SomnusError
 from somnus.tui import app as A
 from somnus.tui import form as F
 from somnus.tui import term as T
 from somnus.tui.widgets import (REVERSE, ListView, Picker, TextInput, fit, split, split_widths,
                                 strip_styles, visible_width)
+
+if os.name == "posix":
+    import fcntl
+    import pty
+    import termios
 
 
 def payload(**overrides) -> dict:
@@ -487,6 +501,362 @@ class AppHelpersTest(unittest.TestCase):
         exc = SomnusError([Diagnostic("p", 1, 1, "error", "E", "somnus.title", "bad")])
         self.assertEqual(A.first_message(exc), "somnus.title: bad")
         self.assertEqual(A.first_message(SomnusError("plain")), "plain")
+
+
+# --------------------------------------------------------------------------- issue #3 fixtures
+
+_CYCLE_A = "urn:somnus:artifact:01920000-0000-7000-8000-000000000001"
+_CYCLE_B = "urn:somnus:artifact:01920000-0000-7000-8000-000000000002"
+_POSITION = re.compile(r"\x1b\[(\d+);1H")
+
+
+def cycle_payload(aid: str, title: str, other: str) -> dict:
+    """Valid core payload whose single ``part_of`` relation points at ``other``."""
+    return {
+        "schema": CORE_SCHEMA,
+        "id": aid,
+        "revision": 1,
+        "title": title,
+        "classification": {"category": "engineering", "type": "specification", "role": "informative",
+                           "scope": "component", "tags": ["fixture"]},
+        "lifecycle": {"status": "draft"},
+        "authority": {"standing": "candidate", "scopes": [{"target_ref": aid, "aspects": ["content"]}]},
+        "time": {},
+        "knowledge": {
+            "coverage": "artifact",
+            "subjects": [aid],
+            "relations": [{"id": "r-1", "subject": {"ref": aid}, "predicate": "part_of",
+                           "object": {"ref": other}, "assessment": "unassessed",
+                           "valid_time": {"basis": "timeless"}}],
+        },
+        "access": {"visibility": "internal", "allowed_uses": ["archive", "search", "reason"]},
+        "ingestion": {"disposition": "candidate", "body_role": "specification"},
+    }
+
+
+def write_cycle_docs(root: Path) -> Path:
+    """Write two documents whose registry-wide ``part_of`` edges form a cycle; return the first."""
+    for aid, title, other, name in ((_CYCLE_A, "Alpha", _CYCLE_B, "alpha.md"),
+                                    (_CYCLE_B, "Bravo", _CYCLE_A, "bravo.md")):
+        text = ("---\n" + D.canonical_yaml({"somnus": cycle_payload(aid, title, other)})
+                + "---\n# " + title + "\n\nBody.\n")
+        (root / name).write_text(text, encoding="utf-8")
+    return root / "alpha.md"
+
+
+def frame_rows(stream: str) -> list[tuple[int, str]]:
+    """``(row, visible text)`` for every positioned frame write in a terminal byte stream."""
+    hits = list(_POSITION.finditer(stream))
+    rows: list[tuple[int, str]] = []
+    for i, hit in enumerate(hits):
+        end = hits[i + 1].start() if i + 1 < len(hits) else len(stream)
+        rows.append((int(hit.group(1)), strip_styles(re.split(r"\x1b\[", stream[hit.end():end])[0])))
+    return rows
+
+
+@contextlib.contextmanager
+def exhausted_stdin():
+    """Point ``sys.stdin`` at an exhausted pipe so reads raise EOF instead of blocking."""
+    read_fd, write_fd = os.pipe()
+    os.close(write_fd)
+    saved = sys.stdin
+    sys.stdin = os.fdopen(read_fd, "r")
+    try:
+        yield
+    finally:
+        sys.stdin.close()
+        sys.stdin = saved
+
+
+class RegistryFixture(unittest.TestCase):
+    """Isolated $SOMNUS_HOME plus a registered root holding a cross-registry ``part_of`` cycle."""
+
+    def setUp(self) -> None:
+        self.tmp = Path(tempfile.mkdtemp())
+        self.home = self.tmp / "home"
+        self.home.mkdir()
+        self.root = self.tmp / "root"
+        self.root.mkdir()
+        self.target = write_cycle_docs(self.root)
+        self._env = {key: os.environ.get(key) for key in ("SOMNUS_HOME", "COLUMNS", "LINES")}
+        self._cwd = Path.cwd()
+        os.environ["SOMNUS_HOME"] = str(self.home)
+        os.environ["COLUMNS"] = "80"
+        os.environ["LINES"] = "24"
+        os.chdir(self.root)
+        quiet = io.StringIO()
+        with contextlib.redirect_stdout(quiet), contextlib.redirect_stderr(quiet):
+            self.assertEqual(cli.main(["init", "--root", str(self.root)]), 0)
+            # The registry-wide cycle is a real error diagnostic, not a conflict.
+            self.assertEqual(cli.main(["index"]), 1)
+
+    def tearDown(self) -> None:
+        os.chdir(self._cwd)
+        for key, value in self._env.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+
+class NoteSinkTest(unittest.TestCase):
+    """Issue #3: ``note`` targets stderr by default and an installed sink while captured."""
+
+    def test_default_goes_to_stderr(self) -> None:
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            _common.note("plain line")
+        self.assertEqual(err.getvalue(), "plain line\n")
+
+    def test_capture_routes_to_sink_and_restores(self) -> None:
+        seen: list[str] = []
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            with _common.capture_notes(seen.append):
+                _common.note("registry: E_GRAPH cycle")
+                _common.note("second")
+            _common.note("after")
+        self.assertEqual(seen, ["registry: E_GRAPH cycle", "second"])
+        self.assertEqual(err.getvalue(), "after\n")
+
+    def test_nested_capture_restores_the_previous_sink(self) -> None:
+        outer: list[str] = []
+        inner: list[str] = []
+        with _common.capture_notes(outer.append):
+            with _common.capture_notes(inner.append):
+                _common.note("in")
+            _common.note("out")
+        self.assertEqual(inner, ["in"])
+        self.assertEqual(outer, ["out"])
+
+    def test_capture_restores_after_an_exception(self) -> None:
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            with self.assertRaises(ValueError):
+                with _common.capture_notes(lambda _: None):
+                    raise ValueError("boom")
+            _common.note("recovered")
+        self.assertEqual(err.getvalue(), "recovered\n")
+
+
+class NoteBufferTest(unittest.TestCase):
+    """The screen-side collector drains each note exactly once."""
+
+    def setUp(self) -> None:
+        self.tmp = Path(tempfile.mkdtemp())
+        self.path = self.tmp / "doc.md"
+        self.path.write_text("---\n" + D.canonical_yaml({"somnus": payload()}) + "---\n# Fixture\n",
+                             encoding="utf-8")
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_drain_joins_and_clears(self) -> None:
+        buf = A.NoteBuffer()
+        buf("a")
+        buf("b")
+        self.assertEqual(buf.drain(), "a; b")
+        self.assertEqual(buf.drain(), "")
+
+    def test_absorb_appends_to_the_status_line(self) -> None:
+        buf = A.NoteBuffer()
+        editor = A.EditorScreen(FakeCtx(), FakeScreen(), load_valid(self.path), buf)
+        editor.message = "saved revision 2"
+        buf("registry: E_GRAPH cycle")
+        editor._absorb_notes()
+        self.assertEqual(editor.message, "saved revision 2; registry: E_GRAPH cycle")
+        editor._absorb_notes()
+        self.assertEqual(editor.message, "saved revision 2; registry: E_GRAPH cycle")
+
+    def test_no_buffer_leaves_the_status_line_alone(self) -> None:
+        editor = A.EditorScreen(FakeCtx(), FakeScreen(), load_valid(self.path))
+        editor.message = "untouched"
+        editor._absorb_notes()
+        self.assertEqual(editor.message, "untouched")
+
+
+class RegistryNoteRoutingTest(RegistryFixture):
+    """Issue #3: a registry diagnostic from a real save never reaches stderr."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.ctx = Ctx()
+        self.screen = FakeScreen()
+
+    def _editor(self, notes) -> A.EditorScreen:
+        return A.EditorScreen(self.ctx, self.screen, load_valid(self.target), notes)
+
+    def test_save_routes_the_registry_note_to_the_status_line(self) -> None:
+        notes = A.NoteBuffer()
+        editor = self._editor(notes)
+        editor.handle("enter")
+        editor.handle("end")
+        for ch in " two":
+            editor.handle(ch)
+        editor.handle("enter")
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            with _common.capture_notes(notes):
+                editor.handle("s")
+        self.assertNotIn("registry:", err.getvalue())
+        self.assertIn("registry: E_GRAPH", notes.drain())
+        self.assertEqual(editor.form.value("revision"), 2)
+        self.assertIn("Body.", self.target.read_text(encoding="utf-8"))
+
+    def test_ordinary_cli_still_reports_the_registry_note_on_stderr(self) -> None:
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = cli.main(["set", str(self.target), "title=Alpha Two"])
+        self.assertEqual(code, 0)
+        self.assertIn("registry: E_GRAPH", err.getvalue())
+
+
+# --------------------------------------------------------------------------- issue #4 real terminal
+
+
+@unittest.skipUnless(os.name == "posix", "requires a POSIX PTY")
+class PosixTerminalTest(unittest.TestCase):
+    """Raw-mode entry, restoration, suspension, key decoding, and the failure path on a real PTY."""
+
+    def setUp(self) -> None:
+        self.master, self.slave = pty.openpty()
+        fcntl.ioctl(self.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
+        self._stdin = sys.stdin
+        sys.stdin = os.fdopen(os.dup(self.slave), "r")
+        self.master_open = True
+        self.out = io.StringIO()
+
+    def tearDown(self) -> None:
+        sys.stdin.close()
+        sys.stdin = self._stdin
+        os.close(self.slave)
+        if self.master_open:
+            os.close(self.master)
+
+    def attrs(self) -> list:
+        """Current termios attributes of the PTY slave."""
+        return termios.tcgetattr(self.slave)
+
+    def test_enter_leaves_raw_mode_and_restores_the_screen(self) -> None:
+        before = self.attrs()
+        term = T.Terminal(stream=self.out)
+        with term:
+            during = self.attrs()
+            self.assertFalse(during[3] & termios.ICANON, "raw mode clears canonical input")
+            self.assertFalse(during[3] & termios.ECHO, "raw mode clears echo")
+        self.assertEqual(self.attrs(), before)
+        text = self.out.getvalue()
+        self.assertIn(T.ENTER_SCREEN, text)
+        self.assertIn(T.LEAVE_SCREEN, text)
+        self.assertLess(text.index(T.ENTER_SCREEN), text.index(T.LEAVE_SCREEN))
+
+    def test_suspended_restores_then_reenters(self) -> None:
+        before = self.attrs()
+        with T.Terminal(stream=self.out) as term:
+            with term.suspended():
+                self.assertEqual(self.attrs(), before)
+            self.assertFalse(self.attrs()[3] & termios.ICANON)
+        self.assertEqual(self.attrs(), before)
+        text = self.out.getvalue()
+        self.assertEqual(text.count(T.ENTER_SCREEN), 2)
+        self.assertEqual(text.count(T.LEAVE_SCREEN), 2)
+
+    def test_read_key_decodes_sequences_through_the_pty(self) -> None:
+        with T.Terminal(stream=self.out) as term:
+            for raw, expected in ((b"\x1b[A", "up"), (b"q", "q"), (b"\r", "enter"),
+                                  (b"\x03", "ctrl-c"), (b"\x1b[3~", "delete")):
+                os.write(self.master, raw)
+                self.assertEqual(term.read_key(), expected, raw)
+
+    def test_draw_repaints_only_changed_rows(self) -> None:
+        with T.Terminal(stream=self.out) as term:
+            term.draw(["alpha", "beta"])
+            first = self.out.getvalue()
+            term.draw(["alpha", "beta"])
+            self.assertEqual(self.out.getvalue(), first)
+            term.draw(["alpha", "gamma"])
+            self.assertIn("gamma", self.out.getvalue()[len(first):])
+
+    def test_read_key_raises_eof_when_input_closes(self) -> None:
+        with exhausted_stdin():
+            term = T.Terminal(stream=self.out)
+            with self.assertRaises(EOFError):
+                term.read_key()
+
+    def test_enter_failure_writes_the_leave_screen_and_raises(self) -> None:
+        with exhausted_stdin():
+            out = io.StringIO()
+            with self.assertRaises(T.TerminalError):
+                with T.Terminal(stream=out):
+                    pass
+            self.assertNotIn(T.ENTER_SCREEN, out.getvalue())
+            self.assertIn(T.LEAVE_SCREEN, out.getvalue())
+
+
+class WindowsConsoleGuardTest(unittest.TestCase):
+    """The Windows console adapter refuses to run off Windows instead of failing obscurely."""
+
+    def test_refuses_off_windows(self) -> None:
+        if os.name == "nt":
+            self.skipTest("POSIX-only assertion")
+        with self.assertRaises(T.TerminalError):
+            T._WindowsConsole()
+
+
+@unittest.skipUnless(os.name == "posix", "requires a POSIX PTY")
+class TuiSaveChainPtyTest(RegistryFixture):
+    """Issue #3 end to end: a real save in a real PTY keeps the registry note in the frame."""
+
+    KEYS = b"\r\x1b[F two\rsq"
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.master, self.slave = pty.openpty()
+        fcntl.ioctl(self.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
+        self._stdin, self._stdout = sys.stdin, sys.stdout
+        sys.stdin = os.fdopen(os.dup(self.slave), "r")
+        self.out = io.StringIO()
+        sys.stdout = self.out
+
+    def tearDown(self) -> None:
+        sys.stdin.close()
+        sys.stdin, sys.stdout = self._stdin, self._stdout
+        os.close(self.slave)
+        os.close(self.master)
+        super().tearDown()
+
+    def _feed_after_enter(self) -> threading.Thread:
+        """Write the key script once the alternate screen is up.
+
+        ``tty.setraw`` uses ``TCSAFLUSH``, so anything written before the app switches
+        modes is discarded; the feeder waits for the enter-screen sequence instead.
+        """
+        def feed() -> None:
+            deadline = time.time() + 10
+            while time.time() < deadline and T.ENTER_SCREEN not in self.out.getvalue():
+                time.sleep(0.005)
+            os.write(self.master, self.KEYS)
+
+        thread = threading.Thread(target=feed, daemon=True)
+        thread.start()
+        return thread
+
+    def test_save_keeps_the_registry_note_out_of_stderr(self) -> None:
+        feeder = self._feed_after_enter()
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            self.assertEqual(A.main(Ctx(), self.target), 0)
+        feeder.join(timeout=5)
+        self.assertNotIn("registry:", err.getvalue())
+        stream = self.out.getvalue()
+        self.assertIn("registry: E_GRAPH", stream)
+        note_rows = [(row, text) for row, text in frame_rows(stream) if "registry: E_GRAPH" in text]
+        self.assertTrue(note_rows, "the note is rendered inside a positioned frame row")
+        columns = shutil.get_terminal_size().columns
+        for row, text in note_rows:
+            self.assertLessEqual(len(text), columns, f"row {row} overflows the frame: {text!r}")
+        self.assertEqual(load_valid(self.target).payload["revision"], 2)
 
 
 if __name__ == "__main__":

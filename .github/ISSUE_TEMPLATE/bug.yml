@@ -1,0 +1,93 @@
+name: Bug report
+description: Report behavior that contradicts SPEC.md or a documented command contract.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If the implementation and `SPEC.md` disagree, that is a defect and belongs here.
+        If you think `SPEC.md` itself is wrong, open a feature request instead; contract
+        changes need a ratified decision and a version update (SPEC section 23).
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened, and what did you expect instead? Cite the SPEC section or decision (D1-D17) if one applies.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Exact commands and a minimal input file or envelope. Do not paste secrets or private document content.
+      placeholder: |
+        1. somnus ...
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual output
+      description: Full command output including diagnostics. Registry output is text/TSV by design (D4); paste it as-is.
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - CLI command
+        - Validation or lifecycle (model)
+        - YAML subset parser or serializer
+        - Carrier or host-byte preservation (E_HOST)
+        - SQLite registry
+        - Terminal UI
+        - MCP stdio adapter
+        - Documentation or specification
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: exit-code
+    attributes:
+      label: Exit code
+      description: "0 success, 1 validation errors/refusals/conflicts, 2 usage, I/O, or environment errors."
+      placeholder: "1"
+  - type: input
+    id: version
+    attributes:
+      label: Somnus version or commit
+      description: Output of `somnus --version`, or the git commit if running from a source checkout.
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      description: Output of `python --version` (3.11 or newer is required).
+      placeholder: Python 3.11.9
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and found no duplicate.
+          required: true
+        - label: The report contains no secrets or private document content.
+          required: true

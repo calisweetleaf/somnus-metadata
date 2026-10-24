@@ -39,7 +39,7 @@ The counts are the number of literal occurrences of each code in `src/somnus/`, 
 | `W_REGION_UNREGISTERED` | 1 | Marker in the body with no matching `knowledge.regions` record; `somnus regions PATH --sync --write` registers it |
 | `W_UNMANAGED` | 1 | File has no Somnus header |
 
-SPEC section 19.2 also lists `W_DUPLICATE_TITLE`, but no code in `src/somnus/` emits it; `somnus stale` reports near-duplicate titles as table rows instead.
+The warning registry is closed: those four codes are the complete set. SPEC section 19.2 no longer lists `W_DUPLICATE_TITLE`; near-duplicate titles are a registry-level advisory reported by `somnus stale` as table rows, not a validation diagnostic (D18).
 
 ## Common errors
 
@@ -79,6 +79,8 @@ Any other read-only SQL can be passed directly, for example `somnus q "SELECT re
 ## Stderr notes during writes
 
 When a mutating command records an event and re-observes the file, registry errors are written to stderr as `registry: CODE message` (`Ctx.record` in `src/somnus/commands/_common.py`). These do not change the exit code of the command that triggered them, so scan stderr after writes.
+
+Inside `somnus edit` the same note goes to the active screen's status line instead of stderr. `_common.note` writes to a process-wide sink while `capture_notes` is active, and the TUI installs one for the whole alternate-screen session, so a registry diagnostic during a save is rendered in the frame rather than drawn over it (D18 is unrelated; see the note-sink mechanism in `src/somnus/tui/app.py`). The full message stays available through `somnus index` and the event ledger.
 
 ## Python diagnostics
 

@@ -257,7 +257,8 @@ class Server:
 
     def call(self, params: dict) -> dict:
         """Run one tool; argument problems and non-zero exits come back as tool errors."""
-        tool = self.tools.get(params.get("name"))
+        name = params.get("name")
+        tool = self.tools.get(name) if isinstance(name, str) else None
         if tool is None:
             raise ParamsError(f"unknown tool: {params.get('name')!r}")
         try:

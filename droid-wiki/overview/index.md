@@ -24,9 +24,9 @@ The package has no third-party dependencies (`pyproject.toml` declares `dependen
 | Path | What lives there |
 | --- | --- |
 | `SPEC.md` | Normative standard, 23 sections |
-| `DECISIONS.md` | Ratified decisions D1 to D17 |
+| `DECISIONS.md` | Ratified decisions D1 to D18 |
 | `src/somnus/` | The toolkit (49 Python modules, 7,898 lines, plus 175 lines of SQL) |
-| `tests/` | 13 unittest suites (about 4,400 lines), 459 tests, including one test per SPEC section 21 fixture |
+| `tests/` | 13 unittest suites (about 4,600 lines), 476 tests, including one test per SPEC section 21 fixture, plus an explicit installed-wheel acceptance harness under `tests/acceptance/` |
 | `archive/` | v0.1 spec, schemas, examples, tools and the v2 proposal; historical, not normative |
 | `Somnus Markdown Metadata Standard Research.md` | Original research; evidence only, read-only |
 

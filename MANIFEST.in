@@ -1,0 +1,19 @@
+# Publish the toolkit, not the operator workspace or private research.
+include pyproject.toml README.md
+recursive-include src/somnus *.py *.sql
+prune tests
+prune archive
+prune archives
+prune docs
+prune droid-wiki
+prune runbooks
+prune .codex
+prune .claude
+prune .factory
+prune .github
+prune .somnus-debug
+prune .python_doctor
+prune .python_doctor-src
+exclude AGENTS*.md CONTEXT.md PLAN.md DECISIONS.md SPEC.md CONTRIBUTING.md
+exclude last-session.txt workflows.md raw-tree.md production_doctor.log
+global-exclude __pycache__ *.py[cod] .coverage .env .env.*

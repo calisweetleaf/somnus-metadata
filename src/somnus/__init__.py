@@ -1,6 +1,6 @@
 """Somnus metadata system: schema constants and package version."""
 
-__version__ = "0.1.0"
+__version__ = "2.0.0"
 
 CORE_SCHEMA = "somnus://metadata/core/2.0.0"
 SPEC_PROFILE = "somnus://metadata/profile/specification/1.0.0"

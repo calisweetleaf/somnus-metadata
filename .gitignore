@@ -10,3 +10,40 @@ dist/
 production_doctor.log
 .somnus-debug/production_doctor.log
 .somnus-debug/reports/
+.coverage
+.import_linter_cache/
+
+# Environment and secrets (templates stay tracked)
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# Virtual environments and tool caches
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editor and IDE state
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# SQLite sidecar files (the registry is a global per-user database, never repo content)
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite3-wal
+*.sqlite3-shm
+*.sqlite3-journal

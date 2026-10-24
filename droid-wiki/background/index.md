@@ -6,7 +6,7 @@ This section explains why the Somnus standard and toolkit look the way they do, 
 
 | Page | Read it when |
 | --- | --- |
-| [Design decisions](design-decisions.md) | You want the reasoning behind a rule in `SPEC.md`, or you are thinking of changing one. Summarizes ratified decisions D1 to D17. |
+| [Design decisions](design-decisions.md) | You want the reasoning behind a rule in `SPEC.md`, or you are thinking of changing one. Summarizes ratified decisions D1 to D18. |
 | [Pitfalls](pitfalls.md) | Before editing anything. Lists the ways a change can corrupt a file, a digest, or the registry, plus environment traps on Windows and OneDrive. |
 | [Migration context](migration-context.md) | You meet a v0.1 document, an `archive/` file, or `extensions.somnus-migration` data and need to know what changed between v0.1 and core 2.0.0. |
 

@@ -1,0 +1,15 @@
+# Code owners for somnus-metadata. The last matching pattern takes precedence.
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything not matched below.
+*                       @calisweetleaf
+
+# Toolkit implementation (stdlib-only Python package).
+/src/somnus/            @calisweetleaf
+
+# Behavioral evidence, including the 21-fixture conformance suite.
+/tests/                 @calisweetleaf
+
+# Normative standard and ratified decisions: changes require owner review (SPEC section 23).
+/SPEC.md                @calisweetleaf
+/DECISIONS.md           @calisweetleaf

@@ -43,7 +43,7 @@ class Parsed:
     """Parsed value plus source positions keyed by path tuples (str keys, int indices)."""
 
     data: Any
-    spans: dict = field(default_factory=dict)
+    spans: dict[tuple, tuple[int, int]] = field(default_factory=dict)
 
     def position(self, path: Sequence) -> tuple[int, int]:
         """Return the nearest recorded (line, col) for a path, walking up to the root."""
@@ -189,10 +189,10 @@ def _plain_scalar(token: str, line: int, col: int, lenient: bool) -> Any:
             raise YAMLError("integer outside the signed 53-bit safe range", line, col)
         return value
     if _FLOAT_RE.match(token):
-        value = float(token)
-        if not math.isfinite(value):
+        number = float(token)
+        if not math.isfinite(number):
             raise YAMLError("non-finite number", line, col)
-        return value
+        return number
     if token.lower() in {".inf", "-.inf", "+.inf", ".nan"}:
         raise YAMLError("non-finite numbers are forbidden", line, col)
     if lenient:
@@ -331,7 +331,7 @@ class _Parser:
         self.i = 0
         self.pending: Optional[_Line] = None
         self.lenient = lenient
-        self.spans: dict = {}
+        self.spans: dict[tuple, tuple[int, int]] = {}
 
     # -- line access
     def peek(self) -> Optional[_Line]:
@@ -570,7 +570,9 @@ def _is_seq_item(content: str) -> bool:
 
 def _looks_like_key(s: str) -> bool:
     m = _PLAIN_KEY_RE.match(s)
-    return bool(m) and m.end() < len(s) + 1 and s[m.end() : m.end() + 1] == ":" and (
+    if m is None:
+        return False
+    return m.end() < len(s) + 1 and s[m.end() : m.end() + 1] == ":" and (
         m.end() + 1 == len(s) or s[m.end() + 1] == " "
     )
 

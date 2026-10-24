@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Normative standard (SPEC.md)
+    url: https://github.com/calisweetleaf/somnus-metadata/blob/main/SPEC.md
+    about: Read the Somnus Metadata core 2.0.0 specification before reporting a behavior as a defect.
+  - name: Ratified decisions (DECISIONS.md)
+    url: https://github.com/calisweetleaf/somnus-metadata/blob/main/DECISIONS.md
+    about: Check D1-D17 first; a requested contract change needs a new ratified decision and a version update under SPEC section 23.

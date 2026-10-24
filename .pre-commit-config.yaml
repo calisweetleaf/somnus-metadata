@@ -1,0 +1,53 @@
+# Install: pre-commit install   Run everywhere: pre-commit run --all-files
+#
+# Scope notes (the repository is the normative reference implementation):
+#   - No formatter hook. `ruff format --check` would rewrite many files, and
+#     reformatting is a deliberate change, not a commit-time side effect.
+#   - Whitespace fixers skip Markdown, archive/, archives/, and test sources:
+#     Somnus-managed documents are byte-sensitive (revision/hash semantics) and
+#     test sources embed byte-exact document fixtures.
+#   - The ruff rule selection below is the set that passes on the current tree;
+#     widen it only together with the fixes it demands.
+minimum_pre_commit_version: "3.0.0"
+
+default_language_version:
+  python: python3
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb", "500"]
+        exclude: ^archives/
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: debug-statements
+        files: ^(src|tests)/
+      - id: trailing-whitespace
+        exclude: \.md$|^archives?/|^tests/
+      - id: end-of-file-fixer
+        exclude: \.md$|^archives?/|^tests/
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.10
+    hooks:
+      - id: ruff
+        name: ruff (E, F, W, B, C4, T10, ICN, PLE)
+        args:
+          - --select=E,F,W,B,C4,T10,ICN,PLE
+          - --ignore=E501,E741,F841,B904,B905
+        files: ^(src|tests)/.*\.py$
+
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy (src/somnus, config in pyproject.toml)
+        entry: mypy
+        language: python
+        additional_dependencies: ["mypy>=1.9"]
+        types: [python]
+        files: ^src/
+        pass_filenames: false

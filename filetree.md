@@ -7,14 +7,23 @@ start with [`AGENTS.md`](AGENTS.md); this file is not normative.
 .
 ├── AGENTS.md                         # project entry packet, validation, constraints
 ├── SPEC.md                           # normative core 2.0.0 contract; §§20–23 CLI/MCP/conformance/versioning
-├── DECISIONS.md                      # ratified rationale D1–D17
-├── PLAN.md                           # current delivery state and maintenance priorities
+├── DECISIONS.md                      # ratified rationale D1–D18
+├── PLAN.md                           # evidence, completion frontier, operator setup/handoff
+├── CONTEXT.md                        # architectural relations and observed tool boundaries
+├── AGENTS.somnus.v2.md                # inactive project-specific comparison candidate
+├── AGENTS.template.v2.md              # preserved imported proposal; not active instructions
+├── .codex/OPERATING.md                # adaptive composed tool/skill route; no local hook installed
+├── workflows.md                      # supplied BB7 suggested playbook
+├── last-session.txt                  # historical Factory account; not current proof
+├── docs/references-unrelated-to-codebase/ # user-owned collaboration context, including House fable
 ├── README.md                         # install and quick start
 ├── filetree.md                       # this navigation map
 ├── pyproject.toml                    # stdlib-only package, `somnus` entry point
+
+├── MANIFEST.in                       # minimal release contents; excludes private operator/research artifacts
+├── runbooks/package-release.md        # actual PyPI release and repeatable publishing/verification route
 ├── Somnus Markdown Metadata Standard Research.md # original research artifact; read-only
-├── somnus-metadata-v2.zip             # retained historical bundle
-├── somnus-metadata.zip                # retained historical bundle
+├── archives/                         # user-owned historical bundles; root ZIP deletions pre-exist
 ├── .somnus-debug/
 │   ├── python_doctor.yaml            # root diagnostics configuration
 │   └── python_doctor.src.yaml        # src import-aware diagnostics configuration
@@ -37,7 +46,9 @@ start with [`AGENTS.md`](AGENTS.md); this file is not normative.
 ├── tests/
 │   ├── test_conformance.py           # 21 SPEC acceptance fixtures
 │   ├── test_mcp.py                   # adapter protocol, schema, and call behavior
-│   └── test_*.py                     # module and CLI behavior suites
+│   ├── test_*.py                     # module and CLI behavior suites
+│   └── acceptance/
+│       └── installed_package_acceptance.py # explicit installed-wheel acceptance (not discovered)
 ├── droid-wiki/                       # explanatory wiki; secondary to SPEC/DECISIONS
 │   ├── background/, features/
 │   ├── how-to-contribute/, overview/

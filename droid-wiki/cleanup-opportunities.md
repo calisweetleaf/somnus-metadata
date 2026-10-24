@@ -4,9 +4,11 @@ This page lists concrete, verified places where the codebase could be tidied or 
 
 ## Spec and code drift
 
-### `W_DUPLICATE_TITLE` is specified but never emitted
+### `W_DUPLICATE_TITLE` was specified but never emitted — resolved (D18)
 
-SPEC section 19.2 lists `W_DUPLICATE_TITLE` among the warning codes. No module in `src/somnus/` emits it. Near-duplicate titles are reported only by `somnus stale` as rows of kind `near-duplicate-title` (`src/somnus/commands/stale.py` line 51), and `somnus new` refuses exact title collisions with `E_IO` (`src/somnus/commands/new.py` line 34). Either `somnus check` should emit the warning, or the spec should drop it. Because SPEC wins, the default fix is in code.
+SPEC section 19.2 listed `W_DUPLICATE_TITLE` among the warning codes, and no module in `src/somnus/` emitted it. Near-duplicate titles are reported only by `somnus stale` as rows of kind `near-duplicate-title` (`src/somnus/commands/stale.py` line 51), and `somnus new` refuses title collisions with `E_IO` (`src/somnus/commands/new.py` line 34).
+
+Resolved 2026-10-23 by D18: the operator chose to drop the undefined code rather than invent a trigger, because the specification stated no condition, threshold, emitting command, or level for it. SPEC section 19.2 no longer lists it and now states that the warning registry is closed and that near-duplicate titles are a registry advisory. The two existing similarity thresholds (`new` at 0.9, `stale` at 0.85) are deliberately left un-unified. This was a non-breaking documentation correction inside core 2.0.0, so the core schema URI is unchanged.
 
 ## TODO and FIXME markers
 
@@ -38,8 +40,8 @@ The longest functions in the package, measured with `ast`:
 
 ## Terminal UI gaps
 
-- **No real-terminal test.** `tests/test_tui.py` (42 tests) covers widgets, key decoding, frame diffing, and the form model with fake screens and contexts. The raw-mode paths in `src/somnus/tui/term.py` (`termios`/`tty`/`select` on POSIX, `msvcrt` and `ctypes` on Windows) have never been run under automated tests in a real terminal.
-- **Registry notes can draw over the TUI.** `Ctx.record` in `src/somnus/commands/_common.py` writes `registry: CODE message` lines straight to stderr after a save. When a save happens inside `somnus edit`, those lines are written while the full-screen UI is active and can flash over it until the next redraw. Routing them through the TUI's status line would fix this.
+- **Real-terminal coverage — addressed.** `tests/test_tui.py` covers widgets, key decoding, frame diffing, and the form model with fake screens and contexts. The raw-mode paths in `src/somnus/tui/term.py` are now also exercised on a real POSIX PTY: `PosixTerminalTest` asserts raw-mode entry, exact `termios` restoration, `suspended()` restore/re-enter, differential repaint, decoded key sequences, `EOFError` on closed input, and the `TerminalError` failure path on a non-tty stdin. The Windows `msvcrt`/`ctypes` paths remain untested (no Windows host); only the platform guard is asserted.
+- **Registry notes over the TUI — fixed.** `Ctx.record` in `src/somnus/commands/_common.py` writes `registry: CODE message` lines to stderr after a save. `_common.note` now writes to a process-wide sink when `capture_notes` is active, and `somnus edit` installs a `NoteBuffer` sink for the whole alternate-screen session so both screens render the note in their status line. Ordinary CLI commands install no sink and still use stderr. `tests/test_tui.py::TuiSaveChainPtyTest` drives a real save under a PTY and asserts the note reaches the frame and never stderr.
 
 ## Documents without Somnus headers
 

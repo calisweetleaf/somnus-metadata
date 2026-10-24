@@ -1,0 +1,21 @@
+# Run (stdlib unittest, source checkout):
+#   PYTHONPATH=src coverage run -m unittest discover -s tests
+#   coverage report
+#
+# fail_under is the measured total (statement + branch) floored to an integer:
+# 85.14% measured on 459 tests. Raise it as coverage improves; never lower it
+# to make a regression pass.
+[run]
+branch = True
+source =
+    src/somnus
+
+[report]
+fail_under = 85
+precision = 2
+show_missing = True
+skip_empty = True
+exclude_also =
+    if TYPE_CHECKING:
+    raise NotImplementedError
+    if __name__ == .__main__.:

@@ -99,7 +99,9 @@ def bump_revision(payload: dict, at: Optional[str] = None) -> dict:
     stamp = at or now_utc()
     time = payload.setdefault("time", {})
     created = time.get("created_at")
-    if isinstance(created, str) and _instant(created) and _instant(stamp) and _instant(stamp) < _instant(created):
+    created_ts = _instant(created) if isinstance(created, str) else None
+    stamp_ts = _instant(stamp)
+    if created_ts and stamp_ts and stamp_ts < created_ts:
         stamp = created
     time["updated_at"] = stamp
     return payload

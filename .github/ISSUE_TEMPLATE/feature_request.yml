@@ -1,0 +1,62 @@
+name: Feature request
+description: Propose a new capability or a change to the Somnus metadata contract.
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Constraints that apply to every proposal: the runtime stays stdlib-only
+        (`dependencies = []`), registry output stays text/TSV (D4), and writes to host
+        files must preserve bytes outside the metadata envelope. Changes to the
+        normative contract require a new ratified decision and a version update
+        under SPEC section 23.
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: Who needs this, what are they trying to do, and why can the current commands not do it?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Command surface, inputs, outputs, and exit codes. Include an example invocation and expected result.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Observable conditions that show the feature is done, ideally expressible as a unittest or a conformance fixture.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: dropdown
+    id: contract
+    attributes:
+      label: Contract impact
+      options:
+        - No change to SPEC.md or DECISIONS.md
+        - Clarifies SPEC.md without changing behavior
+        - Changes the normative contract (needs a new decision and version bump)
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches, including doing nothing, and why they fall short.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and found no duplicate.
+          required: true
+        - label: I read the relevant SPEC.md sections and DECISIONS.md entries.
+          required: true

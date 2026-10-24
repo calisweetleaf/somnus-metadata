@@ -48,5 +48,5 @@ SPEC section 21 says each fixture row maps to a test in `tests/test_conformance.
 ## Related pages
 
 - [How to contribute](index.md) for the definition of done
-- [Design decisions](../background/design-decisions.md) for D1 to D17
+- [Design decisions](../background/design-decisions.md) for D1 to D18
 - [Lifecycle and revisions](../features/lifecycle-and-revisions.md) for `bump` and `status`

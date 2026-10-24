@@ -67,6 +67,7 @@ def binding_issues(somnus: Any, sidecar_path: Path) -> list[tuple[tuple, str]]:
 def primary_target(somnus: Any, sidecar_path: Path) -> Optional[Path]:
     """Return the resolved primary target path of a sidecar, when it is a relative locator."""
     for b in somnus.get("bindings", []) if isinstance(somnus, dict) else []:
-        if isinstance(b, dict) and b.get("role") == "primary" and isinstance(b.get("target"), str):
-            return (sidecar_path.parent / b["target"]).resolve()
+        target = b.get("target") if isinstance(b, dict) else None
+        if isinstance(b, dict) and b.get("role") == "primary" and isinstance(target, str):
+            return (sidecar_path.parent / target).resolve()
     return None

@@ -71,8 +71,8 @@ class MarkdownCarrier:
                 i = j + 1
                 continue
             i += 1
-        for extra in found[1:]:
-            result.issues.append(Issue(extra.start + 1, 1, "E_ENVELOPE", "more than one metadata envelope"))
+        for dup in found[1:]:
+            result.issues.append(Issue(dup.start + 1, 1, "E_ENVELOPE", "more than one metadata envelope"))
         if found:
             result.envelope = found[0]
         return result

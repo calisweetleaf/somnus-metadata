@@ -1,0 +1,93 @@
+[importlinter]
+# src-layout: run with the package importable, e.g.
+#   PYTHONPATH=src uvx --from import-linter lint-imports --no-cache
+root_package = somnus
+
+[importlinter:contract:layers]
+name = Layer architecture: entrypoints above commands/UI above storage above core, foundation at the bottom
+type = layers
+layers =
+    somnus.mcp
+    somnus.cli
+    somnus.commands
+    somnus.tui
+    somnus.db
+    somnus.document
+    somnus.config
+    somnus.model
+    somnus.carriers
+    somnus.regions
+    somnus.infer
+    somnus.ids
+    somnus.output
+    somnus.yamlsub
+# Sanctioned cross-links (real, deliberate code; see contract comments):
+ignore_imports =
+    somnus.commands.mcp -> somnus.mcp
+    somnus.model.validate -> somnus.document
+    somnus.tui.app -> somnus.commands._common
+
+[importlinter:contract:entrypoints]
+name = Entrypoint modules (cli, mcp, __main__) are never imported by library code
+type = forbidden
+source_modules =
+    somnus.commands
+    somnus.tui
+    somnus.db
+    somnus.document
+    somnus.model
+    somnus.config
+    somnus.carriers
+    somnus.regions
+    somnus.infer
+    somnus.ids
+    somnus.output
+    somnus.yamlsub
+forbidden_modules =
+    somnus.cli
+    somnus.mcp
+    somnus.__main__
+# `somnus mcp` (commands/mcp.py) deliberately delegates to the server module;
+# severing that seam also removes the only indirect path to cli via somnus.mcp.
+ignore_imports =
+    somnus.commands.mcp -> somnus.mcp
+
+[importlinter:contract:model-purity]
+name = model/ stays pure: no imports from commands/, tui/, or db/
+type = forbidden
+source_modules =
+    somnus.model
+forbidden_modules =
+    somnus.commands
+    somnus.tui
+    somnus.db
+
+[importlinter:contract:carriers-purity]
+name = carriers/ stays below storage and UI: no imports from db/, commands/, tui/, or model/
+type = forbidden
+source_modules =
+    somnus.carriers
+forbidden_modules =
+    somnus.db
+    somnus.commands
+    somnus.tui
+    somnus.model
+
+[importlinter:contract:db-purity]
+name = db/ is storage: no imports from commands/ or tui/
+type = forbidden
+source_modules =
+    somnus.db
+forbidden_modules =
+    somnus.commands
+    somnus.tui
+
+[importlinter:contract:document-purity]
+name = document/ (envelope IO) stays below storage and UI: no imports from db/, commands/, or tui/
+type = forbidden
+source_modules =
+    somnus.document
+forbidden_modules =
+    somnus.db
+    somnus.commands
+    somnus.tui

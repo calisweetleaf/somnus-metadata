@@ -11,11 +11,15 @@ DRAFT = "https://json-schema.org/draft/2020-12/schema"
 
 
 class _Exporter:
+    """Translate one declarative schema tree into Draft 2020-12 nodes, exporting each named type once."""
+
     def __init__(self) -> None:
+        """Start an empty export with no named definitions yet."""
         self.defs: dict[str, Any] = {}
         self._names: dict[int, str] = {}
 
     def ref(self, node: S.Obj | S.Tagged) -> dict:
+        """Return a ``$ref`` for a named object or tagged node, emitting its definition once."""
         key = id(node)
         if key not in self._names:
             name, n = node.name, 2
@@ -27,6 +31,7 @@ class _Exporter:
         return {"$ref": f"#/$defs/{self._names[key]}"}
 
     def obj(self, node: S.Obj, tag: tuple[str, str] | None = None) -> dict:
+        """Return the closed object node for an ``Obj``; ``tag`` pins one property to a constant."""
         props: dict[str, Any] = {}
         for f in node.fields:
             props[f.name] = self.node(f.node)
@@ -43,12 +48,14 @@ class _Exporter:
         return out
 
     def tagged(self, node: S.Tagged) -> dict:
+        """Return the ``oneOf`` node for a ``Tagged`` union, one variant per tag value."""
         out: dict[str, Any] = {"oneOf": [self.obj(v, (node.tag, k)) for k, v in node.variants.items()]}
         if node.doc:
             out["description"] = node.doc
         return out
 
     def node(self, node: Any) -> dict:
+        """Return the JSON Schema node for one schema-tree node (``Any``: the union of node types)."""
         if isinstance(node, S.Str):
             out: dict[str, Any] = {"type": "string"}
             if node.enum:

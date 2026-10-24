@@ -67,6 +67,11 @@ jobs:
           print("runtime dependencies: none")
           PY
 
+      - name: Type check (mypy)
+        run: |
+          python -m pip install "mypy>=1.9"
+          python -m mypy
+
       - name: src/ does not import from archive/
         run: |
           python - <<'PY'
@@ -87,6 +92,47 @@ jobs:
               sys.exit("\n".join(bad))
           print("no archive imports in src/")
           PY
+
+  secrets:
+    name: secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  tooling:
+    name: hooks and coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install gate tooling
+        run: python -m pip install coverage pre-commit
+
+      - name: Run every configured hook (includes the 500 KB size gate)
+        run: pre-commit run --all-files --show-diff-on-failure
+
+      - name: Import contracts (import-linter)
+        env:
+          PYTHONPATH: src
+        run: |
+          python -m pip install import-linter
+          lint-imports --config .importlinter --no-cache
+
+      - name: Coverage gate and test timing (fail_under=85 from .coveragerc)
+        env:
+          PYTHONPATH: src
+        run: |
+          coverage run -m unittest discover -s tests --durations 10
+          coverage report
 
   install:
     name: installed CLI smoke test

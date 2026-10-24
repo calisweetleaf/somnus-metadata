@@ -12,7 +12,7 @@ import contextlib
 import os
 import shutil
 import sys
-from typing import Iterator, Optional, Sequence, TextIO
+from typing import Any, Iterator, Optional, Sequence, TextIO
 
 from somnus.tui.widgets import fit
 
@@ -99,7 +99,13 @@ def usable_width(cols: int) -> int:
 class _WindowsConsole:
     """Saves console modes, enables VT output, and restores the saved modes."""
 
+    _ctypes: Any
+    _dword: Any
+    _k: Any
+
     def __init__(self) -> None:
+        if sys.platform != "win32":  # defensive: instantiated only on Windows
+            raise TerminalError("Windows console modes are unavailable")
         import ctypes
         from ctypes import wintypes
 
@@ -119,7 +125,7 @@ class _WindowsConsole:
         mode = self._dword()
         if not self._k.GetConsoleMode(handle, self._ctypes.byref(mode)):
             return None
-        return mode.value
+        return int(mode.value)
 
     def enable(self) -> None:
         """Record both console modes and turn on VT processing for stdout."""
@@ -178,7 +184,7 @@ class Terminal:
         self._out = stream or sys.stdout
         self._prev: list[str] = []
         self._size: Optional[tuple[int, int]] = None
-        self._modes: Optional[object] = None
+        self._modes: Optional[_WindowsConsole | _PosixTty] = None
         self._decoder = codecs.getincrementaldecoder("utf-8")("replace")
 
     # ------------------------------------------------------------- lifecycle
@@ -191,7 +197,7 @@ class Terminal:
 
     def _enter(self) -> None:
         try:
-            modes = _WindowsConsole() if os.name == "nt" else _PosixTty(sys.stdin.fileno())
+            modes = _WindowsConsole() if sys.platform == "win32" else _PosixTty(sys.stdin.fileno())
             self._modes = modes
             modes.enable()
             self._write(ENTER_SCREEN)
@@ -247,11 +253,13 @@ class Terminal:
     # ------------------------------------------------------------- input
     def read_key(self) -> str:
         """Block for one key and return its normalized name ("" for unrecognized sequences)."""
-        if os.name == "nt":
+        if sys.platform == "win32":
             return self._read_windows()
         return self._read_posix()
 
     def _read_windows(self) -> str:
+        if sys.platform != "win32":  # defensive: callers route by platform
+            return ""
         ch = msvcrt.getwch()
         if ch in ("\x00", "\xe0"):
             return decode_windows_special(msvcrt.getwch())

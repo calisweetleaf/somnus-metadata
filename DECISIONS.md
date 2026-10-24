@@ -2,8 +2,8 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a12ac7-1fd7-7079-a78f-7426391f187d"
-  revision: 3
-  title: "Somnus Metadata Ratified Decisions D1-D17"
+  revision: 4
+  title: "Somnus Metadata Ratified Decisions D1-D18"
   summary: "Ratified architecture decisions governing SPEC.md and the somnus toolkit."
   classification:
     category: "governance"
@@ -20,7 +20,7 @@ somnus:
         aspects: ["content", "governance"]
   time:
     created_at: "2026-10-11T11:44:15+00:00"
-    updated_at: "2026-10-20T04:38:57+00:00"
+    updated_at: "2026-10-24T04:13:17+00:00"
   names:
     slug: "somnus-metadata-decisions"
   knowledge:
@@ -34,7 +34,7 @@ somnus:
     body_role: "narrative"
 ---
 
-# Somnus Metadata — Ratified Decisions D1–D17
+# Somnus Metadata — Ratified Decisions D1–D18
 
 These decisions govern [SPEC.md](SPEC.md) and the `somnus` toolkit in `src/somnus/`.
 The operator ratified D1–D15 by approving the implementation plan ([PLAN.md](PLAN.md)),
@@ -290,6 +290,33 @@ consequences. SPEC section numbers are cited where the decision is enforced.
   A new CLI command or flag becomes an MCP tool or parameter with no server
   change, and the server keeps no state between calls.
 
+## D18 — Near-duplicate titles are a registry advisory, not a warning code
+
+- **Status:** ACCEPTED (applies D14)
+- **Context:** SPEC §19.2 listed `W_DUPLICATE_TITLE` among the warning codes, but
+  no module in `src/somnus/` ever emitted it. Unlike every other warning, the
+  specification stated no condition, comparison method, threshold, emitting
+  command, or validation level for it, so the intended trigger could not be
+  established from the normative text. Two adjacent near-duplicate conventions
+  already existed: `somnus new` refuses a title colliding with a registered
+  artifact at similarity 0.9, and `somnus stale` reports `near-duplicate-title`
+  rows at similarity 0.85.
+- **Alternatives:** (A) Implement a new warning during `somnus check`. (B)
+  Implement it at registry reconciliation. (C) Remove the undefined code from the
+  warning registry and keep the existing advisory behavior.
+- **Decision:** (C). SPEC §19.2 no longer lists `W_DUPLICATE_TITLE`, and §19.2 now
+  states that the warning registry is closed and that near-duplicate titles are a
+  registry-level advisory reported by `somnus stale`, with `somnus new` refusing
+  a colliding title (`[E_IO]`) unless `--force` is given. The two existing
+  similarity thresholds are deliberately left as they are; they are not unified
+  and no new fuzzy-title rule is introduced.
+- **Consequences:** The specification no longer names a code that no validator can
+  emit. The change is a non-breaking documentation correction inside core 2.0.0:
+  no enum value is removed, no pattern is tightened, and no field meaning changes,
+  so the §23 major-release triggers are not met and the core schema URI stays
+  `somnus://metadata/core/2.0.0`. `W_DUPLICATE_TITLE` was never emitted, so no
+  consumer could depend on it. Document revisions advance through `somnus bump`.
+
 ---
 
 ## Ratification tracker
@@ -298,6 +325,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 | --- | --- | --- |
 | D1–D15 | ACCEPTED | Operator approval of PLAN.md implementation plan (2026-10-11) |
 | D16–D17 | ACCEPTED | Operator selection during the agent-usability review (2026-10-11) |
+| D18 | ACCEPTED | Operator decision on the completion commission (2026-10-23) |
 
 Changing a decision requires a new revision of this document (`somnus bump`) and a
 matching SPEC release under §23.
