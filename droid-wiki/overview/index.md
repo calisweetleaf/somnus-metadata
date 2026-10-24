@@ -25,10 +25,16 @@ The package has no third-party dependencies (`pyproject.toml` declares `dependen
 | --- | --- |
 | `SPEC.md` | Normative standard, 23 sections |
 | `DECISIONS.md` | Ratified decisions D1 to D18 |
-| `src/somnus/` | The toolkit (49 Python modules, 7,898 lines, plus 175 lines of SQL) |
-| `tests/` | 13 unittest suites (about 4,600 lines), 476 tests, including one test per SPEC section 21 fixture, plus an explicit installed-wheel acceptance harness under `tests/acceptance/` |
+| `PLAN.md` | Current delivery state and maintenance priorities, not the original build specification |
+| `src/somnus/` | The toolkit (49 Python modules, 8,016 lines, plus 175 lines of SQL) |
+| `tests/` | 13 discovered unittest modules, 476 tests including 21 conformance fixtures; a separate installed-package acceptance harness |
+| `.github/workflows/` | Cross-platform checks, CodeQL, tagged releases, and automatic wiki refresh |
 | `archive/` | v0.1 spec, schemas, examples, tools and the v2 proposal; historical, not normative |
 | `Somnus Markdown Metadata Standard Research.md` | Original research; evidence only, read-only |
+
+`README.md` and `pyproject.toml` identify the distribution as `somnus-metadata` 2.0.0; the command and import remain `somnus`. Do not install the unrelated PyPI distribution named `somnus` in the same environment. A distributable coding-agent plugin is not included.
+
+`AGENTS.md` sets the authority order and verification boundaries. `PLAN.md` and `runbooks/package-release.md` record prior installed-package acceptance and publication evidence. Checkout tests, installed acceptance, and compatibility with an external MCP host are separate boundaries. Workflow configuration is not evidence of a successful hosted run.
 
 ## Quick links
 
@@ -39,3 +45,4 @@ The package has no third-party dependencies (`pyproject.toml` declares `dependen
 - [Agent integration](../features/agent-integration.md): `somnus brief`, `somnus set`, and the MCP server
 - [Registry](../systems/registry.md): the SQLite schema and reconciliation rules
 - [Design decisions](../background/design-decisions.md): why the standard looks the way it does
+- [Automation](../deployment.md): CI jobs and the rolling wiki pull request

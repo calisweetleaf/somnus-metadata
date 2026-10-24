@@ -1,5 +1,7 @@
 # CLI commands
 
+Active contributors: calisweetleaf, Christian
+
 `somnus` is an argparse CLI with 18 subcommands, each implemented as one module under `src/somnus/commands/` and imported only when invoked. Every command receives the same `Ctx` object, which supplies configuration, output formatting, registry access, and event recording.
 
 ## Purpose
@@ -98,7 +100,9 @@ somnus migrate archive/v0.1/examples/specification-example.md
 | `resolver()` | Registry-backed reference resolver, or an empty `Resolver` when no registry exists. |
 | `record(action, path, ...)` | When a registry exists: append an event, resolve named conflict kinds, and re-observe the file. Without a registry it does nothing. |
 
-Module-level helpers: `load_valid()` (load and refuse unless the document passes a level), `commit()` (render, `check_text()`, atomic write), `check_text()`, `refuse()`, `new_payload()` and `inferred_payload()` (see [Adopting files](adopting-files.md)), `walk()` and `is_candidate()` (file discovery honoring exclude globs and preferring sidecars), `unified()`, `display()`, and `note()` (stderr messages).
+Module-level helpers in `src/somnus/commands/_common.py`: `load_valid()` (load and refuse unless the document passes a level), `commit()` (render, `check_text()`, atomic write), `check_text()`, `refuse()`, `new_payload()` and `inferred_payload()` (see [Adopting files](adopting-files.md)), `walk()` and `is_candidate()` (file discovery honoring exclude globs and preferring sidecars), `unified()`, `display()`, and `note()` (informational messages).
+
+`note()` normally writes to stderr. `capture_notes(sink)` temporarily redirects it and restores the previous sink even on failure. The TUI uses this to show registry notes in its status row instead of overwriting the alternate-screen frame. Ordinary CLI commands install no sink, so their stderr output is unchanged. See [Terminal UI](../systems/tui.md).
 
 ## Integration points
 

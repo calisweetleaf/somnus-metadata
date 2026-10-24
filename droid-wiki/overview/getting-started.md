@@ -11,18 +11,28 @@ This page takes you from a fresh clone to a validated, indexed document. It assu
 ## Install
 
 ```
-uv tool install --editable .
-somnus --version        # somnus 0.1.0
+uv tool install somnus-metadata
+somnus --version        # somnus 2.0.0
 ```
 
-The package version (`0.1.0`, from `src/somnus/__init__.py`) is separate from the standard release it implements (`somnus://metadata/core/2.0.0`).
+Alternatively use `pipx install somnus-metadata`, or `python -m pip install somnus-metadata` inside a virtual environment. For development, run `uv tool install --editable .` from the checkout (`README.md`).
+
+The distribution is `somnus-metadata`; the command and Python import are `somnus`. Do not install the unrelated PyPI distribution named `somnus` into that environment. `pyproject.toml` and `src/somnus/__init__.py` identify toolkit version 2.0.0, implementing `somnus://metadata/core/2.0.0`. Package and schema releases remain separate concepts.
 
 Without installing, run the CLI from the repository root:
 
+```sh
+PYTHONPATH=src python -m somnus.cli --help
 ```
-$env:PYTHONPATH = "src"          # PowerShell
+
+Or in PowerShell:
+
+```powershell
+$env:PYTHONPATH = "src"
 python -m somnus.cli --help
 ```
+
+The commands below use the installed `somnus` entry point. From a source checkout, replace it with `PYTHONPATH=src python -m somnus.cli` on POSIX, or set `$env:PYTHONPATH = "src"` once and use `python -m somnus.cli` in PowerShell. `AGENTS.md` and `PLAN.md` distinguish checkout verification from testing a separate installation.
 
 ## Create the registry
 
@@ -65,12 +75,22 @@ The server lists one tool per CLI command (16 tools; `edit` and `mcp` are left o
 
 ## Run the tests
 
-```
-$env:PYTHONPATH = "src"
-python -m unittest discover -s tests
+```sh
+PYTHONPATH=src python -m unittest discover -s tests
+PYTHONPATH=src python -m somnus.cli check SPEC.md DECISIONS.md --level semantic
 ```
 
-The suite has 459 tests and runs in about three seconds. In PowerShell 5.1 the command can report exit code 1 even when it passes, because unittest writes its progress to stderr; read the final `OK` or `FAILED` line. See [Testing](../how-to-contribute/testing.md).
+PowerShell:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m unittest discover -s tests
+python -m somnus.cli check SPEC.md DECISIONS.md --level semantic
+```
+
+The suite has 476 tests, including the 21 conformance fixtures in `tests/test_conformance.py` and real POSIX PTY checks in `tests/test_tui.py`. Check both the exit status and the final `OK` or `FAILED` summary. `.github/workflows/ci.yml` configures checks across Linux, Windows, and macOS and includes an installed-wheel smoke test; configuration alone does not prove those hosted runs passed.
+
+Before a release, explicitly run `python tests/acceptance/installed_package_acceptance.py`. It builds and installs an isolated wheel and exercises real files, SQLite, stdio MCP, and POSIX terminals outside the checkout. It is not collected by unittest discovery. `CONTRIBUTING.md` documents its prerequisites and exit codes. Windows console paths and external MCP hosts need separate verification. See [Testing](../how-to-contribute/testing.md).
 
 ## Where to go next
 

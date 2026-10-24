@@ -1,131 +1,185 @@
 # By the numbers
 
-Data collected on 2026-10-11.
+Snapshot: **2026-10-24 UTC**, committed HEAD `13bb88873b9a3d6dc9b514d88f4965569d2dbd26`. Size and AST figures read tracked blobs at HEAD, not staged or working-tree wiki changes. Physical lines count LF bytes plus one for a nonempty unterminated final line; blanks count and CRLF counts once.
 
-All counts cover files tracked by git at `43ab360`, the last commit that changed code. Wiki pages under `droid-wiki/` (added in `f2b1b96`, 36 pages) are not counted; the blank-line reformat of `PLAN.md` from that commit is. Line counts are physical lines from `@(Get-Content -Encoding UTF8 <file>).Count`, so blank lines are included. Commit figures come from `git log --shortstat` and `git log --name-only`. For what the pieces do, see [the overview](overview/index.md) and [the architecture page](overview/architecture.md).
+The size scope is deliberately limited to runtime source, tests, and the configuration/support files listed below. It excludes generated `droid-wiki/`, archives, ZIP bundles, documentation, research, and operator materials, except the GitHub pull-request template explicitly included with repository support files. This is not whole-repository LOC. See [architecture](overview/architecture.md), [lore](lore.md), and [CI/release boundaries](deployment.md).
 
 ## Size
 
 ### Lines by language
 
-| Language | Files | Lines | Where |
+| Language | Files | Physical lines | Scope |
 | --- | ---: | ---: | --- |
-| Python | 64 | 13,480 | 7,898 in `src/somnus/`, 4,372 in `tests/`, 1,210 in `archive/v0.1/tools/` |
-| Markdown | 15 | 5,665 | Root documents plus `archive/` |
-| JSON | 3 | 420 | `archive/v0.1/schemas/v1/` only |
+| Python | 63 | 13,683 | Runtime 8,016; tests 5,667 |
+| YAML | 10 | 688 | GitHub configuration 562; Doctor profiles 126 |
 | SQL | 1 | 175 | `src/somnus/db/schema.sql` |
-| YAML | 2 | 126 | `.somnus-debug/python_doctor.yaml`, `.somnus-debug/python_doctor.src.yaml` |
-| TOML | 1 | 20 | `pyproject.toml` |
-| Other | 2 | 14 | `.gitignore`, `.gitattributes` |
-| **Total** | **88** | **19,900** | |
-
-Apart from `droid-wiki/.wiki-meta.json`, the page-order file for this wiki, the only JSON files in the repository are archived v0.1 schemas. Live code has none, which matches decision D4 (see [design decisions](background/design-decisions.md)).
-
-### Lines by area
+| Other support text | 4 | 85 | `.gitattributes`, `.gitignore`, `CODEOWNERS`, `MANIFEST.in` |
+| TOML | 1 | 39 | `pyproject.toml` |
+| Markdown | 1 | 34 | `.github/pull_request_template.md` |
+| **Total** | **80** | **14,704** | Scoped inventory, not all tracked files |
 
 ```mermaid
 xychart-beta horizontal
-    title "Tracked lines by area"
-    x-axis ["src (Python)", "archive", "tests", "root docs", "src (SQL)", "config"]
-    y-axis "Lines" 0 --> 8000
-    bar [7898, 4587, 4372, 2708, 175, 160]
+    title "Runtime, tests, and repository support: physical lines"
+    x-axis ["Python", "YAML", "SQL", "Other", "TOML", "Markdown"]
+    y-axis "Physical lines" 0 --> 14000
+    bar [13683, 688, 175, 85, 39, 34]
 ```
 
-| Area | Files | Lines | Contents |
+Runtime dependencies remain empty in `pyproject.toml`; Python requires 3.11 or newer. Distribution `somnus-metadata` is version 2.0.0, while the import and command remain `somnus`. Registry output is text/TSV; JSON-RPC framing is the MCP exception, not a runtime dependency.
+
+### Lines by area
+
+| Area | Files | Physical lines | Contents |
 | --- | ---: | ---: | --- |
-| `src/somnus/` | 50 | 8,073 | 49 Python modules plus `src/somnus/db/schema.sql` |
-| `tests/` | 13 | 4,372 | 13 unittest suites |
-| `archive/` | 13 | 4,587 | v0.1 spec, glossary, examples, schemas, tools, v2 proposal |
-| Root documents | 7 | 2,708 | `SPEC.md` 911, `Somnus Markdown Metadata Standard Research.md` 685, `PLAN.md` 647, `DECISIONS.md` 300, `AGENTS.md` 59, `README.md` 54, `filetree.md` 52 |
-| Config | 5 | 160 | `.somnus-debug/`, `pyproject.toml`, `.gitignore`, `.gitattributes` |
+| `src/somnus/`, recursive | 50 | 8,191 | 49 Python modules (8,016 lines) plus SQL (175) |
+| `tests/`, recursive | 14 | 5,667 | 13 discovered test modules (4,742) plus explicit acceptance harness (925) |
+| Configuration/support | 16 | 846 | All tracked `.github/` files, two `.somnus-debug/` YAML profiles, and five root support files |
+| **Total** | **80** | **14,704** | |
 
-### Source, test, and docs file counts
+The five root support files are `.gitattributes`, `.gitignore`, `CODEOWNERS`, `MANIFEST.in`, and `pyproject.toml`. `.github/` contributes eight YAML files and one Markdown template; the two Doctor profiles bring the YAML count to ten. Configuration/support here describes an explicit inventory, not a language classification.
 
-| Kind | Files | Lines |
-| --- | ---: | ---: |
-| Source (`src/somnus/`) | 50 | 8,073 |
-| Tests (`tests/`) | 13 | 4,372 |
-| Docs (all tracked `.md` outside `droid-wiki/`) | 15 | 5,665 |
-| Archived code (`archive/v0.1/tools/`) | 2 | 1,210 |
+### Runtime layers
+
+| Area | Python + SQL lines |
+| --- | ---: |
+| `src/somnus/model/` | 1,757 |
+| `src/somnus/commands/` | 1,455 |
+| `src/somnus/tui/` | 1,221 |
+| `src/somnus/db/` | 862 |
+| `src/somnus/yamlsub.py` | 759 |
+| `src/somnus/carriers/` | 560 |
+| `src/somnus/document.py` | 334 |
+| `src/somnus/mcp.py` | 304 |
+| `src/somnus/regions.py` | 210 |
+| `src/somnus/config.py` | 176 |
+| `src/somnus/cli.py` | 169 |
+| `src/somnus/infer.py` | 145 |
+| `src/somnus/ids.py` | 130 |
+| `src/somnus/output.py` | 92 |
+| `src/somnus/__init__.py` | 9 |
+| `src/somnus/__main__.py` | 8 |
+
+Directories are recursive and disjoint from the individually listed root modules.
 
 ## Activity
 
-The repository has 16 commits on `main`. All of them landed on two days.
+The full HEAD history contains **21 commits**, all within the 90-calendar-day UTC window **2026-07-27 through 2026-10-24 inclusive**. July's partial window, August, and September have zero commits. October has 21 commits, 29,410 inserted lines, and 1,517 deleted lines.
 
-| Day | Weekday | ISO week | Commits | Lines added | Lines deleted |
-| --- | --- | ---: | ---: | ---: | ---: |
-| 2026-10-02 | Friday | 40 | 1 | 5,637 | 0 |
-| 2026-10-11 | Sunday | 41 | 15 | 17,978 | 538 |
+History uses author timestamps converted to UTC, unlike earlier surveys using the recorded UTC-05:00 offset. Consequently, the late October 11 local-time commits fall on October 12 UTC. Churn sums `git show --numstat --find-renames` for each commit, including initial additions, archives, and wiki history. Pure renames contribute zero; binary `-` entries contribute no lines. History and size scopes are intentionally different.
 
-The first thirteen commits on 2026-10-11 ran from 06:26 to 08:38 (UTC-5), and eleven of them fall in the 06:00 hour. The wiki commit `f2b1b96` (3,240 lines added, 4 deleted) followed at 22:19, and `43ab360` (722 added, 14 deleted), which added `somnus set` and `somnus mcp`, at 23:42. Five commits share the timestamp 06:26:04 or 06:26:05, which suggests they were split from one working session and committed back to back.
+| UTC day | Weekday | Commits | Added | Deleted |
+| --- | --- | ---: | ---: | ---: |
+| 2026-10-02 | Friday | 1 | 5,637 | 0 |
+| 2026-10-11 | Sunday | 13 | 14,016 | 520 |
+| 2026-10-12 | Monday | 4 | 4,342 | 90 |
+| 2026-10-20 | Tuesday | 2 | 449 | 719 |
+| 2026-10-24 | Saturday | 1 | 4,966 | 188 |
 
-| Hour on 2026-10-11 | Commits |
-| --- | ---: |
-| 06:00 | 11 |
-| 07:00 | 1 (`8f0db0d`, unit tests and bug fixes) |
-| 08:00 | 1 (`dc3c981`, mojibake repair) |
-| 22:00 | 1 (`f2b1b96`, this wiki) |
-| 23:00 | 1 (`43ab360`, `somnus set` and `somnus mcp`) |
+| UTC ISO week | Commits | Added | Deleted |
+| --- | ---: | ---: | ---: |
+| 2026-W40 | 1 | 5,637 | 0 |
+| 2026-W41 | 13 | 14,016 | 520 |
+| 2026-W42 | 4 | 4,342 | 90 |
+| 2026-W43, through October 24 | 3 | 5,415 | 907 |
+
+Weeks without commits are omitted. Since the previous wiki base `56c2e449d295bfc765c88d133a8a85db916b2af4`, one commit changes 57 files: **4,966 additions + 188 deletions = 5,154 changed lines**. This is not 5,154 net new lines.
 
 ### Churn hotspots
 
-`git log --name-only` over all history lists 136 distinct paths, counting both sides of the archive renames and the 36 wiki pages. Because the repository is young, no file has been touched more than four times.
+The window totals **30,927 changed lines** and a net gain of **27,893**. Selected live runtime paths, counting each path at most once per commit:
 
-| Times touched | Files |
-| ---: | --- |
-| 4 | `filetree.md`, `DECISIONS.md`, `AGENTS.md` |
-| 3 | `src/somnus/db/store.py`, `src/somnus/yamlsub.py`, `src/somnus/document.py`, `src/somnus/ids.py`, `src/somnus/cli.py`, `src/somnus/commands/brief.py`, `tests/test_store.py`, `SPEC.md` |
-| 2 | `src/somnus/commands/migrate.py`, `src/somnus/carriers/__init__.py`, `src/somnus/carriers/markdown.py`, `src/somnus/carriers/linecomment.py`, `src/somnus/carriers/blockcomment.py`, `src/somnus/carriers/sidecar.py`, `src/somnus/db/__init__.py`, `src/somnus/db/schema.sql`, `src/somnus/model/lifecycle.py`, `src/somnus/model/schema.py`, `src/somnus/model/validate.py`, `src/somnus/model/vocab.py`, `src/somnus/regions.py`, `tests/test_conformance.py`, `tests/test_commands.py`, `PLAN.md`, `README.md`, `archive/README.md` |
+| Path | Commits touching | Added | Deleted | Churn |
+| --- | ---: | ---: | ---: | ---: |
+| `src/somnus/model/validate.py` | 3 | 884 | 40 | 924 |
+| `src/somnus/yamlsub.py` | 4 | 766 | 7 | 773 |
+| `src/somnus/db/store.py` | 4 | 693 | 11 | 704 |
+| `src/somnus/model/schema.py` | 2 | 628 | 27 | 655 |
+| `src/somnus/tui/app.py` | 2 | 423 | 12 | 435 |
+| `src/somnus/commands/migrate.py` | 3 | 411 | 5 | 416 |
+| `src/somnus/document.py` | 4 | 344 | 10 | 354 |
 
-Most repeat touches come from three commits: `8f0db0d` (four bug fixes), `dc3c981` (the encoding repair across 26 files), and `43ab360`, which changed the governance files (`AGENTS.md`, `DECISIONS.md`, `filetree.md`, `SPEC.md`) together with the CLI to record D16 and D17. The largest single rewrite is `df72af4`, which changed `DECISIONS.md` by 526 lines while adding `PLAN.md`. The history behind these commits is on [the lore page](lore.md), and the encoding repair is covered in [pitfalls](background/pitfalls.md).
+Initial creation is included: these are not defect rankings. Rename detection follows each commit's numstat paths, not a reconstructed lifetime identity. See [cleanup opportunities](cleanup-opportunities.md) for source-backed maintenance observations.
 
 ## Bot-attributed commits
 
-`git log --format=%B | Select-String "Co-authored-by"` finds no trailers in any of the 16 commit messages. The measured bot-attributed share is therefore 0 of 16 (0%). Treat this as a lower bound. It only detects commits that declare a co-author trailer, and agent-written commits made under the operator's identity would not show up.
+The declared-attribution lower bound is **0 of 21 commits (0%)**. Inspect each commit's author name/email and case-insensitive `Co-authored-by:` message lines; count a commit once if either channel matches `[bot]`, a standalone `bot`, `dependabot`, `renovate`, or `github-actions`, case-insensitively. No channel matches.
+
+This does not measure agent assistance: undeclared assistance and unrecognized bot names are invisible. No individual contributor statistics are reported. Configured workflows do not prove a hosted run or bot commit occurred.
 
 ## Complexity
 
 ### Largest files
 
+Selected public implementation, tests, normative/product documents, and historical `archive/` files; generated wiki and private/operator materials are excluded.
+
 | Lines | File |
 | ---: | --- |
 | 1,287 | `archive/v0.1/SOMNUS-METADATA-SPEC-v0.1.md` |
 | 1,115 | `archive/v0.1/tools/validate.py` |
-| 911 | `SPEC.md` |
-| 832 | `src/somnus/model/validate.py` |
+| 936 | `SPEC.md` |
+| 925 | `tests/acceptance/installed_package_acceptance.py` |
+| 863 | `tests/test_tui.py` |
+| 844 | `src/somnus/model/validate.py` |
 | 831 | `archive/v2-proposal/SOMNUS_FRONTMATTER_SPEC_v2.md` |
-| 757 | `src/somnus/yamlsub.py` |
+| 759 | `src/somnus/yamlsub.py` |
 | 693 | `tests/test_validate.py` |
-| 685 | `Somnus Markdown Metadata Standard Research.md` |
-| 675 | `src/somnus/db/store.py` |
-| 647 | `PLAN.md` |
-
-The three largest live source files are the validator, the restricted YAML parser, and the SQLite store. The field schema, `src/somnus/model/schema.py` (601 lines), is next; it dropped out of the top ten when `f2b1b96` reformatted `PLAN.md` to 647 lines.
+| 682 | `src/somnus/db/store.py` |
 
 ### Average file size by directory
 
-| Directory | Files | Lines | Average |
+| Directory, direct files | Files | Lines | Average |
 | --- | ---: | ---: | ---: |
-| `src/somnus/` (top level) | 11 | 2,331 | 212 |
-| `src/somnus/carriers/` | 5 | 559 | 112 |
-| `src/somnus/commands/` | 20 | 1,425 | 71 |
-| `src/somnus/db/` | 3 | 855 | 285 |
-| `src/somnus/model/` | 6 | 1,736 | 289 |
-| `src/somnus/tui/` | 5 | 1,167 | 233 |
-| `tests/` | 13 | 4,372 | 336 |
-| `archive/v0.1/` | 10 | 3,512 | 351 |
-| `archive/v2-proposal/` | 2 | 1,052 | 526 |
+| `src/somnus/` | 11 | 2,336 | 212.4 |
+| `src/somnus/carriers/` | 5 | 560 | 112.0 |
+| `src/somnus/commands/` | 20 | 1,455 | 72.8 |
+| `src/somnus/db/` | 3 | 862 | 287.3 |
+| `src/somnus/model/` | 6 | 1,757 | 292.8 |
+| `src/somnus/tui/` | 5 | 1,221 | 244.2 |
+| `tests/` | 13 | 4,742 | 364.8 |
+| `tests/acceptance/` | 1 | 925 | 925.0 |
+| `.github/workflows/` | 4 | 371 | 92.8 |
+| `.somnus-debug/` | 2 | 126 | 63.0 |
 
-Command modules are small (71 lines on average) because each one is a thin layer over `src/somnus/model/` and `src/somnus/db/`.
+Averages are physical lines divided by files, rounded to one decimal. The database row includes its SQL schema.
+
+### Static import depth
+
+AST inspection of the 49 runtime Python modules finds **141 distinct directed, non-self internal import edges**. It includes imports nested in functions or conditionals and resolves relative imports. For `from package import member`, use the member module when it exists, otherwise the package. Implicit parent-package loading, dynamic imports, subprocess invocations, tests, and archive code are excluded.
+
+One multi-module strongly connected component contains `src/somnus/carriers/__init__.py`, `src/somnus/carriers/blockcomment.py`, `src/somnus/carriers/linecomment.py`, and `src/somnus/carriers/markdown.py`. Collapse it to a single node.
+
+A deepest chain has **12 component nodes / 11 edges**:
+
+`src/somnus/commands/mcp.py` → `src/somnus/mcp.py` → `src/somnus/cli.py` → `src/somnus/commands/_common.py` → `src/somnus/db/__init__.py` → `src/somnus/db/store.py` → `src/somnus/model/validate.py` → `src/somnus/document.py` → `src/somnus/carriers/sidecar.py` → carrier component → `src/somnus/regions.py` → `src/somnus/ids.py`.
+
+This is static dependency reach, not runtime stack depth or startup order. In particular, `src/somnus/mcp.py` imports the CLI parser inside a function.
+
+### Public-definition proxy
+
+Count non-underscore top-level AST function, async-function, and class definitions in direct Python files, including package initializers. Exclude methods, constants, imports, and re-exports; public-named definitions in private modules still count. This is not a supported-public-API promise.
+
+| Package directory | Classes | Functions | Total |
+| --- | ---: | ---: | ---: |
+| `src/somnus/` | 15 | 44 | 59 |
+| `src/somnus/carriers/` | 11 | 10 | 21 |
+| `src/somnus/commands/` | 2 | 37 | 39 |
+| `src/somnus/db/` | 2 | 6 | 8 |
+| `src/somnus/model/` | 13 | 23 | 36 |
+| `src/somnus/tui/` | 10 | 26 | 36 |
+| **Total** | **53** | **146** | **199** |
 
 ### Test-to-code ratio
 
 | Measure | Value |
 | --- | ---: |
-| Test lines / source Python lines | 4,372 / 7,898 = 0.55 |
-| Test functions (`rg -c "def test_" tests`) | 459 |
+| All test Python / runtime Python lines | 5,667 / 8,016 = 0.71 |
+| Discovered-module lines / runtime Python lines | 4,742 / 8,016 = 0.59 |
+| AST functions/methods named `test_*` | 476 |
 | Source Python modules | 49 |
-| Tests per module | 9.4 |
+| `test_*` definitions per source module | 9.7 |
 | Conformance fixtures in `tests/test_conformance.py` | 21 |
 
-The suite with the most tests is `tests/test_validate.py` (80), followed by `tests/test_yamlsub.py` (75). The smallest is `tests/test_mcp.py` (11).
+`tests/test_validate.py` has 80 test definitions, `tests/test_yamlsub.py` 75, and `tests/test_tui.py` 59. The smallest module, `tests/test_mcp.py`, has 11. The 925-line `tests/acceptance/installed_package_acceptance.py` uses an explicit **60-check harness**, not `test_*` definitions, and is not collected by unittest discovery.
+
+These are static counts, not a fresh test run, coverage result, installed-tool check, or external MCP-host validation. Prior exact-wheel release evidence is recorded in `runbooks/package-release.md`; see [testing](how-to-contribute/testing.md) for the exercised boundaries.

@@ -12,8 +12,8 @@ Core 2.0.0 replaced the v0.1 "Somnus Markdown Metadata Standard" rather than ext
 | `archive/v0.1/GLOSSARY.md` | v0.1 vocabulary | `SPEC.md` section 2, `src/somnus/model/vocab.py` |
 | `archive/v0.1/schemas/v1/` | v0.1 JSON Schemas (`core.json` plus engineering benchmark and specification profiles) | `somnus schema --json-schema` |
 | `archive/v0.1/examples/` | Three v0.1 example documents | `somnus new`; still used as `somnus migrate` test inputs |
-| `archive/v0.1/tools/` | `validate.py` and `operator_docs_audit.py` | `somnus check` |
-| `archive/v2-proposal/` | `SOMNUS_FRONTMATTER_SPEC_v2.md` and `differences.md` | `SPEC.md`, `DECISIONS.md` |
+| `archive/v0.1/tools/` | `archive/v0.1/tools/validate.py` and `archive/v0.1/tools/operator_docs_audit.py` | `somnus check` |
+| `archive/v2-proposal/` | `archive/v2-proposal/SOMNUS_FRONTMATTER_SPEC_v2.md` and `archive/v2-proposal/differences.md` | `SPEC.md`, `DECISIONS.md` |
 
 ## What v0.1 looked like
 

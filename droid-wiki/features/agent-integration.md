@@ -1,10 +1,22 @@
 # Agent integration
 
+Active contributors: @calisweetleaf, Christian
+
 `somnus brief` prints a Markdown cheat sheet meant to be pasted into an agent instruction file such as `AGENTS.md`, and `somnus schema` documents any header field or exports the whole header schema as JSON Schema Draft 2020-12. Both are read-only and need no registry. `somnus set` gives agents the header edits the terminal UI gives people, and `somnus mcp` serves every non-interactive command as a Model Context Protocol tool for clients without a shell.
 
 ## Purpose
 
 Agents working in a Somnus-managed repository need the handful of rules that keep headers valid (never invent IDs or dates, never edit `id`, change status only through the tool), a way to look up a field's type and vocabulary without reading all of `SPEC.md`, and a way to change header fields without editing the envelope by hand. `brief` covers the rules, `schema FIELD` the lookup, and `set` the edits. `mcp` puts all of them behind one stdio server. The JSON Schema export exists for editors and external tooling that understand JSON Schema; apart from the MCP protocol framing, it is the only JSON the toolkit produces, by design, because D4 forbids JSON in the registry and the toolkit's own output is text or TSV.
+
+## Integration surfaces
+
+| Surface | What exists | Boundary |
+| --- | --- | --- |
+| CLI and MCP adapter | `src/somnus/cli.py` and `src/somnus/mcp.py`, installed by the `somnus-metadata` distribution | Executable tooling; MCP projects the same CLI rather than implementing another backend. |
+| Repository instructions | `AGENTS.md`, `.factory/skills/somnus-metadata-dev/SKILL.md`, and `.claude/skills/somnus-metadata-dev/SKILL.md` | Markdown guidance for agents working in this checkout, not executable extensions or proof of host activation. |
+| Distributable coding-agent plugin | No packaged plugin exists | No plugin manifest, marketplace entry, bundled plugin server, or installable plugin artifact is supplied. `PLAN.md` records this as deferred work, not something fulfilled by MCP. |
+
+The two `somnus-metadata-dev` skills describe the authority spine, stdlib-only runtime, verification commands, safe metadata edits, and host-byte preservation. They are repository operating instructions, not a portable plugin installation. `MANIFEST.in` prunes `.factory/` and `.claude/` from source distributions; `pyproject.toml` discovers packages only under `src/`. Installing `somnus-metadata` therefore does not install these skills into a coding-agent host. See [Deployment](../deployment.md) for package boundaries and [Architecture](../overview/architecture.md) for shared runtime owners.
 
 ## How it works
 
@@ -22,7 +34,7 @@ somnus brief > somnus-brief.md     # then paste the section into AGENTS.md
 - **Commands**: a table mapping needs (new document, adopt a file, validate, change status, new revision, derive a copy, upgrade v0.1, registry, field docs) to command lines;
 - the exit-code meanings `0`, `1`, `2`.
 
-The root `AGENTS.md` of this repository carries the same rules in its "Rules for agents working on Somnus-managed files" section. When a rule changes, update `BRIEF`, `AGENTS.md`, and SPEC together.
+The root `AGENTS.md` of this repository carries the same rules in its "Rules for Somnus-managed files" section. When an authorized rule change is made, keep `BRIEF`, `AGENTS.md`, and `SPEC.md` aligned.
 
 ### `somnus schema FIELD`
 
@@ -89,7 +101,7 @@ somnus mcp                       # stdio server; register this command with an M
 somnus --actor my-agent mcp      # actor recorded for every write made through the server
 ```
 
-`src/somnus/mcp.py` implements a stdlib-only MCP server over newline-delimited JSON-RPC 2.0 on stdin and stdout (decision D17). It handles `initialize`, `ping`, `tools/list`, and `tools/call`, ignores notifications, and answers malformed input with JSON-RPC errors (`-32700` parse, `-32600` invalid request, `-32601` unknown method, `-32602` bad params or unknown tool). Batches are accepted. The `initialize` result carries the `BRIEF` text as server instructions and negotiates the protocol version from `PROTOCOL_VERSIONS`.
+`src/somnus/mcp.py` implements a stdlib-only MCP server over newline-delimited UTF-8 JSON-RPC 2.0 on stdin and stdout (decision D17, detailed in `SPEC.md` section 20). It handles `initialize`, `ping`, `tools/list`, and `tools/call`, ignores notifications and stray responses, and answers malformed protocol input with JSON-RPC errors (`-32700` parse, `-32600` invalid request, `-32601` unknown method, `-32602` bad params or unknown tool). Batches are accepted. The `initialize` result carries the `BRIEF` text as server instructions and negotiates the protocol version from `PROTOCOL_VERSIONS`.
 
 ```mermaid
 sequenceDiagram
@@ -103,11 +115,21 @@ sequenceDiagram
     Server-->>Client: text content, isError when exit != 0
 ```
 
-`build_tools()` generates one tool per command from the argparse definitions collected by `build_parser(parsers)`, so a new command or flag shows up in MCP without touching the server. `edit` and `mcp` are excluded (`EXCLUDED`), and the global `--actor`, `--debug`, and `--no-color` stay server-side. Positionals become required properties, `store_true` flags become booleans, repeatable and multi-value arguments become string arrays, `type=int` becomes an integer, and `choices` become an `enum`. Tools in `READ_ONLY` (`brief`, `check`, `ls`, `q`, `stale`) carry `readOnlyHint: true`.
+`build_tools()` in `src/somnus/mcp.py` generates the current 16 tools from the argparse definitions collected by `build_parser(parsers)` in `src/somnus/cli.py`, so a new supported command or flag shows up in MCP without a separate hand-maintained tool list. Each input schema is a closed object (`additionalProperties: false`). `edit` and `mcp` are excluded (`EXCLUDED`), and the global `--actor`, `--debug`, and `--no-color` stay server-side. Required positionals become required properties; optional positionals stay optional. `store_true` flags become booleans, repeatable and multi-value arguments become string arrays, `type=int` becomes an integer, and `choices` become an `enum`. Tools in `READ_ONLY` (`brief`, `check`, `ls`, `q`, `stale`) carry `readOnlyHint: true`.
 
-`command_line()` checks argument types and turns them into an argv: options as `--flag=value` and positionals after `--`, so a title or SQL string that starts with `-` is never read as an option. `run_cli()` runs that argv with the server's own interpreter, with `PYTHONIOENCODING=utf-8`, no stdin, a 600-second timeout, and no console window on Windows. The tool result is the command's stdout and stderr as text, with Windows line endings normalized. A non-zero exit sets `isError` and appends `[exit N]`, so agents keep the 0/1/2 distinction. No result is JSON; the protocol framing is the only JSON involved, which D4 allows where a format requires it.
+`command_line()` in `src/somnus/mcp.py` checks argument types and turns them into an argv: options as `--flag=value` and positionals after `--`, so a title or SQL string that starts with `-` is never read as an option. Conversion failures return a tool error (`isError: true`) rather than a JSON-RPC error. Malformed protocol parameters and unknown tool names use the JSON-RPC error layer. `Server.call()` now checks that a tool name is a string before dictionary lookup, so non-string names also receive `-32602` instead of falling into an internal lookup error. This is request hardening, not a new tool surface.
 
-Relative paths in tool arguments resolve against the server's working directory, so absolute paths are the safe choice.
+`run_cli()` in `src/somnus/mcp.py` runs that argv with the server's own interpreter, with `PYTHONIOENCODING=utf-8`, no stdin, a 600-second timeout, and no console window on Windows. The result contains exactly one text content item with the command's stdout and stderr, with Windows line endings normalized. A non-zero exit sets `isError` and appends `[exit N]`, so agents keep the 0/1/2 distinction. JSON-RPC is transport framing; registry output remains text or TSV. The explicit JSON Schema export is still returned as text content.
+
+The adapter maintains no application state between calls. Each command reads or writes files and the registry independently. Relative paths in tool arguments resolve against the server's working directory, so absolute paths are the safe choice.
+
+### Acceptance boundary
+
+`tests/test_mcp.py` covers protocol handling, generated schemas, argument conversion, and a child-process stdio session. Separately, `tests/acceptance/installed_package_acceptance.py` builds and installs an isolated wheel and launches the installed `somnus mcp` outside the checkout. Its real stdio client checks initialization, exactly 16 tools and closed schemas, text/TSV content, failing-command and argument errors, unknown-method and parse errors, session survival, and empty server stderr.
+
+`PLAN.md` records a prior 60/60 result for the complete installed CLI/SQLite/file/MCP/POSIX PTY harness, not 60 MCP checks or a new result from this documentation refresh. This harness requires explicit invocation and is not collected by unittest discovery. See [Testing](../how-to-contribute/testing.md).
+
+These are adapter and installed-package checks, not acceptance in an external MCP host or validation of coding-agent skill loading. Registering the command in a particular client, enabling/trusting it, and exercising real calls there remains a separate integration boundary. Native Windows terminal behavior is not established by the POSIX acceptance run.
 
 ## Integration points
 
@@ -115,6 +137,7 @@ Relative paths in tool arguments resolve against the server's working directory,
 - The schema tree both commands read: [Data models](../reference/data-models.md) and [Validation](../systems/validation.md).
 - Why JSON appears only in the schema export and MCP framing: D4 and D17 in [Design decisions](../background/design-decisions.md).
 - Getting an agent started in a new repository: [Getting started](../overview/getting-started.md).
+- Actor, roots, and registry location: [Configuration](../reference/configuration.md).
 - Full command list: [CLI commands](cli-commands.md).
 
 ## Entry points for modification
@@ -138,3 +161,8 @@ Relative paths in tool arguments resolve against the server's working directory,
 | `src/somnus/model/jsonschema_export.py` | JSON Schema Draft 2020-12 export |
 | `src/somnus/model/schema.py` | Declarative schema tree shared by validation, docs, and export |
 | `AGENTS.md` | Repository agent rules that mirror the brief |
+| `.factory/skills/somnus-metadata-dev/SKILL.md` | Factory/Droid repository operating instructions, not a packaged plugin |
+| `.claude/skills/somnus-metadata-dev/SKILL.md` | Corresponding repository skill instructions for Claude |
+| `tests/test_mcp.py` | Protocol, generated schemas, conversion, and subprocess stdio coverage |
+| `tests/acceptance/installed_package_acceptance.py` | Explicit isolated-wheel CLI and real stdio MCP acceptance |
+| `pyproject.toml`, `MANIFEST.in` | Distribution/package discovery and exclusion of repository-only instruction directories |
