@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-10-31T23:02:52Z",
-  "commitHash": "954d5b446b2398f4f0c0fe6e8c9023219bc542cf",
+  "generatedAt": "2026-10-31T23:09:53Z",
+  "commitHash": "a5c507ce1b8d925065bd2de2244ec13fb6660f94",
   "branch": "main",
   "pageCount": 37,
   "warnings": [
     "Phase 3.5 skipped: no .factory/skills/qa/config.yaml. Run /install-qa to enable screenshots.",
-    "At 954d5b4 the committed delta is one action-only commit: four workflow files, 19 additions and 19 deletions. Four affected pages were refreshed; the other 33 pages were preserved. Source, tests, workflow jobs and permissions are unchanged. Documentation links, source references, page ordering and whitespace were checked. Product tests, semantic validation, mypy, installed acceptance, external MCP hosts, native macOS/Windows console paths, hosted workflows and Doctor were not rerun. Earlier 22117e9 and b0cc64e evidence remains historical. PLAN.md records operator-laptop adapter handshakes and a Droid in-host call, not observations from this runner."
+    "Incremental refresh at a5c507c from 89f1843: one workflow file changes (5 additions, 1 deletion), enabling no-diff rolling-branch cleanup and correcting the fallback log. Refreshed deployment.md, how-to-contribute/tooling.md, by-the-numbers.md and metadata; preserved the other 34 pages, existing staged content and sidebar order. Source and tests are unchanged; no new or removed subsystem pages are needed. Custom documentation checks passed for 37 pages, 265 relative links, 808 concrete source references, headings, directory indexes, page sizes, metadata/sidebar order and source-directory coverage; git diff --check and git diff --cached --check passed. An initial link-check false positive inside a timestamp code span was corrected in the ad hoc checker without changing the page. Product tests, semantic validation, mypy, installed acceptance, external MCP hosts, native macOS/Windows console paths, hosted workflows and Doctor were not rerun for this documentation-only change. Existing execution evidence remains historical; PLAN.md describes operator-laptop observations, not validation on this runner."
   ],
   "videoOverview": {
     "status": "failed",
     "warnings": [
-      "HyperFrames 0.4.44 doctor reported FFmpeg and FFprobe missing despite exit code 0. Rendering was skipped at the non-interactive prerequisite gate; no video was generated. None of the seven prior wiki runs exposed a playable video."
+      "HyperFrames 0.4.44 doctor reported FFmpeg and FFprobe missing despite exit code 0. Rendering was skipped at the non-interactive prerequisite gate; no video was generated. None of the nine prior wiki runs exposed a playable video."
     ]
   },
   "topLevelSections": [

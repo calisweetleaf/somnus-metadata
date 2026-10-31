@@ -77,6 +77,8 @@ Run output goes to `.somnus-debug/runs/`, `.somnus-debug/reports/`, `.python_doc
 
 Commit `954d5b4` updates the workflows to checkout v7, setup-python v7, Gitleaks v3, CodeQL v4, upload-artifact v7, and download-artifact v8. The configured jobs, permissions, and test matrix are unchanged. The wiki pull-request action remains commit-pinned at v8.1.1. See [Dependencies](../reference/dependencies.md#github-actions) for the exact action-to-workflow mapping. These refs describe configuration; this refresh did not execute the hosted workflows or verify upstream release age.
 
+Commit `a5c507c` adds `delete-branch: true` to the pull-request action in `.github/workflows/droid-wiki-refresh.yml`: a publish run with nothing left to review removes `factory/droid-wiki`. If that branch is absent, generation starts from the wiki on the checked-out branch, normally the merged copy on `main`. A missing rolling branch alone does not require full regeneration. This configuration change leaves product code, workflow triggers, and permissions unchanged; hosted cleanup was not exercised here.
+
 The CI install job uses `pip`, `build`, and the setuptools backend; those are build tools, not runtime dependencies. Wiki generation uses Factory Droid and the `FACTORY_API_KEY` secret. The publish job optionally uses `FACTORY_WIKI_PR_TOKEN`, otherwise `github.token`. Do not print secret values. See [Automation](../deployment.md) for permissions, artifacts, token caveats, and recovery.
 
 ## Git attributes and ignores
