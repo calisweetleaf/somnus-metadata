@@ -1,6 +1,6 @@
 # By the numbers
 
-Data collected on **2026-10-31 UTC**, committed HEAD `954d5b446b2398f4f0c0fe6e8c9023219bc542cf` on `main`. Physical size and history figures are refreshed from committed HEAD; runtime AST figures are retained after confirming that runtime and test trees are unchanged from the incremental base `b0cc64e774ef34cf45bcdb1d3bf039ad1281bf6d`. Four workflow files change action major tags without changing scoped line counts. All figures exclude staged or working-tree wiki changes. Physical lines use Python `str.splitlines()`; blanks count and CRLF counts once.
+Data collected on **2026-10-31 UTC** (clock checked at **23:08:47 UTC**), committed HEAD `a5c507ce1b8d925065bd2de2244ec13fb6660f94` on `main` in [the repository](https://github.com/calisweetleaf/somnus-metadata). Physical size and history figures are refreshed from committed HEAD; runtime AST figures are retained because product source and tests are unchanged from the incremental base `89f1843da570d503a302e014fd6027dc51b4737b`. The committed delta changes only `.github/workflows/droid-wiki-refresh.yml`. All figures exclude staged or working-tree wiki changes. Physical lines use Python `str.splitlines()`; blanks count and CRLF counts once.
 
 The size scope is deliberately limited to runtime source, tests, and the configuration/support files listed below. It excludes generated `droid-wiki/`, archives, ZIP bundles, documentation, research, and operator materials, except the GitHub pull-request template explicitly included with repository support files. This is not whole-repository LOC. See [architecture](overview/architecture.md), [lore](lore.md), and [CI/release boundaries](deployment.md).
 
@@ -11,19 +11,19 @@ The size scope is deliberately limited to runtime source, tests, and the configu
 | Language | Files | Physical lines | Scope |
 | --- | ---: | ---: | --- |
 | Python | 63 | 13,936 | Runtime 8,138; tests 5,798 |
-| YAML | 10 | 688 | GitHub configuration 562; Doctor profiles 126 |
+| YAML | 10 | 692 | GitHub configuration 566; Doctor profiles 126 |
 | SQL | 2 | 187 | `src/somnus/db/schema.sql` (175); `src/somnus/db/search.sql` (12) |
 | Other support text | 4 | 85 | `.gitattributes`, `.gitignore`, `CODEOWNERS`, `MANIFEST.in` |
 | TOML | 1 | 39 | `pyproject.toml` |
 | Markdown | 1 | 34 | `.github/pull_request_template.md` |
-| **Total** | **81** | **14,969** | Scoped inventory, not all tracked files |
+| **Total** | **81** | **14,973** | Scoped inventory, not all tracked files |
 
 ```mermaid
 xychart-beta horizontal
     title "Runtime, tests, and repository support: physical lines"
     x-axis ["Python", "YAML", "SQL", "Other", "TOML", "Markdown"]
     y-axis "Physical lines" 0 --> 14000
-    bar [13936, 688, 187, 85, 39, 34]
+    bar [13936, 692, 187, 85, 39, 34]
 ```
 
 Runtime dependencies remain empty in `pyproject.toml`; Python requires 3.11 or newer. Distribution `somnus-metadata` is version 2.1.0 in `pyproject.toml` and `src/somnus/__init__.py`, while the import and command remain `somnus`. `PLAN.md` records 2.0.0 as published and 2.1.0 as not yet published. Core remains 2.0.0 in `SPEC.md`; registry schema 2 adds derived FTS5 search under D19 in `DECISIONS.md`. Registry output is text/TSV; JSON-RPC framing is the MCP exception, not a runtime dependency. See [querying](features/querying.md) and [registry](systems/registry.md).
@@ -34,8 +34,8 @@ Runtime dependencies remain empty in `pyproject.toml`; Python requires 3.11 or n
 | --- | ---: | ---: | --- |
 | `src/somnus/`, recursive | 51 | 8,325 | 49 Python modules (8,138 lines) plus two SQL files (187) |
 | `tests/`, recursive | 14 | 5,798 | 13 discovered test modules (4,873) plus explicit acceptance harness (925) |
-| Configuration/support | 16 | 846 | All tracked `.github/` files, two `.somnus-debug/` YAML profiles, and five root support files |
-| **Total** | **81** | **14,969** | |
+| Configuration/support | 16 | 850 | All tracked `.github/` files, two `.somnus-debug/` YAML profiles, and five root support files |
+| **Total** | **81** | **14,973** | |
 
 The five root support files are `.gitattributes`, `.gitignore`, `CODEOWNERS`, `MANIFEST.in`, and `pyproject.toml`. `.github/` contributes eight YAML files and one Markdown template; the two Doctor profiles bring the YAML count to ten. Configuration/support here describes an explicit inventory, not a language classification.
 
@@ -64,15 +64,15 @@ Directories are recursive and disjoint from the individually listed root modules
 
 ## Activity
 
-The full HEAD history contains **26 commits**, all within the 90-calendar-day UTC window **2026-08-03 through 2026-10-31 inclusive**. The collection date fixes the window; HEAD's author and committer timestamps are both **2026-10-31 22:59:12 UTC**, so no reachable commit is dated beyond the collection day.
+The full HEAD history contains **28 commits**, all within the 90-calendar-day UTC window **2026-08-03 through 2026-10-31 inclusive**. The collection date fixes the window; HEAD's author and committer timestamps are both **2026-10-31 23:05:03 UTC**, so no reachable commit is dated beyond the collection day.
 
-History uses author timestamps converted to UTC, unlike earlier surveys using the recorded UTC-05:00 offset. Consequently, the late October 11 local-time commits fall on October 12 UTC. Churn sums `git show --numstat --find-renames` for each commit, including initial additions, archives, and wiki history. Pure renames contribute zero; binary `-` entries contribute no lines. History and size scopes are intentionally different.
+History uses author timestamps converted to UTC, unlike earlier surveys using the recorded UTC-05:00 offset. Consequently, the late October 11 local-time commits fall on October 12 UTC. Count each reachable commit once; churn sums `git show --format= --numstat --find-renames` for each non-merge commit, including initial additions, archives, and wiki history. Multi-parent merges would count toward activity but contribute no churn, avoiding recounting their branch changes. There are no multi-parent merges in this history: the latest wiki integration, despite its PR-style subject, has exactly one parent and contributes its actual **888 additions and 237 deletions** once. Pure renames contribute zero; binary `-` entries contribute no lines. History and size scopes are intentionally different.
 
 | UTC month in window | Commits | Added | Deleted |
 | --- | ---: | ---: | ---: |
 | 2026-08, from August 3 | 0 | 0 | 0 |
 | 2026-09 | 0 | 0 | 0 |
-| 2026-10, through October 31 | 26 | 29,945 | 1,673 |
+| 2026-10, through October 31 | 28 | 30,838 | 1,911 |
 
 | UTC day | Weekday | Commits | Added | Deleted |
 | --- | --- | ---: | ---: | ---: |
@@ -81,7 +81,7 @@ History uses author timestamps converted to UTC, unlike earlier surveys using th
 | 2026-10-12 | Monday | 4 | 4,342 | 90 |
 | 2026-10-20 | Tuesday | 2 | 449 | 719 |
 | 2026-10-24 | Saturday | 1 | 4,966 | 188 |
-| 2026-10-31 | Saturday | 5 | 535 | 156 |
+| 2026-10-31 | Saturday | 7 | 1,428 | 394 |
 
 | UTC ISO week | Commits | Added | Deleted |
 | --- | ---: | ---: | ---: |
@@ -89,13 +89,13 @@ History uses author timestamps converted to UTC, unlike earlier surveys using th
 | 2026-W41 | 13 | 14,016 | 520 |
 | 2026-W42 | 4 | 4,342 | 90 |
 | 2026-W43 | 3 | 5,415 | 907 |
-| 2026-W44, through October 31 | 5 | 535 | 156 |
+| 2026-W44, through October 31 | 7 | 1,428 | 394 |
 
-Weeks without commits are omitted. Since the incremental wiki base `b0cc64e774ef34cf45bcdb1d3bf039ad1281bf6d`, one commit changes four workflow files: **19 additions + 19 deletions = 38 changed lines**, with no net line growth. Only action major tags change in `.github/workflows/ci.yml`, `.github/workflows/codeql.yml`, `.github/workflows/droid-wiki-refresh.yml`, and `.github/workflows/release.yml`. Runtime source, tests, and all other configuration/support blobs are unchanged. This committed delta excludes staged and working-tree wiki edits; see [CI/release boundaries](deployment.md) for the workflow changes.
+Weeks without commits are omitted. Since the incremental wiki base `89f1843da570d503a302e014fd6027dc51b4737b`, one commit changes **one file, `.github/workflows/droid-wiki-refresh.yml`: 5 additions + 1 deletion = 6 changed lines**, with net growth of **4 lines**. Runtime source and tests are unchanged. This committed delta excludes staged and working-tree wiki edits; see [CI/release boundaries](deployment.md) for the corrected fallback log and automatic deletion of the rolling wiki branch when no review diff remains.
 
 ### Churn hotspots
 
-The window totals **31,618 changed lines** and a net gain of **28,272**. Selected live runtime paths, counting each path at most once per commit:
+The window totals **32,749 changed lines** and a net gain of **28,927**. Selected live runtime paths, counting each path at most once per commit:
 
 | Path | Commits touching | Added | Deleted | Churn |
 | --- | ---: | ---: | ---: | ---: |
@@ -107,13 +107,13 @@ The window totals **31,618 changed lines** and a net gain of **28,272**. Selecte
 | `src/somnus/commands/migrate.py` | 3 | 411 | 5 | 416 |
 | `src/somnus/document.py` | 4 | 344 | 10 | 354 |
 
-The runtime rows are unchanged from the incremental base. `tests/test_tui.py` also remains unchanged in this delta; its window totals are 3 touching commits, 871 additions, and 5 deletions (876 lines of churn). The new workflow commit adds 38 lines of churn: 20 in `.github/workflows/ci.yml`, 6 in `.github/workflows/codeql.yml`, 8 in `.github/workflows/droid-wiki-refresh.yml`, and 4 in `.github/workflows/release.yml`.
+The runtime rows are unchanged from the incremental base. `tests/test_tui.py` also remains unchanged in this delta; its window totals are 3 touching commits, 871 additions, and 5 deletions (876 lines of churn). The new workflow commit adds 6 lines of churn, all in `.github/workflows/droid-wiki-refresh.yml`; it adds no runtime or test churn.
 
 Initial creation is included: these are not defect rankings. Rename detection follows each commit's numstat paths, not a reconstructed lifetime identity. See [cleanup opportunities](cleanup-opportunities.md) for source-backed maintenance observations.
 
 ## Bot-attributed commits
 
-The declared-attribution lower bound is **1 of 26 commits (3.85%)**, for both the full reachable history and the 90-day window. Inspect each commit's author name/email and case-insensitive `Co-authored-by:` message lines; count a commit once if either channel matches `[bot]`, a standalone `bot`, `dependabot`, `renovate`, or `github-actions`, case-insensitively. HEAD matches through both its `dependabot[bot]` author identity and its `Co-authored-by:` trailer; these are one attributed commit, not two. The other 25 commits match neither channel.
+The declared-attribution lower bound is **1 of 28 commits (3.57%)**, for both the full reachable history and the 90-day window. Inspect each commit's author name/email and case-insensitive `Co-authored-by:` message lines; count a commit once if either channel matches `[bot]`, a standalone `bot`, `dependabot`, `renovate`, or `github-actions`, case-insensitively. The dependency-update commit `954d5b446b2398f4f0c0fe6e8c9023219bc542cf` matches through both its `dependabot[bot]` author identity and its `Co-authored-by:` trailer; these are one attributed commit, not two. HEAD and the other 26 commits match neither channel.
 
 This measures declared bot attribution, not AI assistance: a dependency-update bot is not evidence of AI use, and undeclared assistance and unrecognized bot names are invisible. No individual contributor statistics are reported. The bot commit is evidenced by git history; configured workflows alone do not prove a hosted run occurred.
 
@@ -148,7 +148,7 @@ Selected public implementation, tests, normative/product documents, and historic
 | `src/somnus/tui/` | 5 | 1,221 | 244.2 |
 | `tests/` | 13 | 4,873 | 374.8 |
 | `tests/acceptance/` | 1 | 925 | 925.0 |
-| `.github/workflows/` | 4 | 371 | 92.8 |
+| `.github/workflows/` | 4 | 375 | 93.8 |
 | `.somnus-debug/` | 2 | 126 | 63.0 |
 
 Averages are physical lines divided by files, rounded to one decimal. The database row includes both SQL files.
