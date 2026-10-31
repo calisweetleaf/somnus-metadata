@@ -114,6 +114,7 @@ class ScanReport:
     conflicts_opened: int = 0
     conflicts_resolved: int = 0
     diagnostics: list[Diagnostic] = field(default_factory=list)
+    unmanaged_paths: list[str] = field(default_factory=list)
 
     def summary(self) -> str:
         """One-line plain-English summary."""
@@ -409,6 +410,7 @@ class Store:
             return host_rel
         if doc.envelope is None and not doc.issues:
             report.unmanaged += 1
+            report.unmanaged_paths.append(host.as_posix())
             return None
         problems = [d for d in validate(doc, "core") if d.is_error]
         if problems:

@@ -24,6 +24,7 @@ PROTOCOL_VERSIONS = ("2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05")
 EXCLUDED = frozenset({"edit", "mcp"})
 READ_ONLY = frozenset({"brief", "check", "ls", "q", "stale"})
 SERVER_ONLY = frozenset({"actor", "no_color", "debug", "help"})
+PATH_PARAMS = frozenset({"path", "paths", "roots", "root", "dir", "out"})
 CALL_TIMEOUT = 600
 
 ERR_PARSE, ERR_REQUEST, ERR_METHOD, ERR_PARAMS, ERR_INTERNAL = -32700, -32600, -32601, -32602, -32603
@@ -201,6 +202,17 @@ def run_cli(argv: Sequence[str], actor: Optional[str] = None) -> tuple[int, str]
     return proc.returncode, "\n".join(p.rstrip("\n") for p in parts if p.strip())
 
 
+def _relative_paths(arguments: dict) -> list[str]:
+    """Relative path arguments of a call, for the hint on a failed call."""
+    out: list[str] = []
+    for name in PATH_PARAMS & set(arguments):
+        value = arguments[name]
+        for item in [value] if isinstance(value, str) else value if isinstance(value, list) else []:
+            if isinstance(item, str) and item and not Path(item).is_absolute():
+                out.append(item)
+    return sorted(out)
+
+
 def _error(mid: Any, code: int, message: str) -> dict:
     return {"jsonrpc": "2.0", "id": mid, "error": {"code": code, "message": message}}
 
@@ -267,6 +279,10 @@ class Server:
             return {"content": [{"type": "text", "text": str(exc)}], "isError": True}
         code, text = self.runner(argv)
         if code != EXIT_OK:
+            relative = _relative_paths(params.get("arguments") or {})
+            if relative:
+                text += (f"\nnote: relative path(s) {', '.join(relative)} resolve from the server directory"
+                         f" {os.getcwd()}; pass absolute paths")
             text = f"{text}\n[exit {code}]" if text else f"[exit {code}]"
         return {"content": [{"type": "text", "text": text or "(no output)"}], "isError": code != EXIT_OK}
 

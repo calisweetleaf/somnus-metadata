@@ -93,8 +93,8 @@ Surgeon-call restriction; do not infer a current Windows host from that text.
 AGENTS routes entry; PLAN owns frontier/evidence; this file explains relationships.
 Keep imported AGENTS.template.v2.md unchanged for comparison. It contains an
 unrelated planetary-system identity, placeholders, and generic authority prose;
-do not activate it unadapted. AGENTS.somnus.v2.md preserves project rules plus
-the new composed route and is an inactive comparison candidate.
+do not activate it unadapted. The mission-first AGENTS.md (promoted from
+AGENTS.somnus.v2.md on 2026-10-31) is active; AGENTS.v1.md is the superseded entry file.
 
 The House fable explains why portable working surfaces matter. It is not a
 replacement for current source evidence or a mandate to run every tool.

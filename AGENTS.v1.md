@@ -1,50 +1,7 @@
-# Somnus Metadata — v2 mission-first entry candidate
-
-> Inactive comparison candidate. Same project invariants, different entry order:
-> recover the working frontier and compose instruments before reading the full
-> preserved project packet below. Do not auto-swap or delete the original files.
-
-## First move
-
-Own the integrated completion objective in PLAN.md. Read its current evidence
-and immediate next action, then only the CONTEXT.md section that changes your
-move. Use .codex/OPERATING.md as the adaptive transition map, not a mandatory
-sequence. Do not answer a whole-system commission with a list of isolated tickets.
-
-
-## Composed operator route (2026-10-23)
-
-- Read `PLAN.md` for current evidence/frontier and `CONTEXT.md` for relationships
-  and tool-state boundaries. Do not reconstruct the whole repository each turn.
-- Follow `.codex/OPERATING.md` for the Golden Path state transitions and the
-  BB7 + topology + Surgeon + Doctor + Code Forge composition. Use the instruments
-  proactively; do not replace judgment with compulsory bootstrap ceremonies.
-- On first adoption, read
-  `docs/references-unrelated-to-codebase/The-House-that-Had-to-be-Real.md` fully.
-  Preserve authored mechanisms, carry connections into runtime, and leave a
-  working surface. Small construction units do not shrink the system objective.
-- BB7 owns cognitive continuity; inspect live schemas before calls. Codex uses
-  ALL_TOOLS/direct calls; search_tool/use_tool is conditional on the actual host.
-  Degraded recommendations do not authorize abandoning the working substrate or
-  stopping independent work. No shared-data/model mutation is implied.
-- For code connections, use a fresh graph/caller/impact surface before repeated
-  text hunting, then inspect decisive source with Surgeon. Doctor is static
-  diagnostics, graphs are structural evidence, and native execution proves only
-  the exercised boundary. Do not conflate them.
-- For Python work, apply the forge construction/promotion discipline and
-  fieldkit baseline/repair/native-test/rescan loop. Preserve src/somnus and tests;
-  resolve skill-layout conflicts explicitly before claiming full promotion.
-- Record diagnostic failures and dispositions in PLAN; no suppressed findings,
-  threshold weakening, or mass reformatting to satisfy a readiness score.
-- Existing global hooks remain owned by their installed adapters. The local
-  .codex route is documentation, not a claim that a project hook is installed.
-- `AGENTS.template.v2.md` remains a preserved imported proposal;
-  `AGENTS.somnus.v2.md` is the project-specific comparison candidate. Neither
-  silently replaces this active entry file. Do not delete or auto-swap them.
-
-## Preserved project contract
-
 # AGENTS.md — somnus-metadata
+
+> Superseded on 2026-10-31 by the mission-first `AGENTS.md` (operator decision).
+> Preserved for comparison; not active instructions.
 
 ## Project state
 
@@ -147,3 +104,34 @@ what it contains first.
 This folder is OneDrive-synced. Multi-file Surgeon transactions (`multi_edit`,
 `prepare/commit`) fail with WinError 5; edit one file per call. Keep historical
 and user-owned research artifacts untouched.
+
+
+## Composed operator route (2026-10-23)
+
+- Read `PLAN.md` for current evidence/frontier and `CONTEXT.md` for relationships
+  and tool-state boundaries. Do not reconstruct the whole repository each turn.
+- Follow `.codex/OPERATING.md` for the Golden Path state transitions and the
+  BB7 + topology + Surgeon + Doctor + Code Forge composition. Use the instruments
+  proactively; do not replace judgment with compulsory bootstrap ceremonies.
+- On first adoption, read
+  `docs/references-unrelated-to-codebase/The-House-that-Had-to-be-Real.md` fully.
+  Preserve authored mechanisms, carry connections into runtime, and leave a
+  working surface. Small construction units do not shrink the system objective.
+- BB7 owns cognitive continuity; inspect live schemas before calls. Codex uses
+  ALL_TOOLS/direct calls; search_tool/use_tool is conditional on the actual host.
+  Degraded recommendations do not authorize abandoning the working substrate or
+  stopping independent work. No shared-data/model mutation is implied.
+- For code connections, use a fresh graph/caller/impact surface before repeated
+  text hunting, then inspect decisive source with Surgeon. Doctor is static
+  diagnostics, graphs are structural evidence, and native execution proves only
+  the exercised boundary. Do not conflate them.
+- For Python work, apply the forge construction/promotion discipline and
+  fieldkit baseline/repair/native-test/rescan loop. Preserve src/somnus and tests;
+  resolve skill-layout conflicts explicitly before claiming full promotion.
+- Record diagnostic failures and dispositions in PLAN; no suppressed findings,
+  threshold weakening, or mass reformatting to satisfy a readiness score.
+- Existing global hooks remain owned by their installed adapters. The local
+  .codex route is documentation, not a claim that a project hook is installed.
+- `AGENTS.template.v2.md` remains a preserved imported proposal;
+  `AGENTS.somnus.v2.md` is the project-specific comparison candidate. Neither
+  silently replaces this active entry file. Do not delete or auto-swap them.

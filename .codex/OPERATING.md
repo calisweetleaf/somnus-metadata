@@ -31,7 +31,8 @@ mandatory ceremony. It supplies collaboration context, not product semantics.
 - `last-session.txt`: historical session account, not current runtime proof.
 - `AGENTS.template.v2.md`: preserved imported proposal with placeholders and
   unrelated project identity. Not active instructions.
-- `AGENTS.somnus.v2.md`: complete project-specific comparison candidate.
+- `AGENTS.md`: active mission-first entry file (promoted from
+  `AGENTS.somnus.v2.md` on 2026-10-31); `AGENTS.v1.md` is the superseded entry file.
 - This `.codex/` directory: project operating documentation, not CODEX_HOME,
   credentials, a duplicate BB7 data plane, or proof of hook registration.
 

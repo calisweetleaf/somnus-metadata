@@ -11,6 +11,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest import mock
 
 from somnus import document as D
 from somnus.cli import main
@@ -70,6 +71,19 @@ class TestBasics(CliCase):
         self.assertEqual(self.cli("--version")[0], 0)
         self.assertEqual(self.cli()[0], 2)
         self.assertEqual(self.cli("new", "not-a-type", "X")[0], 2)
+
+    def test_index_refuses_home_as_implicit_root(self) -> None:
+        self.ok("init")
+        home = self.tmp / "fakehome"
+        home.mkdir()
+        os.chdir(home)
+        with mock.patch("pathlib.Path.home", return_value=home):
+            code, out, err = self.cli("index")
+        self.assertEqual(code, 2)
+        self.assertIn("too broad to scan", out + err)
+        with self.db() as conn:
+            self.assertEqual(conn.execute("SELECT count(*) FROM roots").fetchone()[0], 0)
+        self.ok("index", str(self.ws))
 
     def test_init_is_idempotent(self) -> None:
         self.init()
@@ -394,10 +408,24 @@ class TestSearch(CliCase):
         self.assertEqual(len(self.ok("q", "--text", "quok*", "--tsv").strip().splitlines()), 3)
         self.assertEqual(len(self.ok("q", "--text", "quokka teal", "--tsv").strip().splitlines()), 2)
 
+    def test_unquoted_words_and_hints(self) -> None:
+        self.init()
+        notes = self.write("notes.json", '{"animal": "quokka", "color": "teal"}\n')
+        self.write("plain.md", "# Plain\n\nNo header here.\n")
+        code, out, err = self.cli("index")
+        self.assertEqual(code, 0, out + err)
+        self.assertIn("unmanaged (no Somnus header, so not searchable):", err)
+        self.assertIn("plain.md", err)
+        self.assertIn("somnus stamp PATH --write", err)
+        self.ok("stamp", str(notes), "--write")
+        self.assertEqual(len(self.ok("q", "--text", "quokka", "teal", "--tsv").strip().splitlines()), 2)
+        code, out, err = self.cli("q", "--text", "zebra")
+        self.assertEqual(code, 0)
+        self.assertIn("no matches; only files with a Somnus header are indexed", err)
+
     def test_usage_errors(self) -> None:
         self.init()
         self.assertEqual(self.cli("q", "--text", "  ")[0], 2)
-        self.assertEqual(self.cli("q", "SELECT 1", "--text", "quokka")[0], 2)
         with self.db() as conn:
             conn.execute("DROP TABLE search")
         code, out, err = self.cli("q", "--text", "quokka")

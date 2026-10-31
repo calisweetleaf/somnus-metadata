@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a12a94-8657-715c-9044-852de0e3f08a"
-  revision: 6
+  revision: 7
   title: "Somnus Metadata System: Normative Specification"
   summary: "The single normative contract for Somnus artifact metadata, carriers, regions, validation, and the global registry."
   classification:
@@ -20,7 +20,7 @@ somnus:
         aspects: ["content", "semantic-model", "ingestion"]
   time:
     created_at: "2026-10-11T10:48:59+00:00"
-    updated_at: "2026-10-31T22:01:36+00:00"
+    updated_at: "2026-10-31T22:39:26+00:00"
     authored_on: "2026-10-11"
   knowledge:
     coverage: "artifact"
@@ -782,7 +782,7 @@ tokens.
 - **Derived state.** The index is never a source of truth and never feeds
   validation, conflicts, or the event ledger. `somnus index --full` rebuilds it.
 - **Query.** `somnus q --text WORDS` requires every word, treats a trailing `*` as
-  a prefix, and ranks by BM25 with column weights path 2, title 10, summary 5,
+  a prefix (an unquoted extra word after `--text` is searched too), and ranks by BM25 with column weights path 2, title 10, summary 5,
   tags 5, body 1. It prints `id`, `title`, `type`, `status`, `path`, and an
   `excerpt` with matches in brackets. Raw FTS5 syntax remains available through
   `somnus q` SQL with `MATCH`.
@@ -887,7 +887,8 @@ JSON-RPC errors. JSON is transport framing only: registry data and tool content
 remain the CLI's text or TSV output. The server does not maintain application
 state between calls. Relative paths are interpreted from the server process's
 working directory; clients requiring stable path resolution should pass
-absolute paths.
+absolute paths. A failed call with relative path arguments ends with a note
+naming them and the server directory they resolved from.
 
 Configuration precedence: CLI flag > nearest parent `.somnus.toml` >
 `$SOMNUS_HOME/config.toml` > built-in defaults.

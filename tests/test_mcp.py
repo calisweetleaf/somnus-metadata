@@ -67,6 +67,12 @@ class TestProtocol(unittest.TestCase):
         self.runner.code, self.runner.text = 1, "a.md:1:1: error E_SCHEMA x: bad"
         res = self.server.handle(request(2, "tools/call", {"name": "check", "arguments": {"paths": ["a.md"]}}))
         self.assertTrue(res["result"]["isError"])
+        text = res["result"]["content"][0]["text"]
+        self.assertTrue(text.startswith("a.md:1:1: error E_SCHEMA x: bad\nnote: relative path(s) a.md resolve from"))
+        self.assertIn(os.getcwd(), text)
+        self.assertTrue(text.endswith("; pass absolute paths\n[exit 1]"))
+        absolute = str(Path(os.getcwd(), "a.md"))
+        res = self.server.handle(request(4, "tools/call", {"name": "check", "arguments": {"paths": [absolute]}}))
         self.assertTrue(res["result"]["content"][0]["text"].endswith("bad\n[exit 1]"))
         self.runner.code, self.runner.text = 0, ""
         res = self.server.handle(request(3, "tools/call", {"name": "brief"}))["result"]

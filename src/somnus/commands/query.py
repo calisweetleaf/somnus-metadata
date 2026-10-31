@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from somnus.commands._common import Ctx
+from somnus.commands._common import Ctx, note
 from somnus.db import run_query
 from somnus.db.store import fts_query
 from somnus.output import EXIT_OK, EXIT_USAGE, SomnusError
@@ -27,9 +27,8 @@ def run(args, ctx: Ctx) -> int:
     """Run SQL, a shortcut (default ``--docs``), or a ``--text`` full-text search on a read-only connection."""
     params: tuple = ()
     if args.text is not None:
-        if args.sql:
-            raise SomnusError("give either SQL or --text, not both", EXIT_USAGE)
-        match = fts_query(args.text)
+        # `q --text naming conventions` leaves "conventions" in the SQL slot; treat it as another word.
+        match = fts_query(" ".join(w for w in (args.text, args.sql) if w))
         if not match:
             raise SomnusError("--text needs at least one search word", EXIT_USAGE)
         sql, params = SEARCH, (match,)
@@ -45,4 +44,7 @@ def run(args, ctx: Ctx) -> int:
     finally:
         conn.close()
     ctx.table(headers, rows)
+    if params and not rows:
+        note("no matches; only files with a Somnus header are indexed. Adopt one with 'somnus stamp PATH --write',"
+             " then 'somnus index'.")
     return EXIT_OK

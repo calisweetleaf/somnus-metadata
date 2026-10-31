@@ -10,7 +10,7 @@ start with [`AGENTS.md`](AGENTS.md); this file is not normative.
 ├── DECISIONS.md                      # ratified rationale D1–D19
 ├── PLAN.md                           # evidence, completion frontier, operator setup/handoff
 ├── CONTEXT.md                        # architectural relations and observed tool boundaries
-├── AGENTS.somnus.v2.md                # inactive project-specific comparison candidate
+├── AGENTS.v1.md                       # superseded entry file (2026-10-31); not active
 ├── AGENTS.template.v2.md              # preserved imported proposal; not active instructions
 ├── .codex/OPERATING.md                # adaptive composed tool/skill route; no local hook installed
 ├── workflows.md                      # supplied BB7 suggested playbook
