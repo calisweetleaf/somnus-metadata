@@ -1,6 +1,6 @@
 # Data models
 
-There are two data models: the `somnus:` header carried in each file, declared as a schema tree in `src/somnus/model/schema.py`, and the registry database, declared in `src/somnus/db/schema.sql`. Both follow `SPEC.md`: the header contract is in sections 4 to 17, and the registry in section 18.
+There are two data models: the `somnus:` header carried in each file, declared as a schema tree in `src/somnus/model/schema.py`, and the registry database, declared in `src/somnus/db/schema.sql` and `src/somnus/db/search.sql`. Both follow `SPEC.md`: the header contract is in sections 4 to 17, and the registry in section 18.
 
 ## Header payload
 
@@ -66,7 +66,7 @@ Patterns are defined at the top of `src/somnus/model/schema.py`. Timestamps are 
 
 ## Registry
 
-One SQLite database at `$SOMNUS_HOME/somnus.db`, schema version 1 (`PRAGMA user_version`, `DB_USER_VERSION` in `src/somnus/__init__.py`). No column stores JSON; headers are stored as canonical restricted-YAML text (D4).
+One SQLite database at `$SOMNUS_HOME/somnus.db`, schema version 2 (`PRAGMA user_version`, `DB_USER_VERSION` in `src/somnus/__init__.py`). No column stores JSON; headers are stored as canonical restricted-YAML text (D4). Package 2.1.0 adds the optional derived FTS5 index without changing core metadata 2.0.0 (D19 in `DECISIONS.md`).
 
 ### Tables
 
@@ -83,6 +83,9 @@ One SQLite database at `$SOMNUS_HOME/somnus.db`, schema version 1 (`PRAGMA user_
 | `claims` | Typed claims per revision | PK `(artifact_id, revision, claim_id)`, `subject_ref`, `predicate`, `kind`, `assessment`, `statement`, `region_ref`, `object_ref` |
 | `conflicts` | Revision, duplicate-ID, authority, and identity conflicts | `id` PK, `kind` (checked), `conflict_key`, `artifact_id`, `revision`, `path`, `detail`, `state` (`open` or `resolved`), `opened_at`, `resolved_at` |
 | `events` | Append-only action ledger | `id` autoincrement PK, `at`, `actor`, `action`, `artifact_id`, `revision`, `path`, `detail` |
+| `search` | Derived FTS5 text of present locations; available when SQLite supports FTS5 | `rowid = locations.id`, `path`, `title`, `summary`, space-separated `tags`, `body` |
+
+`src/somnus/db/search.sql` configures Porter stemming over `unicode61` tokens with diacritic removal. `searchable_body()` in `src/somnus/db/store.py` uses text outside the envelope, or a UTF-8 sidecar host, with a 1,000,000-character body limit. These rows reflect the last observation, even when a revision conflict leaves the trusted artifact state unchanged. They never feed validation or authority. An incremental scan fills missing rows; disappearance removes the derived row without deleting the location or revision history.
 
 `regions`, `relations`, `entities`, and `claims` reference `revisions(artifact_id, revision)`, so knowledge records are tied to the exact revision they came from. Indexes: `locations_artifact` on `locations(artifact_id)`, `relations_object` on `relations(object_ref)`, and the partial unique index `conflicts_one_open` on `conflicts(kind, conflict_key) WHERE state = 'open'`, which allows at most one open conflict per key.
 
@@ -96,7 +99,7 @@ The triggers `events_no_update` and `events_no_delete` abort any `UPDATE` or `DE
 | `open_conflicts` | Conflicts with `state = 'open'` |
 | `history` | All events, newest first |
 
-`somnus q --docs`, `--conflicts`, and `--history` query these views; `somnus q --tables` lists every table and view. See [registry](../systems/registry.md) for indexing semantics and [querying](../features/querying.md) for examples.
+`somnus q --docs`, `--conflicts`, and `--history` query these views; `somnus q --tables` lists tables and views while hiding SQLite internals and FTS5 shadow tables (`src/somnus/commands/query.py`). `somnus q --text` searches `search`, joining present locations and artifacts for ranked excerpts. See [registry](../systems/registry.md) for indexing semantics and [querying](../features/querying.md) for examples.
 
 ### Digests
 

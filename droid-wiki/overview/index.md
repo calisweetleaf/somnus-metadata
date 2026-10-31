@@ -8,7 +8,8 @@ Every file managed by Somnus carries exactly one `somnus:` header. The header re
 
 - puts that header into the right place for the file type (Markdown frontmatter, a comment block in code or config, or a `<file>.somnus.yaml` sidecar) without touching the bytes around it;
 - validates headers at four levels (`carrier`, `core`, `semantic`, `canon`) and prints compiler-style diagnostics;
-- indexes every registered root into one global SQLite registry at `~/.somnus/somnus.db`, which tracks revisions, locations, relations, claims, and conflicts and keeps an append-only event ledger;
+- indexes every registered root into one global SQLite registry at `~/.somnus/somnus.db`, which tracks revisions, locations, relations, claims, and conflicts and keeps an append-only event ledger (`src/somnus/db/store.py`);
+- searches managed file content with `somnus q --text`, using a derived SQLite FTS5 index (`src/somnus/db/search.sql`, `src/somnus/commands/query.py`);
 - offers a terminal UI (`somnus edit`) for browsing the registry and editing headers, and `somnus set` for making the same header edits from a script or an agent;
 - exposes every non-interactive command to MCP clients through `somnus mcp`, a stdio server that runs the CLI for each tool call.
 
@@ -24,11 +25,19 @@ The package has no third-party dependencies (`pyproject.toml` declares `dependen
 | Path | What lives there |
 | --- | --- |
 | `SPEC.md` | Normative standard, 23 sections |
-| `DECISIONS.md` | Ratified decisions D1 to D18 |
-| `src/somnus/` | The toolkit (49 Python modules, 7,898 lines, plus 175 lines of SQL) |
-| `tests/` | 13 unittest suites (about 4,600 lines), 476 tests, including one test per SPEC section 21 fixture, plus an explicit installed-wheel acceptance harness under `tests/acceptance/` |
+| `DECISIONS.md` | Ratified decisions D1 to D19 |
+| `PLAN.md` | Current delivery state and maintenance priorities, not the original build specification |
+| `src/somnus/` | The toolkit (49 Python modules, 8,138 lines, plus 187 lines of SQL) |
+| `tests/` | 13 discovered unittest modules, 486 tests including 21 conformance fixtures; a separate installed-package acceptance harness |
+| `.github/workflows/` | Cross-platform checks, CodeQL, tagged releases, and automatic wiki refresh |
 | `archive/` | v0.1 spec, schemas, examples, tools and the v2 proposal; historical, not normative |
 | `Somnus Markdown Metadata Standard Research.md` | Original research; evidence only, read-only |
+
+`README.md` and `pyproject.toml` identify the checkout as `somnus-metadata` 2.1.0; the command and import remain `somnus`. Core metadata stays 2.0.0, while the registry advances to schema 2 (`src/somnus/__init__.py`). `PLAN.md` records 2.0.0 as the published PyPI release and 2.1.0 as unpublished. Do not install the unrelated PyPI distribution named `somnus` in the same environment.
+
+A separate private adapter, [somnus-metadata-plugin](https://github.com/calisweetleaf/somnus-metadata-plugin), installs an agent skill and MCP configuration for Droid, Codex, and Antigravity. It is not part of this Python distribution. The 2026-10-31 handoff in `PLAN.md` records installation on the operator's Linux laptop, live doctor handshakes, and a real Droid search call. Codex and Antigravity in-host calls remain unexercised. See [Agent integration](../features/agent-integration.md) for the evidence boundary.
+
+`AGENTS.md` is the active mission-first entry: recover the current objective and evidence from `PLAN.md`, read the relevant relationships in `CONTEXT.md`, and use `.codex/OPERATING.md` as an adaptive tool route. `AGENTS.v1.md` is the preserved, superseded entry, not another active policy. `PLAN.md` and `runbooks/package-release.md` record prior installed-package acceptance and publication evidence. Checkout tests, installed acceptance, and compatibility with an external MCP host are separate boundaries. Workflow configuration is not evidence of a successful hosted run.
 
 ## Quick links
 
@@ -38,4 +47,6 @@ The package has no third-party dependencies (`pyproject.toml` declares `dependen
 - [CLI commands](../features/cli-commands.md): every `somnus` subcommand
 - [Agent integration](../features/agent-integration.md): `somnus brief`, `somnus set`, and the MCP server
 - [Registry](../systems/registry.md): the SQLite schema and reconciliation rules
+- [Querying](../features/querying.md): structured queries and full-text search
 - [Design decisions](../background/design-decisions.md): why the standard looks the way it does
+- [Automation](../deployment.md): CI jobs and the rolling wiki pull request

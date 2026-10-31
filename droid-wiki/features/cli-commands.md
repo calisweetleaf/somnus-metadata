@@ -1,5 +1,7 @@
 # CLI commands
 
+Active contributors: calisweetleaf
+
 `somnus` is an argparse CLI with 18 subcommands, each implemented as one module under `src/somnus/commands/` and imported only when invoked. Every command receives the same `Ctx` object, which supplies configuration, output formatting, registry access, and event recording.
 
 ## Purpose
@@ -16,8 +18,8 @@ The CLI is the only supported way to create, adopt, revise, and retire Somnus-ma
 | `new` | Scaffold a conformant Markdown artifact `<slug>.md` with a fresh UUIDv7 at revision 1. | `TYPE TITLE`, `--dir`, `--carrier frontmatter\|html-comment`, `--status` (default `draft`), `--force` | Writes a new file | `src/somnus/commands/new.py` |
 | `stamp` | Infer and inject a header into unmanaged files (embedded or sidecar). | `PATH...`, `--write`, `--type`, `--title` | Dry run unless `--write` | `src/somnus/commands/stamp.py` |
 | `check` | Validate documents and print diagnostics. | `[PATH...]`, `--all`, `--level carrier\|core\|semantic\|canon` (default `core`) | Read-only | `src/somnus/commands/check.py` |
-| `index` | Reconcile roots into the registry. | `[ROOT...]`, `--full` | Writes registry | `src/somnus/commands/index.py` |
-| `q` | Read-only SQL or shortcut queries. | `[SQL]`, `--docs\|--conflicts\|--history\|--tables`, `--limit N` | Read-only | `src/somnus/commands/query.py` |
+| `index` | Reconcile roots and refresh the derived full-text index when FTS5 is available. | `[ROOT...]`, `--full` | Writes registry | `src/somnus/commands/index.py` |
+| `q` | Read-only SQL, shortcut queries, or ranked full-text search. | `[SQL]`, `--docs\|--conflicts\|--history\|--tables\|--text WORDS`, `--limit N` | Read-only | `src/somnus/commands/query.py` |
 | `ls` | List present artifacts from the `docs` view. | `--type`, `--status`, `--standing`, `--tag`, `--path-contains` | Read-only | `src/somnus/commands/ls.py` |
 | `status` | Validated lifecycle transition; writes a new revision. | `PATH NEW_STATUS`, `--reason`, `--replacement REF` (repeatable) | Writes file | `src/somnus/commands/status.py` |
 | `bump` | New revision; resolves `revision` and `identity` conflicts. | `PATH`, `--reason` | Writes file | `src/somnus/commands/bump.py` |
@@ -29,9 +31,29 @@ The CLI is the only supported way to create, adopt, revise, and retire Somnus-ma
 | `schema` | Field documentation, or JSON Schema Draft 2020-12 export. | `[FIELD]`, `--json-schema`, `--out` | Read-only; `--json-schema --out` writes one file | `src/somnus/commands/schema.py` |
 | `brief` | Print a Markdown cheat sheet for agent instruction files. | none | Read-only | `src/somnus/commands/brief.py` |
 | `edit` | Terminal UI: document browser, or header editor for one file. | `[PATH]` | Interactive; the header editor can write | `src/somnus/commands/edit.py` |
-| `mcp` | Serve every command except `edit` as MCP tools over stdio. | none (global `--actor` is passed to each call) | Runs until stdin closes; each tool call has its command's effect | `src/somnus/commands/mcp.py`, `src/somnus/mcp.py` |
+| `mcp` | Serve the 16 commands other than `edit` and `mcp` as MCP tools over stdio. | none (global `--actor` is passed to each call) | Runs until stdin closes; each tool call has its command's effect | `src/somnus/commands/mcp.py`, `src/somnus/mcp.py` |
 
 `q`, `ls`, and `stale` open the registry through `connect_readonly`, so they fail with `E_IO` (exit 2) when `somnus init` has not been run. `index` opens the registry for writing with `create=False` and has the same requirement.
+
+### Query modes
+
+`src/somnus/cli.py` describes `q` as “read-only registry queries and full-text search.” Its `--text WORDS` help states that every word must match and `word*` matches a prefix:
+
+```powershell
+somnus index
+somnus q --text "host bytes" --limit 10
+somnus q --text "validat*" --tsv
+```
+
+`src/somnus/commands/query.py` returns `id, title, type, status, path, excerpt` for text searches, ranked by weighted BM25. `--text` is mutually exclusive with `--docs`, `--conflicts`, `--history`, and `--tables`. With `--text`, the optional positional `[SQL]` argument instead contributes literal search words: `somnus q --text naming conventions` searches for both words, never executes `conventions` as SQL. Only one positional slot is accepted; quote longer search strings rather than assuming arbitrary unquoted words work. Empty or wildcard-only searches and a missing full-text index return exit 2. Non-search shortcuts still take precedence over a SQL argument. `--tables` includes `search` but hides its `search_*` shadow tables.
+
+A text search with zero matches still exits 0 and renders the normal empty table (`no rows` on stderr for aligned text, or the header only for TSV). An additional informational stderr note explains that only files with Somnus headers are indexed and suggests adoption with `somnus stamp PATH --write`, then `somnus index`.
+
+The index is location-derived, populated only from managed documents successfully indexed by `src/somnus/db/store.py`. On schema-1 upgrades the next scan backfills absent search rows; `--full` forces a re-read even when mtime and size match. A SQLite build without FTS5 can still use the base registry. See [Querying](querying.md) for search scope, raw SQL `MATCH`, excerpts, and error handling, and [Registry](../systems/registry.md) for maintenance.
+
+With explicit roots, `index` scans those roots; otherwise it scans registered roots. Only when neither exists does it fall back to configured roots. In that fallback branch, a root equal to the resolved home directory or filesystem anchor is refused with exit 2 and guidance to use `somnus init --root DIR` or `somnus index DIR`. This is not a universal ban on explicitly named or already registered broad roots.
+
+After scanning, `index` reports up to 10 unmanaged absolute host paths, adds `and N more` when needed, and suggests `somnus stamp PATH` to preview followed by `somnus stamp PATH --write` to adopt. These are informational stderr notes, not warnings or errors; unmanaged files alone do not make indexing fail. `tests/test_commands.py` covers the implicit-home refusal, two-word unquoted search, unmanaged-file notes, and zero-match hint.
 
 ## How it works
 
@@ -98,7 +120,9 @@ somnus migrate archive/v0.1/examples/specification-example.md
 | `resolver()` | Registry-backed reference resolver, or an empty `Resolver` when no registry exists. |
 | `record(action, path, ...)` | When a registry exists: append an event, resolve named conflict kinds, and re-observe the file. Without a registry it does nothing. |
 
-Module-level helpers: `load_valid()` (load and refuse unless the document passes a level), `commit()` (render, `check_text()`, atomic write), `check_text()`, `refuse()`, `new_payload()` and `inferred_payload()` (see [Adopting files](adopting-files.md)), `walk()` and `is_candidate()` (file discovery honoring exclude globs and preferring sidecars), `unified()`, `display()`, and `note()` (stderr messages).
+Module-level helpers in `src/somnus/commands/_common.py`: `load_valid()` (load and refuse unless the document passes a level), `commit()` (render, `check_text()`, atomic write), `check_text()`, `refuse()`, `new_payload()` and `inferred_payload()` (see [Adopting files](adopting-files.md)), `walk()` and `is_candidate()` (file discovery honoring exclude globs and preferring sidecars), `unified()`, `display()`, and `note()` (informational messages).
+
+`note()` normally writes to stderr. `capture_notes(sink)` temporarily redirects it and restores the previous sink even on failure. The TUI uses this to show registry notes in its status row instead of overwriting the alternate-screen frame. Ordinary CLI commands install no sink, so their stderr output is unchanged. See [Terminal UI](../systems/tui.md).
 
 ## Integration points
 
@@ -123,4 +147,8 @@ Module-level helpers: `load_valid()` (load and refuse unless the document passes
 | `src/somnus/commands/_common.py` | `Ctx`, payload builders, commit helpers, file walking |
 | `src/somnus/commands/*.py` | One module per subcommand |
 | `src/somnus/output.py` | `Diagnostic`, `SomnusError`, exit-code constants, table rendering |
+| `src/somnus/commands/query.py` | Query shortcuts, full-text ranking/excerpts, search usage errors |
+| `src/somnus/commands/index.py` | Root selection, fallback safety, unmanaged-file adoption notes |
+| `src/somnus/db/store.py`, `src/somnus/db/search.sql` | Search population, migration/backfill, and FTS5 definition |
+| `tests/test_commands.py` | CLI root-safety, search, and informational-hint coverage |
 | `SPEC.md` | §19.3 exit codes, §20 CLI contract |

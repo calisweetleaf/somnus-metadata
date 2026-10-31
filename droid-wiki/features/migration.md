@@ -4,7 +4,7 @@
 
 ## Purpose
 
-v0.1 documents put identity and classification at the root of YAML frontmatter (`id`, `title`, `classification`, `lifecycle.is_canonical`, `relations` buckets) and marked body regions with `:::submatter:<kind>{...}` fenced directives. Core 2.0.0 nests everything under one `somnus:` key, uses a closed schema, and marks regions with HTML comment markers. The migration is the normative mapping in SPEC §22. The sample inputs are in `archive/v0.1/examples/` (`specification-example.md`, `benchmark-example.md`, `submatter-example.md`); `archive/` is historical and is never imported by `src/`.
+v0.1 documents put identity and classification at the root of YAML frontmatter (`id`, `title`, `classification`, `lifecycle.is_canonical`, `relations` buckets) and marked body regions with `:::submatter:<kind>{...}` fenced directives. Core 2.0.0 nests everything under one `somnus:` key, uses a closed schema, and marks regions with HTML comment markers. The migration is the normative mapping in SPEC §22. The sample inputs are `archive/v0.1/examples/specification-example.md`, `archive/v0.1/examples/benchmark-example.md`, and `archive/v0.1/examples/submatter-example.md`; `archive/` is historical and is never imported by `src/`.
 
 ## How it works
 

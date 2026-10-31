@@ -10,10 +10,10 @@ Core 2.0.0 replaced the v0.1 "Somnus Markdown Metadata Standard" rather than ext
 | --- | --- | --- |
 | `archive/v0.1/SOMNUS-METADATA-SPEC-v0.1.md` | The v0.1 specification (1,287 lines) | `SPEC.md` |
 | `archive/v0.1/GLOSSARY.md` | v0.1 vocabulary | `SPEC.md` section 2, `src/somnus/model/vocab.py` |
-| `archive/v0.1/schemas/v1/` | v0.1 JSON Schemas (`core.json` plus engineering benchmark and specification profiles) | `somnus schema --json-schema` |
+| `archive/v0.1/schemas/v1/` | v0.1 JSON Schemas (`archive/v0.1/schemas/v1/core.json` plus engineering benchmark and specification profiles) | `somnus schema --json-schema` |
 | `archive/v0.1/examples/` | Three v0.1 example documents | `somnus new`; still used as `somnus migrate` test inputs |
-| `archive/v0.1/tools/` | `validate.py` and `operator_docs_audit.py` | `somnus check` |
-| `archive/v2-proposal/` | `SOMNUS_FRONTMATTER_SPEC_v2.md` and `differences.md` | `SPEC.md`, `DECISIONS.md` |
+| `archive/v0.1/tools/` | `archive/v0.1/tools/validate.py` and `archive/v0.1/tools/operator_docs_audit.py` | `somnus check` |
+| `archive/v2-proposal/` | `archive/v2-proposal/SOMNUS_FRONTMATTER_SPEC_v2.md` and `archive/v2-proposal/differences.md` | `SPEC.md`, `DECISIONS.md` |
 
 ## What v0.1 looked like
 
@@ -41,7 +41,7 @@ v0.1 was Markdown-only. Its main traits, from `archive/v0.1/SOMNUS-METADATA-SPEC
 | Bare relation buckets with authored inverses | Qualified relation records; inverses are registry views | D11 |
 | Markdown only | Carrier matrix: frontmatter, HTML comment, line and block comments, sidecars | D8 |
 
-The `archive/v2-proposal/` documents were an intermediate step. They already carry core 2.0.0 headers (for example `differences.md` is a `report` with status `proposed`), but the proposal itself is superseded by `SPEC.md` and `DECISIONS.md`.
+The `archive/v2-proposal/` documents were an intermediate step. They already carry core 2.0.0 headers (for example `archive/v2-proposal/differences.md` is a `report` with status `proposed`), but the proposal itself is superseded by `SPEC.md` and `DECISIONS.md`.
 
 ## How `somnus migrate` bridges the gap
 
