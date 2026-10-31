@@ -30,7 +30,7 @@ execution establish implementation and exercised behavior respectively.
 ### Remaining NOT RUN and scope boundaries
 
 - **Windows live OS console (`kernel32`/`msvcrt` on a real Windows host) and live Windows `.cmd` execution (`m000424`):** **NOT RUN** locally (no Windows host; Linux `7.0.0-38-generic`). All Windows console mode/input branches in `src/somnus/tui/term.py` (96% coverage via `tests/test_term_windows.py` fakes) and `win32` `spawnForm()` in `somnus-metadata-plugin` are now unit-tested on Linux.
-- **Installed-package acceptance harness in GitHub Actions CI & plugin CI (`m000397`, `m000411`):** Hosted `CI` and `CodeQL` workflows in `.github/workflows/` are green (`gh run list --limit 5`), and `.github/workflows/ci.yml` `tooling` runs `pre-commit --all-files`, `import-linter --no-cache`, and `coverage report` (`fail_under = 85`). However, the 65-check `tests/acceptance/installed_package_acceptance.py` harness is not wired into `.github/workflows/ci.yml`, and `/home/daeron/Repositories/somnus-metadata-plugin` has no `.github/workflows/` CI (left to Parent's workflow/publishing decision).
+- **Installed-package acceptance harness in CI & plugin CI (`m000397`, `m000411`):** **RUN.** The `installed CLI smoke test` job in `.github/workflows/ci.yml` now runs `tests/acceptance/installed_package_acceptance.py` (green at `3dcde8b`). The private plugin repo has `.github/workflows/ci.yml` running `npm test` on ubuntu and macos for Node 20, 22 and 24 (6/6 green at `4668d32`); Windows is covered there only by `spawnForm` unit tests with a mocked platform.
 - **Codex and Antigravity in-host MCP invocation:** **RUN** (2026-10-31, digger-1, re-tasted by parent-1). `codex exec --sandbox read-only` called `somnus-metadata/q`; its session log `~/.codex/sessions/2026/10/31/rollout-2026-10-31T18-25-38-*.jsonl` records `"server":"somnus-metadata"` with the SPEC.md/DECISIONS.md result rows and lists the installed `somnus-metadata` skill. `agy --sandbox --print` returned the same rows; conversation DB `~/.gemini/antigravity-cli/conversations/9b2ca119-*.db` holds 18 `somnus-metadata .../q` tool-call entries and the returned text. Write tools were not exercised in those hosts.
 - **Public PyPI 2.1.0 upload:** **NOT RUN** (PyPI continues to serve `2.0.0` until an authorized release upload).
 
@@ -384,7 +384,7 @@ Antigravity (18/18 `node --test` tests passing; see top sections).
   (`gh run list --limit 5` shows `CI` and `CodeQL` passing on GitHub Actions, including
   the `tooling` job running `pre-commit`, `import-linter`, and `coverage`). The
   installed-package acceptance harness (`tests/acceptance/installed_package_acceptance.py`)
-  is run locally before release (65/65 passed) and is not yet wired as a CI job.
+  is run locally before release (65/65 passed) and runs in CI in the `installed CLI smoke test` job (since `3dcde8b`).
 - **`coverage`, `import-linter`, and `pre-commit`**: remain outside runtime
   `[project] dependencies = []` (stdlib-only invariant); executed in CI's `tooling`
   job and locally via `uvx`.
