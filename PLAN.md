@@ -4,6 +4,31 @@ Updated 2026-10-23 (America/Chicago). Operational handoff, not normative source.
 SPEC.md owns the contract; DECISIONS.md records ratified rationale. Source and
 execution establish implementation and exercised behavior respectively.
 
+## Agent experience pass and private plugin (2026-10-31)
+
+Core fixes (commit `22117e9`), each from driving the CLI and MCP adapter cold:
+unquoted extra `q --text` words are searched; an empty search and `index`
+explain adoption (`index` lists up to 10 unmanaged files); `index` refuses an
+implicit home-directory or filesystem-root fallback; failed MCP calls with
+relative paths name the server directory. SPEC r7. AGENTS.somnus.v2.md is now
+`AGENTS.md`; the old entry file is `AGENTS.v1.md` (operator decision).
+
+Private adapter: `calisweetleaf/somnus-metadata-plugin` (GitHub, private, commit
+`71a6b5b`), Node 18+, zero dependencies, 10 `node --test` tests. It installs the
+`somnus-metadata` skill and MCP server (`somnus --actor <host> mcp`) for Droid,
+Codex, and Antigravity; `npx github:calisweetleaf/somnus-metadata-plugin doctor`.
+
+Installed on this laptop (Linux) on 2026-10-31:
+- backend `uv tool install --force <this checkout>` -> `~/.local/bin/somnus` 2.1.0;
+  registry `~/.somnus/somnus.db` with root `~/Repositories/somnus-metadata` only.
+- plugin into all three hosts; backups `~/.factory/mcp.json.bak-somnus-plugin-20261031T224721Z`
+  and `~/.codex/config.toml.bak-somnus-plugin-20261031T224721Z`.
+- Evidence: `tomllib` parses Codex config; doctor: all checks passed (live handshake,
+  16 tools per host); Droid called `q --text` through its own MCP connection.
+  Codex and Antigravity load the entries after a restart: NOT exercised inside those hosts.
+
+Open: PyPI still serves 2.0.0 (2.1.0 not uploaded); 236 files under the root are
+unmanaged until stamped; ChatGPT via OpenAI Secure MCP Tunnel is not set up.
 ## Full-text search — D19, package 2.1.0 (2026-10-31)
 
 Registry schema 2 adds the derived FTS5 `search` index (SPEC §18.4, D19);
