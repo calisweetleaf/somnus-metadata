@@ -156,3 +156,7 @@ jobs:
           cd "$RUNNER_TEMP"
           python -c "import somnus, sys; assert 'site-packages' in somnus.__file__, somnus.__file__; print(somnus.__file__)"
           somnus check "$GITHUB_WORKSPACE/SPEC.md" "$GITHUB_WORKSPACE/DECISIONS.md" --level semantic
+
+      - name: Installed-package acceptance harness (CLI, registry, MCP, PTY)
+        # Builds its own wheel and installs it into an isolated venv and $SOMNUS_HOME.
+        run: python tests/acceptance/installed_package_acceptance.py
