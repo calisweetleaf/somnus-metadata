@@ -3,6 +3,11 @@ name: Droid Wiki Refresh
 on:
   push:
     branches: [main]
+    # Merging the wiki pull request touches only droid-wiki/; refreshing on
+    # that push would always reopen the pull request, because .wiki-meta.json
+    # records the commit each run was generated from.
+    paths-ignore:
+      - 'droid-wiki/**'
 
 # The job that runs /wiki is read-only: the agent reads the whole repository
 # and the pages restored from the unmerged rolling branch, so it must not be
