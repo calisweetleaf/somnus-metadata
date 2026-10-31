@@ -735,8 +735,11 @@ class PosixTerminalTest(unittest.TestCase):
             os.close(self.master)
 
     def attrs(self) -> list:
-        """Current termios attributes of the PTY slave."""
-        return termios.tcgetattr(self.slave)
+        """Current termios attributes of the PTY slave, without kernel-owned status bits."""
+        attrs = termios.tcgetattr(self.slave)
+        # macOS sets PENDIN itself when canonical mode toggles; tcsetattr cannot restore it.
+        attrs[3] &= ~getattr(termios, "PENDIN", 0)
+        return attrs
 
     def test_enter_leaves_raw_mode_and_restores_the_screen(self) -> None:
         before = self.attrs()
