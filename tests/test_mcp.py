@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import io
 import json
 import os
@@ -11,6 +12,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import somnus
 from somnus import mcp
@@ -98,6 +100,68 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(replies[3]["error"]["code"], mcp.ERR_REQUEST)
 
 
+class TestRunnerFailures(unittest.TestCase):
+    def test_internal_error_is_contained_and_the_session_survives(self) -> None:
+        def runner(argv):
+            raise RuntimeError("disk exploded")
+
+        server = mcp.Server(runner=runner)
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            reply = server.handle(request(1, "tools/call", {"name": "brief"}))
+        self.assertEqual(reply["error"]["code"], mcp.ERR_INTERNAL)
+        self.assertEqual(reply["error"]["message"], "internal error: RuntimeError")
+        self.assertIn("disk exploded", err.getvalue())
+        self.assertEqual(server.handle(request(2, "ping"))["result"], {})
+
+
+class TestRunCli(unittest.TestCase):
+    def completed(self, stdout: bytes, stderr: bytes, code: int = 0) -> subprocess.CompletedProcess:
+        return subprocess.CompletedProcess([], code, stdout, stderr)
+
+    def test_runs_the_cli_in_a_child_process(self) -> None:
+        home = tempfile.mkdtemp()
+        try:
+            with mock.patch.dict(os.environ, {"SOMNUS_HOME": home}):
+                code, text = mcp.run_cli(["brief"])
+        finally:
+            shutil.rmtree(home, ignore_errors=True)
+        self.assertEqual(code, 0)
+        self.assertIn("somnus status", text)
+
+    def test_actor_and_package_path_reach_the_child(self) -> None:
+        with mock.patch.object(mcp.subprocess, "run", return_value=self.completed(b"", b"")) as run:
+            mcp.run_cli(["brief"], actor="bob")
+        cmd = run.call_args.args[0]
+        self.assertIn("--actor=bob", cmd)
+        self.assertEqual(cmd[-1], "brief")
+        env = run.call_args.kwargs["env"]
+        self.assertEqual(env["PYTHONIOENCODING"], "utf-8")
+        self.assertEqual(run.call_args.kwargs["timeout"], mcp.CALL_TIMEOUT)
+        self.assertEqual(run.call_args.kwargs["stdin"], subprocess.DEVNULL)
+        self.assertIn(str(Path(mcp.__file__).resolve().parent.parent), env["PYTHONPATH"].split(os.pathsep))
+
+    def test_streams_are_merged_normalized_and_decoded_leniently(self) -> None:
+        proc = self.completed(b"out line\r\n", b"bad \xff byte\n", code=1)
+        with mock.patch.object(mcp.subprocess, "run", return_value=proc):
+            code, text = mcp.run_cli(["check"])
+        self.assertEqual(code, 1)
+        self.assertEqual(text, "out line\nbad \ufffd byte")
+
+    def test_timeout_is_a_usage_failure_naming_the_command(self) -> None:
+        boom = subprocess.TimeoutExpired(["somnus"], mcp.CALL_TIMEOUT)
+        with mock.patch.object(mcp.subprocess, "run", side_effect=boom):
+            code, text = mcp.run_cli(["index"])
+        self.assertEqual(code, 2)
+        self.assertEqual(text, f"somnus index timed out after {mcp.CALL_TIMEOUT} seconds")
+
+    def test_unstartable_child_is_a_usage_failure(self) -> None:
+        with mock.patch.object(mcp.subprocess, "run", side_effect=FileNotFoundError(2, "No such file")):
+            code, text = mcp.run_cli(["index"])
+        self.assertEqual(code, 2)
+        self.assertTrue(text.startswith("could not start somnus: "))
+
+
 class TestTools(unittest.TestCase):
     def setUp(self) -> None:
         self.tools = mcp.build_tools()
@@ -142,6 +206,7 @@ class TestTools(unittest.TestCase):
         line = mcp.command_line
         for name, arguments in (("new", {"type": "plan"}), ("q", {"limit": "5"}), ("q", {"limit": True}),
                                 ("check", {"all": "yes"}), ("check", {"paths": [1]}), ("new", "x"),
+                                ("check", {"paths": {"a": "b"}}),
                                 ("bump", {"path": "a\x00b"})):
             with self.assertRaises(mcp.ToolError, msg=f"{name} {arguments!r}"):
                 line(self.tools[name], arguments)

@@ -39,13 +39,13 @@ All paths, tables, views, and exit codes are governed by `SPEC.md` §§18–20, 
 | Local Configuration | Nearest `.somnus.toml` at or above the working path | `src/somnus/config.py:14,90-99`, `SPEC.md` §20 |
 | Config Precedence | CLI flag > `.somnus.toml` > `$SOMNUS_HOME/config.toml` > built-in defaults | `src/somnus/config.py:1`, `SPEC.md` §20 |
 | Registry Database Path | `$SOMNUS_HOME/somnus.db` (default `~/.somnus/somnus.db`) | `src/somnus/config.py:78-81`, `SPEC.md` §18.1 |
-| SQLite Pragmas | `foreign_keys = ON`, `journal_mode = WAL`, `user_version = 1` (`DB_USER_VERSION`) | `src/somnus/db/store.py:156-172`, `SPEC.md` §18.1 |
+| SQLite Pragmas | `foreign_keys = ON`, `journal_mode = WAL`, `user_version = 2` (`DB_USER_VERSION`) | `src/somnus/__init__.py:9`, `src/somnus/db/store.py:165-182`, `SPEC.md` §18.1 |
 | Read-Only Query Mode | URI `?mode=ro` with `PRAGMA query_only = ON` | `src/somnus/db/store.py:660-670`, `SPEC.md` §18.1 |
 | Append-Only Ledger | `events` table protected by `events_no_update` and `events_no_delete` triggers | `src/somnus/db/schema.sql:132-151`, `SPEC.md` §18.1 |
 | Built-In Exclude Globs | `["archive/**", ".git/**", "node_modules/**", "**/__pycache__/**"]` (plus `.git`, `.hg`, `.svn` directory pruning) | `src/somnus/config.py:30`, `src/somnus/db/store.py:21` |
 | CLI Exit Codes | `0` = clean/ok; `1` = validation errors, refusals, or open conflicts during index; `2` = usage, config, or I/O errors | `src/somnus/output.py:9-11`, `SPEC.md` §19.3 |
 
-### Registry Tables and Views (`src/somnus/db/schema.sql`)
+### Registry Tables and Views (`src/somnus/db/schema.sql`, `src/somnus/db/search.sql`)
 
 | Name | Kind | Operational Role |
 | --- | --- | --- |
@@ -55,6 +55,7 @@ All paths, tables, views, and exit codes are governed by `SPEC.md` §§18–20, 
 | `locations` | Table | Observed filesystem paths per root (`root_id`, `rel_path`, `artifact_id`, `revision`, `carrier`, `file_mtime`, `file_size`, `payload_digest`, `body_digest`, `present`) |
 | `conflicts` | Table | Conflict records (`kind` in `'revision'`, `'duplicate-id'`, `'authority'`, `'identity'`; `state` in `'open'`, `'resolved'`) |
 | `events` | Table | Append-only audit ledger (`id`, `at`, `actor`, `action`, `artifact_id`, `revision`, `path`, `detail`) |
+| `search` | Virtual Table (FTS5) | Derived full-text search index over present locations (`path`, `title`, `summary`, `tags`, `body`; `rowid = locations.id`; `SPEC.md` §18.4, D19); rebuilt by `somnus index --full` |
 | `docs` | View | Present artifacts (`locations.present = 1`) joined with `artifacts` and `roots` |
 | `open_conflicts` | View | Active conflicts (`WHERE state = 'open'`) |
 | `history` | View | Ledger events ordered newest first (`ORDER BY id DESC`) |
@@ -227,7 +228,7 @@ somnus index --full
 
 - **No JSON in Registry (`SPEC.md` §18.1, D4):** Never insert JSON into `somnus.db` tables. Headers in `revisions.header_yaml` are stored as canonical restricted YAML text.
 - **Trigger Protection (`src/somnus/db/schema.sql:143-151`):** `events_no_update` and `events_no_delete` raise `ABORT` (`events are append-only`) on any attempt to mutate or delete rows in `events`. Do not drop or bypass these triggers.
-- **Schema Version Guard (`src/somnus/db/store.py:165-167`):** `Store._migrate()` checks `PRAGMA user_version` against `DB_USER_VERSION` (`1`). If the database has a higher `user_version` than the toolkit supports, `Store.open` refuses with `E_IO` (exit code `2`) rather than risking schema downgrade corruption.
+- **Schema Version Guard (`src/somnus/db/store.py:165-182`):** `Store._migrate()` checks `PRAGMA user_version` against `DB_USER_VERSION` (`2`). Schema-1 databases are migrated in place by applying `search.sql` and backfilling the FTS5 `search` table. If the database has a higher `user_version` than the toolkit supports, `Store.open` refuses with `E_IO` (exit code `2`) rather than risking schema downgrade corruption.
 - **Fixture Isolation (`SPEC.md` §3.1, §18.3):** Artifacts with `urn:somnus:example:*` identities and entities with example URNs are skipped during `somnus index` (`src/somnus/db/store.py:366-368, 616`) so test fixtures never pollute production registry state.
 
 ## 7. Validation and Verification Criteria

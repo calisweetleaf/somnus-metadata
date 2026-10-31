@@ -180,15 +180,20 @@ class Store:
             if not create:
                 raise _io_error(f"registry {db_path} does not exist; run 'somnus init'")
             db_path.parent.mkdir(parents=True, exist_ok=True)
+        conn: Optional[sqlite3.Connection] = None
         try:
             conn = sqlite3.connect(str(db_path), timeout=10)
             conn.execute("PRAGMA foreign_keys = ON")
             conn.execute("PRAGMA journal_mode = WAL")
             store = cls(conn, db_path, actor)
             store._migrate()
+            conn = None  # the Store owns the connection from here; the finally clause must not close it
+            return store
         except sqlite3.Error as exc:
             raise _io_error(f"cannot open registry {db_path}: {exc}") from exc
-        return store
+        finally:
+            if conn is not None:
+                conn.close()
 
     def _migrate(self) -> None:
         version = self.conn.execute("PRAGMA user_version").fetchone()[0]
@@ -728,10 +733,13 @@ def connect_readonly(db_path: Path) -> sqlite3.Connection:
     db_path = Path(db_path)
     if not db_path.exists():
         raise _io_error(f"registry {db_path} does not exist; run 'somnus init'")
+    conn: Optional[sqlite3.Connection] = None
     try:
         conn = sqlite3.connect(db_path.resolve().as_uri() + "?mode=ro", uri=True, timeout=10)
         conn.execute("PRAGMA query_only = ON")
     except sqlite3.Error as exc:
+        if conn is not None:
+            conn.close()
         raise _io_error(f"cannot open registry {db_path}: {exc}") from exc
     return conn
 

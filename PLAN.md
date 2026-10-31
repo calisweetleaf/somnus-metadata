@@ -1,8 +1,38 @@
 # Somnus Metadata — Completion and Operator Integration Plan
 
-Updated 2026-10-23 (America/Chicago). Operational handoff, not normative source.
+Updated 2026-10-31 (America/Chicago). Operational handoff, not normative source.
 SPEC.md owns the contract; DECISIONS.md records ratified rationale. Source and
 execution establish implementation and exercised behavior respectively.
+
+## Colony foray — failing components (2026-10-31)
+
+### Failure ledger (`scout-1`, `~/.colony/larder/somnus-metadata-failure-ledger-20261031.md`)
+
+- **Doctor scan (`somnus-debug 0.1.0`, `m000378`, `m000379`):** `somnus-debug doctor scan src -c .somnus-debug/python_doctor.src.yaml -o .somnus-debug/runs/colony-baseline-20261031.md` (run ID `20261031T232112Z`) scanned **49 files** and reported **374 issues** (**0 critical / 71 serious / 303 minor**, exit `1` under `severity_exit_level = serious`). Row-level comparison against baseline `20261024T030635Z` (70 serious) found **1 true delta**: `silent_failures` at `src/somnus/db/store.py:43` (`searchable_body` catching `UnicodeDecodeError` and returning `""`), verified as a **false positive** (documented sentinel for non-UTF-8 sidecar hosts under D19, covered by `tests/test_store.py::TestSearchIndex.test_sidecar_host_text`). All prior 70 serious findings were re-verified in source (`stubs` 2, `broad_exceptions` 4, `security_risks` 2, `dependency_cycles` 1, `silent_failures` 48, `suspicious_short_classes` 13): **0 real defects**.
+- **Ruff residual debt (`m000380`, `m000381`):** `uvx ruff check src tests --select E,F,W,B,C4,T10,ICN,PLE --ignore E501` exited `0` (`All checks passed!`; `0` `F841`, `0` `B904`, `0` `B905`, `0` `E741`; `src/somnus/model/validate.py:327` `claims = _dicts(...)` is now consumed). Prior mark `m000160` was retired as `ROT`.
+- **Unit coverage baseline (`m000382`, `m000390`–`m000394`):** `PYTHONPATH=src uvx coverage run -m unittest discover -s tests` over 486 tests measured **86.80%** total branch + statement coverage (`fail_under = 85`), identifying uncovered error/fallback branches in `src/somnus/db/store.py:135-136` (FTS5-unavailable fallback `self.search = False`), `src/somnus/commands/stale.py` (52.5%), `src/somnus/commands/fork.py` (64.0%), `src/somnus/tui/app.py` (68.1%), `src/somnus/infer.py` (69.2%), and `src/somnus/commands/_common.py` (72.8%).
+- **Installed-package acceptance gaps (`m000396`):** 4 recent 2.1.0 behaviors were absent from `tests/acceptance/installed_package_acceptance.py`: `q --text` full-text search, `index` unmanaged hints (`UNMANAGED_SHOWN = 10` + `stamp` hint), `index` refusal of home-directory/broad fallback (`too broad to scan`, exit `2`), and MCP relative-path server-directory note.
+- **Plugin repository gaps (`m000398`, `m000399`):** In `/home/daeron/Repositories/somnus-metadata-plugin`, `host.drift()` was dead code (`driftReport` implemented in `lib/hosts.mjs` but never called by `lib/cli.mjs` `doctor`), Windows `.cmd`/`.bat` tool wrappers spawned without `shell: true` risked `EINVAL` on Node >= 18.20, and error paths (`parseJsonObject` invalid JSON, `doctor` failed handshake, corrupted Codex managed block) lacked unit tests.
+
+### Fixes landed and verification evidence
+
+| Component / Path | Worker & Marks | Change & Exercised Evidence |
+| --- | --- | --- |
+| `src/somnus/db/store.py`, `tests/test_store.py` | `forager-1` (`m000417`) | **Real defect fixed:** `Store.open` leaked the SQLite connection when `_migrate` refused a newer-schema registry (`SomnusError` bypassed the `sqlite3.Error` handler) or when the file was not a database; `connect_readonly` leaked if `PRAGMA query_only` failed (found via `ResourceWarning: unclosed database` traced with `tracemalloc`). Both now close on failure in `finally` with ownership handoff to `Store`. Added `TestOpenFailures` (`test_refused_open_releases_its_connection`, `test_readonly_connect_failure_releases_its_connection`, `test_sqlite_without_fts5_degrades_to_no_text_search`, `test_other_search_ddl_failures_are_not_swallowed`) and `TestScanFailures`. |
+| `src/somnus/document.py`, `src/somnus/commands/{migrate,regions,stamp,_common}.py`, `src/somnus/model/validate.py`, `src/somnus/tui/app.py`, `tests/test_document.py`, `tests/test_tui.py` | `forager-1` (`m000416`, `m000423`) | Cleared Ruff `B904`/`B905`/`E741`/`F841` debt across `src/somnus/`: chained `from exc` on 3 `B904` sites in `document.py` (carrier refusal, invalid UTF-8, unreadable file), applied `zip(strict=True)` on `lines`/`endings` in `document.py`, `commands/migrate.py`, `commands/regions.py`, `commands/stamp.py`, and `tui/app.py` (`detail_lines` 7-column row shape, `LEAP` `m000423`), renamed `E741` bindings in `document.py` and `commands/_common.py`, and removed unused `regions` (`F841`) in `model/validate.py`. Verified by `test_document` and `test_tui` additions; `uvx ruff check src tests --select E,F,W,B,C4,T10,ICN,PLE --ignore E501` exits `0`. |
+| `src/somnus/tui/term.py`, `tests/test_term_windows.py` (new) | `forager-1` (`m000418`, `m000421`, `m000424`) | Added `tests/test_term_windows.py` (12 unit tests using `sys.platform = "win32"` and `FakeKernel32`/`FakeMsvcrt`) covering mode save/enable/restore, piped stdin, non-console stdout, missing VT support restore, `Terminal` enter-failure `LEAVE_SCREEN` + stdin restore, `suspended()` round-trip, and `getwch` prefixed keys. `term.py` coverage reached **96%** (`python3 -m unittest tests.test_term_windows` 12 OK; `SALT` `m000421` confirmed no defect in `term.py`). |
+| `src/somnus/commands/stale.py`, `src/somnus/commands/fork.py`, `src/somnus/cli.py`, `tests/test_commands.py` | `forager-1` (`m000419`, `m000422`) | Added behavioral tests for `cli.main` last-resort boundary (`internal error` exit `2`, `--debug` traceback, `KeyboardInterrupt` exit `1`, `SomnusError` diagnostics), every `somnus stale` finding kind (`TestStaleReport` 7 OK; `SALT` `m000422` confirmed unreadable-header handler emits a row rather than losing errors), and `fork` sidecar/carrier/collision refusals; fixed `CliCase.db()` leaking SQLite connections. |
+| `src/somnus/mcp.py`, `tests/test_mcp.py` | `forager-1` (`m000420`) | Added `TestRunCli`, `TestRunnerFailures`, and `test_argument_validation` exercising `run_cli` child-process execution (real child `brief`, `actor`/`PYTHONPATH`/`timeout`/`stdin` forwarding, lenient decode, CRLF normalization, `TimeoutExpired`/`OSError` -> exit `2`) and `Server.handle` internal-error containment (`RuntimeError` -> `ERR_INTERNAL` with exception type only; session survives). Full unit suite: **534 tests OK, 0 `ResourceWarning`**, `somnus check SPEC.md DECISIONS.md --level semantic` **0/0**, `mypy` **49 files clean**, total coverage **88.76%** (`fail_under = 85`). |
+| `tests/acceptance/installed_package_acceptance.py` | `digger-1` (`m000408`, `m000412`) | Added `phase_agent_hints` and `phase_mcp` check 9 covering `q --text` unquoted multi-word search, empty-search adoption hint, `index` unmanaged file hint + `stamp` adoption hint, `index` home/broad-root refusal (exit `2` with fresh home and `HOME` pinned), and MCP relative-path server-directory note. Executed `python3 tests/acceptance/installed_package_acceptance.py`: **65/65 passed, 0 failed, 0 not run** (exit `0`). |
+| `/home/daeron/Repositories/somnus-metadata-plugin` (`lib/util.mjs`, `lib/hosts.mjs`, `lib/cli.mjs`, `lib/backend.mjs`, `test/plugin.test.mjs`) | `digger-1` (`m000395`, `m000407`, `m000410`, `m000411`) | Added `util.hashTree` (SHA-256 over sorted slash-normalized relative paths, excluding `.somnus-plugin.json`); stored `skillHash` in `.somnus-plugin.json`; wired `host.drift()` into `cli.mjs` `doctor` (reporting `matches the packaged skill` or `FAIL` with rerun-install hint); preserved CRLF and no-trailing-newline byte-exactness in Codex `config.toml` managed blocks; added `spawnForm()` in `lib/backend.mjs` routing `.cmd`/`.bat` on `win32` through `shell: true` with whitespace-quoted arguments (`backendVersion`, `installBackend`, `mcpHandshake`); expanded unit tests for Windows path round-trip, `win32` `spawnForm` mock, invalid-JSON `PluginError`, `doctor` `FAIL` on dead MCP command, and corrupted Codex block repair. Executed `npm test` (`node --test`): **18/18 passed, 0 failed**. |
+| `README.md`, `CONTRIBUTING.md`, `filetree.md`, `runbooks/registry-recovery.md`, `runbooks/package-release.md`, `../somnus-metadata-plugin/README.md` | `chronicler-1` (`m000400`–`m000428`) | Verified PEP 668 Linux `externally-managed-environment` refusal (`python3 -m pip install --dry-run .` against `/usr/lib/python3.14/EXTERNALLY-MANAGED`); updated `README.md` r2 and `CONTRIBUTING.md` r5 (`python3 -m venv .venv` / `uv venv .venv` required before `pip install`); kept public `README.md` plugin sentence unchanged (`LEAP` `m000402`) to avoid disclosing private repository existence on PyPI; updated `runbooks/registry-recovery.md` r1 and `runbooks/package-release.md` r1 for `DB_USER_VERSION = 2` and `src/somnus/db/search.sql`; synchronized `filetree.md` r8 (including `tests/test_term_windows.py`) and plugin `README.md` r2. |
+
+### Remaining NOT RUN and scope boundaries
+
+- **Windows live OS console (`kernel32`/`msvcrt` on a real Windows host) and live Windows `.cmd` execution (`m000424`):** **NOT RUN** locally (no Windows host; Linux `7.0.0-38-generic`). All Windows console mode/input branches in `src/somnus/tui/term.py` (96% coverage via `tests/test_term_windows.py` fakes) and `win32` `spawnForm()` in `somnus-metadata-plugin` are now unit-tested on Linux.
+- **Installed-package acceptance harness in GitHub Actions CI & plugin CI (`m000397`, `m000411`):** Hosted `CI` and `CodeQL` workflows in `.github/workflows/` are green (`gh run list --limit 5`), and `.github/workflows/ci.yml` `tooling` runs `pre-commit --all-files`, `import-linter --no-cache`, and `coverage report` (`fail_under = 85`). However, the 65-check `tests/acceptance/installed_package_acceptance.py` harness is not wired into `.github/workflows/ci.yml`, and `/home/daeron/Repositories/somnus-metadata-plugin` has no `.github/workflows/` CI (left to Parent's workflow/publishing decision).
+- **Codex and Antigravity in-host MCP invocation:** **RUN** (2026-10-31, digger-1, re-tasted by parent-1). `codex exec --sandbox read-only` called `somnus-metadata/q`; its session log `~/.codex/sessions/2026/10/31/rollout-2026-10-31T18-25-38-*.jsonl` records `"server":"somnus-metadata"` with the SPEC.md/DECISIONS.md result rows and lists the installed `somnus-metadata` skill. `agy --sandbox --print` returned the same rows; conversation DB `~/.gemini/antigravity-cli/conversations/9b2ca119-*.db` holds 18 `somnus-metadata .../q` tool-call entries and the returned text. Write tools were not exercised in those hosts.
+- **Public PyPI 2.1.0 upload:** **NOT RUN** (PyPI continues to serve `2.0.0` until an authorized release upload).
 
 ## Agent experience pass and private plugin (2026-10-31)
 
@@ -25,7 +55,7 @@ Installed on this laptop (Linux) on 2026-10-31:
   and `~/.codex/config.toml.bak-somnus-plugin-20261031T224721Z`.
 - Evidence: `tomllib` parses Codex config; doctor: all checks passed (live handshake,
   16 tools per host); Droid called `q --text` through its own MCP connection.
-  Codex and Antigravity load the entries after a restart: NOT exercised inside those hosts.
+  Codex and Antigravity in-host calls were exercised later the same day (see the colony foray section).
 
 Open: PyPI still serves 2.0.0 (2.1.0 not uploaded); 236 files under the root are
 unmanaged until stamped; ChatGPT via OpenAI Secure MCP Tunnel is not set up.
@@ -338,20 +368,26 @@ Clarified separately as requested. What exists in this repository is:
   operating instructions for an agent working in this repository. They are not
   executable code and are not exercised by any test.
 
-What does **not** exist: no packaged coding-agent plugin. There is no plugin
-manifest, no marketplace entry, no bundled server, and no installable plugin
-artifact anywhere in the tree. If a distributable plugin is wanted, it does not
-currently exist and would be new work with its own packaging decision.
+What does **not** exist in this public repository: no packaged coding-agent plugin
+is shipped inside `somnus-metadata` (`README.md` and `MANIFEST.in` keep the public
+distribution stdlib-only). A separate private repository
+(`calisweetleaf/somnus-metadata-plugin`, `/home/daeron/Repositories/somnus-metadata-plugin`)
+now implements the host installer/adapter for Factory Droid, Codex, and Google
+Antigravity (18/18 `node --test` tests passing; see top sections).
 
 ## Not run / platform-specific
 
 - **Windows terminal paths** (`msvcrt`, `ctypes` console modes): no Windows host.
-  Only the platform guard is asserted, and the harness records the POSIX-only
+  Only the platform guard is asserted locally, and the harness records the POSIX-only
   terminal checks as `not_run` on non-POSIX.
-- **Hosted CI workflows** (`.github/workflows/*`): not executed; that requires an
-  explicitly authorized landing.
-- **`coverage` and `import-linter` are not project dependencies** and were run
-  through `uvx`; `pre-commit` was run through `uvx` against a staged copy.
+- **Hosted CI workflows** (`.github/workflows/*`): **RUN and green** as of 2026-10-31
+  (`gh run list --limit 5` shows `CI` and `CodeQL` passing on GitHub Actions, including
+  the `tooling` job running `pre-commit`, `import-linter`, and `coverage`). The
+  installed-package acceptance harness (`tests/acceptance/installed_package_acceptance.py`)
+  is run locally before release (65/65 passed) and is not yet wired as a CI job.
+- **`coverage`, `import-linter`, and `pre-commit`**: remain outside runtime
+  `[project] dependencies = []` (stdlib-only invariant); executed in CI's `tooling`
+  job and locally via `uvx`.
 - **Strict-mode mypy, and type checking of `tests/`**: the configured `mypy` run
   covers `src/somnus` only, as the project config intends.
 

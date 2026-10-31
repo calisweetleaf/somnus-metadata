@@ -28,7 +28,7 @@ def _plan(path: Path, args, ctx: Ctx) -> Optional[tuple[Path, str, str, dict]]:
     payload = inferred_payload(ctx.cfg, doc.path, doc.lines, type_=args.type, title=args.title)
     text = doc.render(payload)
     check_text(doc.meta_path, text)
-    old = "".join(line + end for line, end in zip(doc.lines, doc.endings))
+    old = "".join(line + end for line, end in zip(doc.lines, doc.endings, strict=True))
     return doc.meta_path, old, text, payload
 
 

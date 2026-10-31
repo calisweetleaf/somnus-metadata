@@ -497,6 +497,16 @@ class AppHelpersTest(unittest.TestCase):
         detail = A.detail_lines(rows[0], 12)
         self.assertTrue(all(len(line) <= 12 for line in detail))
 
+    def test_detail_lines_cover_every_label_and_reject_a_drifted_row_shape(self) -> None:
+        row = ("urn:1", None, "report", "draft", "candidate", 2, "/tmp/a.md")
+        detail = A.detail_lines(row, 40)
+        self.assertEqual([line.split(":")[0] for line in detail], list(A.ROW_LABELS))
+        self.assertIn("Title:", detail)
+        with self.assertRaises(ValueError):
+            A.detail_lines(row[:-1], 40)
+        with self.assertRaises(ValueError):
+            A.detail_lines(row + ("extra",), 40)
+
     def test_first_message(self) -> None:
         exc = SomnusError([Diagnostic("p", 1, 1, "error", "E", "somnus.title", "bad")])
         self.assertEqual(A.first_message(exc), "somnus.title: bad")

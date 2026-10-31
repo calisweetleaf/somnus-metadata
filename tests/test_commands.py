@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import io
 import json
 import os
@@ -11,10 +12,12 @@ import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from typing import Iterator
 from unittest import mock
 
 from somnus import document as D
 from somnus.cli import main
+from somnus.output import Diagnostic, SomnusError
 
 REPO = Path(__file__).resolve().parents[1]
 V01 = REPO / "archive" / "v0.1" / "examples"
@@ -62,8 +65,15 @@ class CliCase(unittest.TestCase):
         self.assertIsNotNone(doc.payload, doc.issues)
         return doc.payload
 
-    def db(self) -> sqlite3.Connection:
-        return sqlite3.connect(self.tmp / "home" / "somnus.db")
+    @contextlib.contextmanager
+    def db(self) -> Iterator[sqlite3.Connection]:
+        """Registry connection that commits on success and is always closed."""
+        conn = sqlite3.connect(self.tmp / "home" / "somnus.db")
+        try:
+            with conn:
+                yield conn
+        finally:
+            conn.close()
 
 
 class TestBasics(CliCase):
@@ -431,6 +441,160 @@ class TestSearch(CliCase):
         code, out, err = self.cli("q", "--text", "quokka")
         self.assertEqual(code, 2)
         self.assertIn("no full-text index", out + err)
+
+
+class TestCliBoundary(CliCase):
+    """The last-resort handlers in ``main`` report every failure and map it to the documented exit code."""
+
+    def run_brief_raising(self, exc: BaseException, *flags: str) -> tuple[int, str, str]:
+        with mock.patch("somnus.commands.brief.run", side_effect=exc):
+            return self.cli(*flags, "brief")
+
+    def test_unexpected_exception_is_reported_with_exit_2(self) -> None:
+        code, out, err = self.run_brief_raising(RuntimeError("kaboom"))
+        self.assertEqual(code, 2)
+        self.assertIn("internal error: RuntimeError: kaboom", out + err)
+        self.assertIn("--debug", out + err)
+        self.assertNotIn("Traceback", out + err)
+
+    def test_debug_flag_prints_the_traceback(self) -> None:
+        code, out, err = self.run_brief_raising(RuntimeError("kaboom"), "--debug")
+        self.assertEqual(code, 2)
+        self.assertIn("Traceback (most recent call last)", out + err)
+        self.assertIn("RuntimeError: kaboom", out + err)
+
+    def test_keyboard_interrupt_exits_1_with_a_note(self) -> None:
+        code, out, err = self.run_brief_raising(KeyboardInterrupt())
+        self.assertEqual(code, 1)
+        self.assertIn("interrupted", out + err)
+
+    def test_somnus_error_keeps_its_diagnostics_and_exit_code(self) -> None:
+        exc = SomnusError([Diagnostic("x.md", 3, 4, "error", "E_IO", "-", "disk gone")], 2)
+        code, out, err = self.run_brief_raising(exc)
+        self.assertEqual(code, 2)
+        self.assertIn("x.md:3:4: error E_IO -: disk gone", out + err)
+
+
+class TestStaleReport(CliCase):
+    """Every finding kind ``somnus stale`` can emit, driven from a real registry."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.init()
+
+    def new(self, title: str, directory: Path | None = None, *flags: str) -> Path:
+        out = self.ok("new", "specification", title, "--dir", str(directory or self.ws), *flags)
+        return Path(out.strip())
+
+    def findings(self, *flags: str) -> list[list[str]]:
+        rows = [line.split("\t") for line in self.ok("stale", "--tsv", *flags).strip().splitlines()]
+        self.assertEqual(rows[0], ["finding", "artifact", "title", "detail"])
+        return rows[1:]
+
+    def test_clean_registry_reports_nothing(self) -> None:
+        self.new("Fresh Draft")
+        self.ok("index")
+        self.assertEqual(self.findings(), [])
+
+    def test_draft_untouched_past_the_window_is_stale(self) -> None:
+        self.new("Old Draft")
+        self.ok("index")
+        with self.db() as conn:
+            conn.execute("UPDATE locations SET file_mtime = file_mtime - 40 * 86400")
+        rows = self.findings("--days", "30")
+        self.assertEqual([(r[0], r[2]) for r in rows], [("stale-draft", "Old Draft")])
+        self.assertRegex(rows[0][3], r"^unchanged for 4\d days$")
+        self.assertEqual(self.findings("--days", "60"), [])
+
+    def test_negative_window_is_treated_as_zero(self) -> None:
+        self.new("Brand New")
+        self.ok("index")
+        with self.db() as conn:
+            conn.execute("UPDATE locations SET file_mtime = file_mtime - 100")
+        self.assertEqual([r[0] for r in self.findings("--days", "-5")], ["stale-draft"])
+
+    def test_superseded_with_missing_replacement_is_unresolved(self) -> None:
+        path = self.new("Retired Spec")
+        self.ok("status", str(path), "proposed")
+        self.ok("status", str(path), "active")
+        ghost = "urn:somnus:artifact:01a12a94-8657-715c-9044-852de0e3f08a"
+        self.ok("status", str(path), "superseded", "--replacement", ghost)
+        self.ok("index")
+        rows = self.findings()
+        self.assertEqual([(r[0], r[3]) for r in rows], [("unresolved-replacement", ghost)])
+
+    def test_unreadable_header_is_reported_not_raised(self) -> None:
+        path = self.new("Broken History")
+        self.ok("index")
+        with self.db() as conn:
+            conn.execute("UPDATE artifacts SET status = 'superseded'")
+            conn.execute("UPDATE revisions SET header_yaml = 'unrelated: 1\n'")
+        rows = self.findings()
+        self.assertEqual([r[0] for r in rows], ["unreadable-header"])
+        self.assertTrue(path.is_file())
+
+    def test_near_duplicate_titles_are_paired_once(self) -> None:
+        self.new("Memory Engine Architecture")
+        other = self.tmp / "other"
+        other.mkdir()
+        self.new("Memory Engine Architectures", other, "--force")
+        self.ok("index", str(other))
+        self.ok("index")
+        rows = [r for r in self.findings() if r[0] == "near-duplicate-title"]
+        self.assertEqual(len(rows), 1)
+        self.assertIn("Memory Engine Architecture", rows[0][3] + rows[0][2])
+
+    def test_open_revision_conflict_is_surfaced(self) -> None:
+        path = self.new("Edited Without Bump")
+        self.ok("index")
+        path.write_text(path.read_text(encoding="utf-8") + "\nunbumped edit\n", encoding="utf-8", newline="")
+        self.assertEqual(self.cli("index")[0], 1)
+        kinds = [r[0] for r in self.findings()]
+        self.assertIn("conflict-revision", kinds)
+
+
+class TestForkEdges(CliCase):
+    def test_fork_of_a_sidecar_document_copies_the_host_and_rebinds(self) -> None:
+        self.init()
+        host = self.write("state.json", '{"a": 1}')
+        self.ok("stamp", str(host), "--write")
+        out = self.ok("fork", str(host), "--title", "Forked State")
+        child = Path(out.strip())
+        self.assertEqual(child.name, "forked-state.json")
+        self.assertEqual(child.read_text(encoding="utf-8"), '{"a": 1}')
+        self.assertEqual(self.payload(child)["bindings"][0]["target"], "forked-state.json")
+        self.assertNotEqual(self.payload(child)["id"], self.payload(host)["id"])
+        self.ok("check", str(child.with_name(child.name + ".somnus.yaml")))
+
+    def test_fork_refuses_an_existing_sidecar_without_creating_the_host(self) -> None:
+        self.init()
+        host = self.write("state.json", '{"a": 1}')
+        self.ok("stamp", str(host), "--write")
+        taken = self.ws / "taken.json.somnus.yaml"
+        taken.write_text("occupied\n", encoding="utf-8")
+        code, out, err = self.cli("fork", str(host), "--out", str(self.ws / "taken.json"))
+        self.assertEqual(code, 1)
+        self.assertIn("output sidecar already exists", out + err)
+        self.assertFalse((self.ws / "taken.json").exists())
+        self.assertEqual(taken.read_text(encoding="utf-8"), "occupied\n")
+
+    def test_fork_refuses_a_different_carrier(self) -> None:
+        self.init()
+        path = Path(self.ok("new", "specification", "Carrier Parent", "--dir", str(self.ws)).strip())
+        target = self.ws / "child.py"
+        code, out, err = self.cli("fork", str(path), "--out", str(target))
+        self.assertEqual(code, 1)
+        self.assertIn("same carrier type", out + err)
+        self.assertFalse(target.exists())
+
+    def test_fork_refuses_an_existing_output_file(self) -> None:
+        self.init()
+        path = Path(self.ok("new", "specification", "Clobber Parent", "--dir", str(self.ws)).strip())
+        existing = self.write("already.md", "keep me\n")
+        code, out, err = self.cli("fork", str(path), "--out", str(existing))
+        self.assertEqual(code, 1)
+        self.assertIn("output file already exists", out + err)
+        self.assertEqual(existing.read_text(encoding="utf-8"), "keep me\n")
 
 
 if __name__ == "__main__":

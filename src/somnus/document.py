@@ -137,7 +137,7 @@ class Document:
         try:
             splice = self.carrier.render(self.lines, text, self.envelope, style)
         except CarrierError as exc:
-            raise SomnusError([Diagnostic(self.display, exc.line, 1, "error", exc.code, "-", str(exc))])
+            raise SomnusError([Diagnostic(self.display, exc.line, 1, "error", exc.code, "-", str(exc))]) from exc
         return self._apply(splice)
 
     def _apply(self, splice: Splice) -> str:
@@ -149,7 +149,7 @@ class Document:
         if splice.new_lines and splice.start + len(splice.new_lines) == len(lines) and splice.end == len(self.lines):
             if self.endings and splice.end > 0:
                 endings[-1] = self.endings[splice.end - 1] or nl
-        text = "".join(l + e for l, e in zip(lines, endings))
+        text = "".join(line + end for line, end in zip(lines, endings, strict=True))
         self._verify_preserved(text)
         return text
 
@@ -233,7 +233,7 @@ def _decode(raw: bytes, path: Path) -> tuple[str, bool]:
         return raw.decode("utf-8"), bom
     except UnicodeDecodeError as exc:
         raise SomnusError([Diagnostic(_display(path), 1, 1, "error", "E_IO", "-",
-                                      f"file is not valid UTF-8 (byte {exc.start}); use a sidecar")])
+                                      f"file is not valid UTF-8 (byte {exc.start}); use a sidecar")]) from exc
 
 
 def _read(path: Path) -> bytes:
@@ -241,7 +241,7 @@ def _read(path: Path) -> bytes:
         return path.read_bytes()
     except OSError as exc:
         raise SomnusError([Diagnostic(_display(path), 0, 0, "error", "E_IO", "-", exc.strerror or str(exc))],
-                          EXIT_USAGE)
+                          EXIT_USAGE) from exc
 
 
 def _issue_diag(path: Path, issue: Issue) -> Diagnostic:

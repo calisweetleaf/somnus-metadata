@@ -46,7 +46,7 @@ def run(args, ctx: Ctx) -> int:
         note("registry already lists every marker")
         return EXIT_OK
     bump_revision(payload)
-    old = "".join(line + end for line, end in zip(doc.lines, doc.endings))
+    old = "".join(line + end for line, end in zip(doc.lines, doc.endings, strict=True))
     text = commit(doc, payload, write=args.write)
     if not args.write:
         emit(unified(old, text, shown))

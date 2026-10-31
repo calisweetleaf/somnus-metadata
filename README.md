@@ -21,8 +21,11 @@ uv tool install somnus-metadata
 somnus --version
 ```
 
-Alternatively, use `pipx install somnus-metadata`. For a Python virtual
- environment, use `python -m pip install somnus-metadata`.
+Alternatively, use `pipx install somnus-metadata`. Inside an activated Python
+virtual environment, use `python -m pip install somnus-metadata` (on PEP 668
+Linux distributions, system `pip install` outside a virtual environment is
+refused with `externally-managed-environment`; use `uv tool install`, `pipx`, or
+a virtual environment).
 
 The distribution is **somnus-metadata**; the command and Python import remain
 **somnus**. Do not install the unrelated PyPI distribution named `somnus` into

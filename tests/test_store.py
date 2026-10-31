@@ -2,17 +2,20 @@
 
 from __future__ import annotations
 
+import os
 import shutil
 import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from somnus import DB_USER_VERSION
 from somnus import document as D
 from somnus.db import Store, connect_readonly, glob_regex, matches_any, run_query
 from somnus.carriers.sidecar import SIDECAR
 from somnus.db.store import SEARCH_BODY_LIMIT, fts_query, intervals_overlap, searchable_body
+from somnus.output import SomnusError
 
 REPO = Path(__file__).resolve().parents[1]
 SPEC = REPO / "SPEC.md"
@@ -223,6 +226,162 @@ class TestSearchIndex(StoreTestCase):
         self.assertEqual(body(b"\xef\xbb\xbfhello"), "hello")
         self.assertEqual(body(b"\xff\xfe\x00binary"), "")
         self.assertEqual(len(body(b"x" * (SEARCH_BODY_LIMIT + 10))), SEARCH_BODY_LIMIT)
+
+
+class _NoFts5:
+    """Connection stand-in whose ``executescript`` fails like a SQLite built without FTS5."""
+
+    def __init__(self, conn: sqlite3.Connection, message: str) -> None:
+        self._conn = conn
+        self._message = message
+
+    def executescript(self, script: str) -> None:
+        raise sqlite3.OperationalError(self._message)
+
+
+class TestOpenFailures(StoreTestCase):
+    def test_registry_newer_than_the_tool_is_refused_untouched(self) -> None:
+        self.store.close()
+        conn = sqlite3.connect(self.db)
+        conn.execute(f"PRAGMA user_version = {DB_USER_VERSION + 1}")
+        conn.commit()
+        conn.close()
+        with self.assertRaises(SomnusError) as cm:
+            Store.open(self.db, actor="test")
+        self.assertEqual(cm.exception.exit_code, 2)
+        self.assertEqual([d.code for d in cm.exception.diagnostics], ["E_IO"])
+        self.assertIn("newer than this tool", str(cm.exception))
+        check = sqlite3.connect(self.db)
+        try:
+            self.assertEqual(check.execute("PRAGMA user_version").fetchone()[0], DB_USER_VERSION + 1)
+        finally:
+            check.close()
+        self.store = Store.open(self.tmp / "fresh" / "somnus.db", actor="test")
+
+    def test_file_that_is_not_a_database_is_an_io_error_with_its_cause(self) -> None:
+        junk = self.tmp / "junk.db"
+        junk.write_bytes(b"this is not a sqlite database" * 64)
+        with self.assertRaises(SomnusError) as cm:
+            Store.open(junk, actor="test")
+        self.assertEqual(cm.exception.exit_code, 2)
+        self.assertIn("cannot open registry", str(cm.exception))
+        self.assertIsInstance(cm.exception.__cause__, sqlite3.Error)
+
+    def refused_open_connections(self, path: Path) -> list[sqlite3.Connection]:
+        """Connections created by a ``Store.open`` that is expected to fail."""
+        opened: list[sqlite3.Connection] = []
+        real_connect = sqlite3.connect
+
+        def tracking(*args, **kwargs):
+            conn = real_connect(*args, **kwargs)
+            opened.append(conn)
+            return conn
+
+        with mock.patch.object(sqlite3, "connect", tracking):
+            with self.assertRaises(SomnusError):
+                Store.open(path, actor="test")
+        return opened
+
+    def test_refused_open_releases_its_connection(self) -> None:
+        self.store.close()
+        conn = sqlite3.connect(self.db)
+        conn.execute(f"PRAGMA user_version = {DB_USER_VERSION + 1}")
+        conn.commit()
+        conn.close()
+        junk = self.tmp / "junk.db"
+        junk.write_bytes(b"this is not a sqlite database" * 64)
+        for path in (self.db, junk):
+            opened = self.refused_open_connections(path)
+            self.assertEqual(len(opened), 1, path)
+            with self.assertRaises(sqlite3.ProgrammingError, msg=f"{path} connection still open"):
+                opened[0].execute("SELECT 1")
+        self.store = Store.open(self.tmp / "fresh" / "somnus.db", actor="test")
+
+    def test_readonly_connect_failure_releases_its_connection(self) -> None:
+        real_connect = sqlite3.connect
+        opened: list[sqlite3.Connection] = []
+
+        class Refusing:
+            def __init__(self, conn: sqlite3.Connection) -> None:
+                self.conn = conn
+                opened.append(conn)
+
+            def execute(self, sql: str) -> None:
+                raise sqlite3.OperationalError("attempt to write a readonly database")
+
+            def close(self) -> None:
+                self.conn.close()
+
+        with mock.patch.object(sqlite3, "connect", lambda *a, **k: Refusing(real_connect(*a, **k))):
+            with self.assertRaises(SomnusError) as cm:
+                connect_readonly(self.db)
+        self.assertEqual(cm.exception.exit_code, 2)
+        self.assertIsInstance(cm.exception.__cause__, sqlite3.OperationalError)
+        with self.assertRaises(sqlite3.ProgrammingError):
+            opened[0].execute("SELECT 1")
+
+    def test_readonly_connect_to_a_missing_registry_names_init(self) -> None:
+        with self.assertRaises(SomnusError) as cm:
+            connect_readonly(self.tmp / "nowhere" / "somnus.db")
+        self.assertIn("somnus init", str(cm.exception))
+
+    def test_sqlite_without_fts5_degrades_to_no_text_search(self) -> None:
+        real = self.store.conn
+        self.store.conn = _NoFts5(real, "no such module: fts5")
+        try:
+            self.store._ensure_search()
+            self.assertFalse(self.store.search)
+            self.assertTrue(self.store._search_current(1), "nothing to backfill without an index")
+        finally:
+            self.store.conn = real
+
+    def test_other_search_ddl_failures_are_not_swallowed(self) -> None:
+        real = self.store.conn
+        self.store.conn = _NoFts5(real, "disk I/O error")
+        try:
+            with self.assertRaises(sqlite3.OperationalError):
+                self.store._ensure_search()
+        finally:
+            self.store.conn = real
+
+
+class TestScanFailures(StoreTestCase):
+    def test_undecodable_file_is_counted_invalid_with_a_diagnostic(self) -> None:
+        (self.root / "bad.md").write_bytes(b"\xff\xfe\x00")
+        shutil.copy(SPEC, self.root / "spec.md")
+        report = self.store.scan([self.root])
+        self.assertEqual((report.invalid, report.indexed), (1, 1))
+        self.assertEqual([d.code for d in report.diagnostics], ["E_IO"])
+        self.assertEqual(self.count("SELECT count(*) FROM locations"), 1)
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "requires symlink support")
+    def test_unstatable_file_is_reported_and_the_scan_continues(self) -> None:
+        try:
+            os.symlink(self.root / "nowhere.md", self.root / "dangling.md")
+        except OSError as exc:
+            self.skipTest(f"cannot create symlinks: {exc}")
+        shutil.copy(SPEC, self.root / "spec.md")
+        report = self.store.scan([self.root])
+        self.assertEqual((report.invalid, report.indexed), (1, 1))
+        self.assertEqual([d.code for d in report.diagnostics], ["E_IO"])
+
+    def test_root_that_is_not_a_directory_is_reported(self) -> None:
+        gone = self.tmp / "gone"
+        report = self.store.scan([gone])
+        self.assertEqual([d.message for d in report.diagnostics], ["root is not a directory"])
+        self.assertEqual(report.indexed, 0)
+
+    def test_unreadable_stored_header_is_reported_not_fatal(self) -> None:
+        shutil.copy(SPEC, self.root / "spec.md")
+        self.store.scan([self.root])
+        self.store.conn.execute("UPDATE artifacts SET standing = 'accepted'")
+        self.store.conn.execute("UPDATE revisions SET header_yaml = 'unrelated: 1\n'")
+        self.store.conn.commit()
+        report = self.store.scan([self.root])
+        codes = [d.code for d in report.diagnostics]
+        self.assertIn("E_AUTHORITY", codes)
+        message = next(d.message for d in report.diagnostics if d.code == "E_AUTHORITY")
+        self.assertIn("unreadable", message)
 
 
 class TestFtsQuery(unittest.TestCase):

@@ -11,17 +11,26 @@ start with [`AGENTS.md`](AGENTS.md); this file is not normative.
 ├── PLAN.md                           # evidence, completion frontier, operator setup/handoff
 ├── CONTEXT.md                        # architectural relations and observed tool boundaries
 ├── AGENTS.v1.md                       # superseded entry file (2026-10-31); not active
-├── AGENTS.template.v2.md              # preserved imported proposal; not active instructions
+├── CONTRIBUTING.md                   # contributor setup, verification gate, naming, release-age policy
+├── CODEOWNERS                        # repository ownership rules
 ├── .codex/OPERATING.md                # adaptive composed tool/skill route; no local hook installed
+├── .claude/skills/somnus-metadata-dev/SKILL.md # repository agent development skill
+├── .factory/skills/somnus-metadata-dev/SKILL.md # mirrored Factory agent development skill
+├── .devcontainer/devcontainer.json   # devcontainer specification
+├── .github/                          # CI, release, CodeQL, wiki workflows, dependabot, issue/PR templates
+├── .pre-commit-config.yaml           # pre-commit hooks (ruff, mypy, hygiene, large-file guard)
+├── .importlinter                     # 6-contract architecture layer enforcement
+├── .coveragerc                       # branch + statement coverage configuration (fail_under = 85)
 ├── workflows.md                      # supplied BB7 suggested playbook
-├── last-session.txt                  # historical Factory account; not current proof
 ├── docs/references-unrelated-to-codebase/ # user-owned collaboration context, including House fable
 ├── README.md                         # install and quick start
 ├── filetree.md                       # this navigation map
 ├── pyproject.toml                    # stdlib-only package, `somnus` entry point
-
 ├── MANIFEST.in                       # minimal release contents; excludes private operator/research artifacts
-├── runbooks/package-release.md        # actual PyPI release and repeatable publishing/verification route
+├── runbooks/
+│   ├── registry-recovery.md          # global registry backup, restore, conflict resolution, re-init
+│   ├── host-write-incident.md        # E_HOST triggers, carrier preambles, stamp dry-run, header recovery
+│   └── package-release.md            # actual PyPI release and repeatable publishing/verification route
 ├── Somnus Markdown Metadata Standard Research.md # original research artifact; read-only
 ├── archives/                         # user-owned historical bundles; root ZIP deletions pre-exist
 ├── .somnus-debug/
@@ -33,22 +42,24 @@ start with [`AGENTS.md`](AGENTS.md); this file is not normative.
 │   ├── yamlsub.py                    # restricted YAML parser / canonical serializer
 │   ├── document.py                   # envelope IO / byte preservation
 │   ├── regions.py                    # in-document metadata regions
-│   ├── ids.py, config.py, infer.py   # identity, config, header inference
+│   ├── ids.py, config.py, infer.py, output.py # identity, config, header inference, diagnostics
 │   ├── model/
 │   │   ├── schema.py, vocab.py       # schema definitions / controlled values
 │   │   ├── validate.py               # validation pipeline
-│   │   └── lifecycle.py              # lifecycle transition rules
+│   │   ├── lifecycle.py              # lifecycle transition rules
+│   │   └── jsonschema_export.py      # JSON Schema exporter (`somnus schema --json-schema`)
 │   ├── carriers/                     # Markdown, comments, sidecar placement
-│   ├── db/                           # SQLite schema, FTS5 search index (D19), registry store
+│   ├── db/                           # SQLite schema (`schema.sql`), FTS5 search (`search.sql`, D19), `store.py`
 │   ├── commands/                     # one command module per CLI operation
 │   │   └── set_fields.py             # `somnus set` implementation (D16)
 │   └── tui/                          # terminal UI implementation
 ├── tests/
 │   ├── test_conformance.py           # 21 SPEC acceptance fixtures
 │   ├── test_mcp.py                   # adapter protocol, schema, and call behavior
+│   ├── test_term_windows.py          # Windows console/key unit tests via kernel32/msvcrt fakes
 │   ├── test_*.py                     # module and CLI behavior suites
 │   └── acceptance/
-│       └── installed_package_acceptance.py # explicit installed-wheel acceptance (not discovered)
+│       └── installed_package_acceptance.py # explicit 65-check installed-wheel acceptance (not discovered)
 ├── droid-wiki/                       # explanatory wiki; secondary to SPEC/DECISIONS
 │   ├── background/, features/
 │   ├── how-to-contribute/, overview/

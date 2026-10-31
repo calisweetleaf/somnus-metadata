@@ -324,7 +324,6 @@ def consistency(run: _Run, somnus: dict) -> None:
 
     knowledge = _mapping(somnus.get("knowledge"))
     K = P + ("knowledge",)
-    regions = _dicts(knowledge.get("regions"))
     claims = _dicts(knowledge.get("claims"))
     region_ids = _unique_ids(run, knowledge.get("regions", []) if isinstance(knowledge.get("regions"), list) else [],
                              K + ("regions",), "region")

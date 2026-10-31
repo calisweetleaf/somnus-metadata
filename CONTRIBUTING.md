@@ -33,10 +33,12 @@ Requires **Python 3.11 or newer** (`pyproject.toml` `requires-python = ">=3.11"`
 git clone https://github.com/calisweetleaf/somnus-metadata.git
 cd somnus-metadata
 
-# Optional: create a virtual environment and install in editable mode with dev tooling (mypy)
-python3 -m venv .venv
+# Create and activate a virtual environment (required on PEP 668 Linux hosts
+# where system pip refuses installs with externally-managed-environment),
+# then install in editable mode with dev tooling (mypy):
+python3 -m venv .venv          # or: uv venv .venv
 . .venv/bin/activate
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev]"   # or: uv pip install -e ".[dev]"
 
 # Verify CLI execution directly from the source tree
 PYTHONPATH=src python -m somnus.cli --version
@@ -62,6 +64,8 @@ PYTHONPATH=src python -m unittest discover -s tests
 PYTHONPATH=src python -m somnus.cli check SPEC.md DECISIONS.md --level semantic
 python -m mypy   # dev tool; install with: pip install "mypy>=1.9"
 ```
+
+On PEP 668 Linux hosts (`EXTERNALLY-MANAGED`), run `pip install "mypy>=1.9"` (or `pip install -e ".[dev]"`) inside an activated virtual environment (`.venv`), or install `mypy` as an isolated tool (`uv tool install mypy` / `pipx install mypy`).
 
 PowerShell equivalent for source checkout execution:
 

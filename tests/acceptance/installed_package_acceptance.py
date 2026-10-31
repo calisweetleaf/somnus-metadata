@@ -211,7 +211,7 @@ class Installed:
 
     # ------------------------------------------------------------- invocation
     def run(self, args: list[str], *, cwd: Optional[Path] = None,
-            home: Optional[Path] = None) -> tuple[int, str, str, str]:
+            home: Optional[Path] = None, env: Optional[dict] = None) -> tuple[int, str, str, str]:
         """Run the installed CLI; return (exit, combined, stdout, stderr)."""
         full = dict(os.environ)
         full["SOMNUS_HOME"] = str(home or self.home)
@@ -219,6 +219,8 @@ class Installed:
         full.pop("PYTHONPATH", None)
         full.pop("EDITOR", None)
         full.pop("VISUAL", None)
+        if env:
+            full.update(env)
         proc = subprocess.run([str(self.somnus), *args], cwd=str(cwd or self.work), env=full,
                               capture_output=True, text=True, timeout=CHECK_TIMEOUT)
         self.rec.note(f"$ somnus {' '.join(args)}  (exit {proc.returncode})")
@@ -561,6 +563,34 @@ def phase_diagnostics(inst: Installed) -> None:
     broken.unlink()
 
 
+def phase_agent_hints(inst: Installed) -> None:
+    """Agent-facing behaviors the skill relies on: full-text search, adoption hints, refusals."""
+    rec = inst.rec
+    code, out, so, se = inst.run(["q", "--text", "widget", "spec"])
+    rec.record("hints: q --text matches an unquoted multi-word search",
+               "pass" if code == 0 and "widget-spec.md" in so else "fail", so.strip()[:160])
+
+    code, out, so, se = inst.run(["q", "--text", "zzqxblank"])
+    rec.record("hints: an empty full-text result prints the adoption hint",
+               "pass" if code == 0 and "no matches" in out and "stamp" in out else "fail",
+               out.strip().replace("\n", " | ")[:200])
+
+    unmanaged = inst.work / "unmanaged-note.md"
+    unmanaged.write_text("# An ordinary markdown file\n\nNo Somnus header here.\n", encoding="utf-8")
+    code, out, so, se = inst.run(["index"])
+    rec.record("hints: index reports unmanaged files and how to adopt them",
+               "pass" if code == 0 and "unmanaged (no Somnus header" in out and "somnus stamp" in out else "fail",
+               " | ".join(ln for ln in out.splitlines() if "unmanaged" in ln or "adopt" in ln)[:200])
+
+    broad = inst.root / "home-broad"
+    broad.mkdir(parents=True, exist_ok=True)
+    inst.run(["init"], cwd=broad, home=broad)
+    code, out, so, se = inst.run(["index"], cwd=broad, home=broad, env={"HOME": str(broad)})
+    rec.record("hints: index with no registered roots refuses a home-directory fallback",
+               "pass" if code == 2 and "too broad to scan" in out else "fail",
+               out.strip().replace("\n", " | ")[:200])
+
+
 def phase_mcp(inst: Installed) -> None:
     rec = inst.rec
     client = McpClient(inst, inst.work)
@@ -626,6 +656,14 @@ def phase_mcp(inst: Installed) -> None:
         resp = client.request(8, "ping")
         rec.record("mcp: the session survives every error above",
                    "pass" if resp.get("result") == {} else "fail", json.dumps(resp)[:140])
+
+        resp = client.request(9, "tools/call", {"name": "check", "arguments": {"paths": ["nope.md"]}})
+        result = resp.get("result", {})
+        text = result.get("content", [{}])[0].get("text", "")
+        rec.record("mcp: a failed call with a relative path notes the server-directory resolution",
+                   "pass" if result.get("isError") is True and "note: relative path(s) nope.md" in text
+                   and "pass absolute paths" in text else "fail",
+                   text.replace("\n", " | ")[:200])
     finally:
         client.close()
     stderr = client.proc.stderr.read() if client.proc.stderr else ""
@@ -896,7 +934,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             return 2
         for phase in (phase_install, phase_lifecycle, phase_host_preservation,
                       phase_conflicts_and_recovery, phase_migrate, phase_diagnostics,
-                      phase_mcp, phase_tui_browser, phase_tui_pty):
+                      phase_agent_hints, phase_mcp, phase_tui_browser, phase_tui_pty):
             phase(inst)
         run_dir = write_artifacts(rec, root, inst.wheel, repo)
         failed = [r for r in rec.results if r["status"] == "fail"]

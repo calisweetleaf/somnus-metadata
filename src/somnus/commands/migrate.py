@@ -366,7 +366,7 @@ def plan(path: Path, cfg: Config) -> Optional[tuple[str, str, dict]]:
     new_lines = ["---", *header, "---", *body]
     trailing = nl if (doc.endings and doc.endings[-1]) else ""
     new = nl.join(new_lines) + trailing
-    old = "".join(line + end for line, end in zip(doc.lines, doc.endings))
+    old = "".join(line + end for line, end in zip(doc.lines, doc.endings, strict=True))
     return old, new, payload
 
 

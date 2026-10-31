@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from somnus import document as D
+from somnus.carriers import CarrierError
 from somnus.output import SomnusError
 
 A = "urn:somnus:artifact:01a12a94-8657-715c-9044-852de0e3f08a"
@@ -163,6 +164,30 @@ class TestLoadSave(DocTestCase):
             D.load(self.tmp / "missing.md")
         self.assertEqual(cm.exception.diagnostics[0].code, "E_IO")
         self.assertEqual(cm.exception.exit_code, 2)
+
+    def test_io_errors_chain_their_root_cause(self) -> None:
+        bad = self.write("bad.md", b"---\nsomnus:\n  title: \"\xff\"\n---\n")
+        with self.assertRaises(SomnusError) as decode:
+            D.load(bad)
+        self.assertIsInstance(decode.exception.__cause__, UnicodeDecodeError)
+        with self.assertRaises(SomnusError) as vanished:
+            D._read(self.tmp / "vanished.md")
+        self.assertEqual(vanished.exception.exit_code, 2)
+        self.assertIsInstance(vanished.exception.__cause__, FileNotFoundError)
+
+    def test_carrier_refusal_chains_its_root_cause(self) -> None:
+        doc = D.from_text(Path("s.css"), "@charset utf-8\nbody {}\n")
+        with self.assertRaises(SomnusError) as cm:
+            doc.render({"schema": CORE})
+        self.assertEqual([d.code for d in cm.exception.diagnostics], ["E_HOST"])
+        self.assertIsInstance(cm.exception.__cause__, CarrierError)
+
+    def test_render_keeps_lines_and_endings_aligned(self) -> None:
+        for name, text in (("a.md", ""), ("b.md", "no newline"), ("c.md", "x\r\ny\r\n"), ("d.md", "x\ny")):
+            doc = D.from_text(Path(name), text)
+            self.assertEqual(len(doc.lines), len(doc.endings), name)
+            rendered = doc.render({"schema": CORE})
+            self.assertIn("somnus:", rendered, name)
 
 
 class TestAtomicWrite(DocTestCase):

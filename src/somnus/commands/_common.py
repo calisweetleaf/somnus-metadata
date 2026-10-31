@@ -173,7 +173,8 @@ def unified(old: str, new: str, path: str, old_label: Optional[str] = None) -> s
     """Unified diff of two texts."""
     lines = difflib.unified_diff(old.splitlines(keepends=True), new.splitlines(keepends=True),
                                  fromfile=old_label or f"a/{path}", tofile=f"b/{path}")
-    out = "".join(l if l.endswith(("\n", "\r")) else l + "\n\\ No newline at end of file\n" for l in lines)
+    out = "".join(line if line.endswith(("\n", "\r")) else line + "\n\\ No newline at end of file\n"
+                  for line in lines)
     return out.replace("\r\n", "\n")
 
 

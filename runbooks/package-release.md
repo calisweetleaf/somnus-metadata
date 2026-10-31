@@ -4,7 +4,7 @@
 
 - Package index: PyPI, https://pypi.org/project/somnus-metadata/
 - Distribution: somnus-metadata. Python package and console command: somnus.
-- Current toolkit release: 2.0.0; metadata core is 2.0.0.
+- Current source toolkit version: 2.1.0 (registry schema 2, D19); latest published PyPI release: 2.0.0; metadata core is 2.0.0.
 - The first 0.1.0 upload was a stale-metadata versioning error, not v1 canon.
 - PyPI project owner observed after publication: somnus.
 - Do not publish as somnus: that PyPI name belongs to an unrelated project.
@@ -38,7 +38,7 @@ host-agnostic integration materials.
    diagnostic comparison. Document dispositions and unrun platform checks.
 4. Build with `uv build --no-sources --out-dir dist`. Inspect both the source
    archive and wheel. MANIFEST.in excludes operator/session/research materials.
-   Keep source distribution rebuildability and packaged db/schema.sql intact.
+   Keep source distribution rebuildability and packaged `db/schema.sql` and `db/search.sql` intact.
 5. Run `uvx --from twine twine check --strict dist/*`.
 6. Exercise the EXACT release wheel outside the checkout with isolated
    SOMNUS_HOME, real files/SQLite, CLI, MCP and terminal consumers.

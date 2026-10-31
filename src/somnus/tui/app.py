@@ -92,7 +92,7 @@ def detail_lines(row: Optional[Sequence[Any]], width: int) -> list[str]:
     if row is None:
         return ["(no document selected)"]
     out: list[str] = []
-    for label, value in zip(ROW_LABELS, row):
+    for label, value in zip(ROW_LABELS, row, strict=True):
         text = f"{label}: {'' if value is None else value}"
         out.extend(textwrap.wrap(text, max(10, width), subsequent_indent="  ",
                                  break_on_hyphens=False) or [f"{label}:"])
