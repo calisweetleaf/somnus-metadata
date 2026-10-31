@@ -8,7 +8,7 @@ The internal building blocks of `src/somnus/`, from the text layer up. Each page
 | [Carriers](carriers.md) | Finding and writing envelopes per file type | `src/somnus/carriers/` |
 | [Document model](document-model.md) | Loading files, regions, host-byte preservation, digests | `src/somnus/document.py`, `src/somnus/regions.py` |
 | [Validation](validation.md) | Schema, vocabularies, lifecycle, four-level validator | `src/somnus/model/` |
-| [Registry](registry.md) | Global SQLite registry, scanning, conflicts | `src/somnus/db/` |
+| [Registry](registry.md) | Global SQLite registry, scanning, conflicts, derived FTS5 search | `src/somnus/db/` |
 | [Terminal UI](tui.md) | `somnus edit` browser and header editor | `src/somnus/tui/` |
 
 Small support modules:

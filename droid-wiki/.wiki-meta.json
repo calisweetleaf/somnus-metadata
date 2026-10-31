@@ -1,8 +1,18 @@
 {
-  "generatedAt": "2026-10-12T04:49:13Z",
-  "commitHash": "43ab36002eb8a17f2cf39a2a44e87cbbe0de6466",
+  "generatedAt": "2026-10-31T23:02:52Z",
+  "commitHash": "954d5b446b2398f4f0c0fe6e8c9023219bc542cf",
   "branch": "main",
-  "pageCount": 36,
+  "pageCount": 37,
+  "warnings": [
+    "Phase 3.5 skipped: no .factory/skills/qa/config.yaml. Run /install-qa to enable screenshots.",
+    "At 954d5b4 the committed delta is one action-only commit: four workflow files, 19 additions and 19 deletions. Four affected pages were refreshed; the other 33 pages were preserved. Source, tests, workflow jobs and permissions are unchanged. Documentation links, source references, page ordering and whitespace were checked. Product tests, semantic validation, mypy, installed acceptance, external MCP hosts, native macOS/Windows console paths, hosted workflows and Doctor were not rerun. Earlier 22117e9 and b0cc64e evidence remains historical. PLAN.md records operator-laptop adapter handshakes and a Droid in-host call, not observations from this runner."
+  ],
+  "videoOverview": {
+    "status": "failed",
+    "warnings": [
+      "HyperFrames 0.4.44 doctor reported FFmpeg and FFprobe missing despite exit code 0. Rendering was skipped at the non-interactive prerequisite gate; no video was generated. None of the seven prior wiki runs exposed a playable video."
+    ]
+  },
   "topLevelSections": [
     "overview",
     "by-the-numbers",
@@ -11,6 +21,7 @@
     "how-to-contribute",
     "features",
     "systems",
+    "deployment",
     "background",
     "cleanup-opportunities",
     "reference"
@@ -43,6 +54,7 @@
     "systems/validation.md",
     "systems/registry.md",
     "systems/tui.md",
+    "deployment.md",
     "background/index.md",
     "background/design-decisions.md",
     "background/pitfalls.md",

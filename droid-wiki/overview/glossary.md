@@ -25,6 +25,7 @@ Terms used across `SPEC.md`, the code, and this wiki. Controlled vocabularies ar
 | Extensions | `extensions.<owner>.data`, the only open location for tool-specific fields. Preserved, never indexed as trusted data. |
 | Validation level | `carrier`, `core`, `semantic`, `canon`, each a superset of the previous. See [Validation](../systems/validation.md). |
 | Registry | The global SQLite database at `$SOMNUS_HOME/somnus.db`. See [Registry](../systems/registry.md). |
+| Search index | Derived FTS5 table with one row per present location, using Porter stemming over Unicode tokens (`src/somnus/db/search.sql`). `somnus q --text` searches it; it is not authority or revision evidence (D19 in `DECISIONS.md`). See [Querying](../features/querying.md). |
 | Root | A directory registered with `somnus init --root` and scanned by `somnus index`. |
 | Conflict | A registry row for a problem across files. The `conflicts.kind` column allows `revision`, `duplicate-id`, `authority`, and `identity`. Registry-wide graph cycles are reported as `E_GRAPH` diagnostics during a scan, not stored as conflicts. |
 | Event | A row in the append-only `events` ledger recording who changed what and when. |

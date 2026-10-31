@@ -1,6 +1,6 @@
 # Pitfalls
 
-These are the ways a change in this repository most often goes wrong: corrupting host bytes, breaking identity or revision history, or tripping over the Windows, PowerShell, and OneDrive environment the project is developed in. Each entry says what happens and what to do instead.
+These are the ways a change in this repository most often goes wrong: corrupting host bytes, breaking identity or revision history, or tripping over Windows, PowerShell, and OneDrive portability constraints. Historical environment observations do not establish the current runner's setup.
 
 ## Host-byte preservation
 
@@ -10,6 +10,8 @@ Every write re-extracts the result and refuses with `E_HOST` unless the bytes ou
 - Preserve the detected newline style (`doc.newline`), a missing final newline, and trailing whitespace. A leading BOM is accepted on read and never emitted.
 - Do not "tidy" host frontmatter keys next to `somnus:`. They belong to the host (D1).
 - If a host cannot hold an envelope safely (multi-line XML declaration or DOCTYPE, a payload containing `--` or `*/`), the answer is a `<file>.somnus.yaml` sidecar, not a weaker check.
+
+Follow [runbooks/host-write-incident.md](https://github.com/calisweetleaf/somnus-metadata/blob/main/runbooks/host-write-incident.md) for `E_HOST` incidents and [runbooks/registry-recovery.md](https://github.com/calisweetleaf/somnus-metadata/blob/main/runbooks/registry-recovery.md) for registry backup and reconciliation. Never bypass preservation checks or append-only ledger triggers to clear an incident.
 
 ## Never edit `id`
 
@@ -29,11 +31,11 @@ Tools never invent dates, actors, licenses, measurements, evidence, or acceptanc
 
 ## OneDrive and WinError 5
 
-The repository lives in a OneDrive-synced folder. Surgeon's multi-file transactions (`multi_edit`, `prepare`/`commit`) fail there with WinError 5. Make one Surgeon call per file. A failed transaction may leave staged state; `op=recover` lists anything left prepared.
+`AGENTS.md` records a OneDrive-synced operator checkout where Surgeon's multi-file transactions (`multi_edit`, `prepare`/`commit`) fail with WinError 5. Preserve its one-file-per-call rule; this is not evidence that every checkout uses OneDrive or Windows. A failed transaction may leave prepared state; inspect the installed Surgeon's recovery interface before acting.
 
 ## Encoding
 
-An earlier Surgeon session decoded its input as cp1252 and wrote it back as UTF-8, so every non-ASCII character (`§`, en dashes, arrows, `≥`) became mojibake such as `Â§` in 26 files. Commit `dc3c981` repaired them, and the Surgeon server now runs with `PYTHONUTF8=1`. Two related traps remain:
+An earlier Surgeon session decoded its input as cp1252 and wrote it back as UTF-8, so every non-ASCII character (`§`, en dashes, arrows, `≥`) became mojibake such as `Â§` in 26 files. Commit `dc3c981` repaired them. A historical `PYTHONUTF8=1` server setting is not a current repository declaration or proof of this runner's encoding. Two related traps remain:
 
 - Windows PowerShell 5.1 `Get-Content` reads files as the ANSI code page unless given `-Encoding UTF8`, so correct files can look corrupted in a terminal. Check bytes before "fixing" anything.
 - The toolkit refuses non-UTF-8 files for embedded carriers (`E_IO file is not valid UTF-8`); they need a sidecar.
@@ -44,11 +46,17 @@ An earlier Surgeon session decoded its input as cp1252 and wrote it back as UTF-
 
 ## PowerShell exit codes and stderr
 
-Windows PowerShell 5.1 reports a failing exit code when a native command writes to stderr, even if the process exited 0. The unittest runner writes its progress and summary to stderr, so a fully passing run shows exit code 1. Read the final `OK` or `FAILED` line. `somnus` itself writes informational notes (`checked N file(s)...`, `registry: ...`) to stderr for the same reason. PowerShell 5.1 also lacks `&&` and `||`; chain with `;` and test `$LASTEXITCODE`.
+Some Windows PowerShell 5.1 wrappers treat native stderr as an error surface even when the process exits 0. Unittest writes its progress and summary to stderr; inspect both the final `OK` or `FAILED` line and the native `$LASTEXITCODE` rather than equating stderr with failure. `somnus` also writes informational notes (`checked N file(s)...`, `registry: ...`) to stderr. PowerShell 5.1 lacks `&&` and `||`; chain with `;` and test `$LASTEXITCODE`.
 
 ## Digest changes
 
 Before commit `8f0db0d`, `body_digest` dropped the final line terminator of the body. The fix changed the digest of every body that ends in a newline, so a registry indexed before that commit holds different stored values from what the current code computes for the same file. Incremental indexing skips files whose `(file_mtime, file_size)` is unchanged, so the mismatch usually appears on `somnus index --full` or after the file is touched; re-index into a fresh `SOMNUS_HOME` when in doubt. Any future change to canonical serialization or digest normalization has the same effect and should be treated as a registry-affecting change.
+
+## Search is a snapshot
+
+`src/somnus/db/store.py` indexes managed locations, not every file under a root. Adopt an unmanaged file with `somnus stamp` before expecting search results. `somnus q --text` reads the last indexed state; run `somnus index` after changes or `somnus index --full` when timestamps and sizes may be misleading. Binary/non-UTF-8 sidecar hosts have searchable metadata but an empty body, and body text is capped at 1,000,000 characters.
+
+Schema-1 writers refuse a schema-2 registry (D19 in `DECISIONS.md`). Back up before upgrading; do not lower `PRAGMA user_version` to bypass the guard or treat a search hit as proof that a revision is conflict-free. A missing FTS5 index causes an exit-2 usage error, not permission to rewrite the database. See [Registry](../systems/registry.md) and [Debugging](../how-to-contribute/debugging.md).
 
 ## Doctor false positives
 

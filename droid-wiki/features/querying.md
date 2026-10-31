@@ -1,6 +1,8 @@
 # Querying the registry
 
-`somnus index` reconciles files on disk into the global SQLite registry at `$SOMNUS_HOME/somnus.db`, and `somnus q`, `ls`, and `stale` read it back as aligned text or TSV. `somnus regions` audits one file's region markers, and `somnus check --all` validates every configured root.
+Active contributors: calisweetleaf
+
+`somnus index` reconciles files on disk into the global SQLite registry at `$SOMNUS_HOME/somnus.db`, and `somnus q`, `ls`, and `stale` read it back as aligned text or TSV. `somnus q --text` searches indexed metadata and host content with ranked excerpts. `somnus regions` audits one file's region markers, and `somnus check --all` validates every configured root.
 
 ## Purpose
 
@@ -34,15 +36,18 @@ somnus index                 # every registered root
 somnus index docs --full     # one root, re-read every file
 ```
 
-`src/somnus/commands/index.py` opens the registry for writing (it never creates it; run `somnus init` first). With `ROOT` arguments it scans those directories and registers them as roots through `Store.add_root()`. With no arguments it scans every registered root, falling back to the configured `index.roots`. `Store.scan()` in `src/somnus/db/store.py`:
+`src/somnus/commands/index.py` opens the registry for writing (it never creates it; run `somnus init` first). With `ROOT` arguments it scans those directories and registers them as roots through `Store.add_root()`. With no arguments it scans every registered root, falling back to the configured `index.roots` only when none are registered. In that fallback branch, any root equal to `Path.home().resolve()` or its filesystem anchor is refused with exit 2; the message suggests `somnus init --root DIR` or `somnus index DIR`. Explicit and already registered broad roots are not subject to this fallback-only guard. `Store.scan()` in `src/somnus/db/store.py`:
 
 - walks each root with the configured `exclude` globs, pruning VCS directories and preferring a sidecar when a host has one;
-- skips a location whose `(file_mtime, file_size)` is unchanged unless `--full` is given;
+- skips a location whose `(file_mtime, file_size)` is unchanged unless `--full` is given or the available FTS5 index lacks its row;
 - records revisions, locations, tags, regions, relations, entities, and claims, and opens or resolves `revision`, `duplicate-id`, `identity`, and `authority` conflicts (SPEC §18.3);
-- marks files that disappeared as `present = 0`, never deleting them;
+- refreshes the FTS5 search row for each indexed observation when FTS5 is available, including conflicting revisions;
+- marks files that disappeared as `present = 0` and removes only their derived search rows, retaining registry history;
 - appends an `index` event with the summary.
 
 It prints diagnostics followed by a summary line such as `scanned 42, indexed 3, unchanged 39, new revisions 1, unmanaged 5, examples 0, invalid 0, missing 0, conflicts opened 0, resolved 1`. The exit code is 1 when any error diagnostic appeared or any conflict was opened.
+
+When a visited document has no envelope and no loading issues, `ScanReport.unmanaged_paths` records its absolute host path with forward slashes. After the summary, `index` prints at most 10 such paths, adds `and N more` if necessary, and explains that these files are not searchable. It suggests `somnus stamp PATH` for a preview, then `somnus stamp PATH --write` to adopt. These stderr notes are informational, not warning/error diagnostics; unmanaged files alone do not cause exit 1.
 
 ### `somnus q`
 
@@ -51,21 +56,55 @@ somnus q                                  # same as --docs
 somnus q --conflicts
 somnus q --history --limit 20
 somnus q --tables
+somnus q --text "host bytes" --limit 10
+somnus q --text naming conventions         # both words must match
+somnus q --text "validat*" --tsv
 somnus q "SELECT type, count(*) AS n FROM docs GROUP BY type" --tsv
 ```
 
-`src/somnus/commands/query.py` runs either one shortcut or a raw SQL statement:
+`src/somnus/commands/query.py` runs a shortcut, a full-text search, or a raw SQL statement:
 
 | Shortcut | Query |
 | --- | --- |
 | `--docs` (default) | `id, title, type, status, standing, revision, path` from the `docs` view, ordered by path |
 | `--conflicts` | `id, kind, artifact_id, revision, path, detail, opened_at` from `open_conflicts` |
 | `--history` | `id, at, actor, action, artifact_id, revision, path, detail` from `history` (newest first) |
-| `--tables` | Names and types of all tables and views, excluding `sqlite_*` |
+| `--tables` | Names and types of tables and views, excluding `sqlite_*` and FTS5 `search_*` shadow tables; `search` itself remains visible |
+| `--text WORDS` | Ranked `id, title, type, status, path, excerpt` rows from present indexed locations |
 
-The shortcuts are mutually exclusive, and a shortcut takes precedence over a SQL argument. `--limit N` applies `fetchmany(N)` to whatever query runs.
+The shortcuts and `--text` are mutually exclusive in `src/somnus/cli.py`. A non-search shortcut takes precedence over a SQL argument. With `--text`, however, `src/somnus/commands/query.py` joins the text value and optional positional `[SQL]` value with a space and passes both to `fts_query()` as search words; the positional value is not executed as SQL. This supports the two-word unquoted example above, not arbitrary unquoted word counts: argparse still accepts only one optional positional slot, so quote longer strings. `--limit N` applies `fetchmany(N)` to whatever query runs.
 
 Raw SQL is read-only by construction. `connect_readonly()` opens the database with a `mode=ro` URI and sets `PRAGMA query_only = ON`, so `INSERT`, `UPDATE`, `DELETE`, or DDL fails. `run_query()` turns any `sqlite3.Error` into an `E_IO` diagnostic `query failed: ...` with exit 2. A missing registry is also exit 2 with the message `run 'somnus init'`.
+
+### Full-text search
+
+`fts_query()` in `src/somnus/db/store.py` splits `--text` on whitespace and quotes each term as an FTS5 literal, escaping embedded quotes. Every term must match somewhere in the indexed row; `word*` preserves a trailing prefix operator. Quoting the shell argument does not turn it into a phrase, and `OR`, column filters, and other raw FTS5 operators are not interpreted as operators on this surface. Tokenization uses Porter stemming over `unicode61` with diacritic removal, as defined in `src/somnus/db/search.sql`.
+
+`SEARCH` in `src/somnus/commands/query.py` ranks matches by BM25, with weights path 2, title 10, summary 5, tags 5, and body 1; ties sort by path. Excerpts use FTS5 `snippet()` with automatic column selection, a 12-token budget, `[` and `]` around matches, and `...` for omissions. They may come from metadata rather than the body.
+
+Search scope is the last successfully indexed observation of each managed location, not every file under the current directory and not every historical revision. `searchable_body()` in `src/somnus/db/store.py` excludes embedded envelopes or decodes the sidecar host as UTF-8 with optional BOM. Non-UTF-8 sidecar hosts have no indexed body; metadata remains searchable. The body is capped at 1,000,000 characters, not the combined column size. Unmanaged, invalid, and example-URN documents are not newly indexed.
+
+Results join artifact-level title/type/status to location-level search text. A conflicting observation is searchable without replacing the stored revision, so its excerpt can differ from the artifact title displayed. Mirrors may yield multiple paths for one ID. See [Registry](../systems/registry.md) for reconciliation and retention details.
+
+After a schema-1 upgrade, run `somnus index` to create and backfill the index; missing search rows defeat the ordinary unchanged-file skip. Use `somnus index --full` to re-read eligible files even when mtime and size match. The database remains usable without SQLite FTS5, but full-text search requires it.
+
+| Input or condition | Outcome in `src/somnus/commands/query.py` |
+| --- | --- |
+| Empty/whitespace-only or wildcard-only `--text` | Exit 2: at least one search word is required |
+| Positional `[SQL]` argument plus `--text` | Both values become literal search words, not SQL |
+| Missing `search` table | Exit 2: run `somnus index` with SQLite FTS5 |
+| `--text` plus another shortcut | Parser usage error, exit 2 |
+| No text-search matches | Exit 0; normal empty table plus an informational adoption/reindex hint |
+
+For zero matches, aligned text prints `no rows` to stderr; TSV retains its column header on stdout. Both formats also receive the stderr note `no matches; only files with a Somnus header are indexed`, followed by guidance to use `somnus stamp PATH --write`, then `somnus index`. This does not mean unmanaged files were searched, and the note is not an error.
+
+For raw phrases, Boolean operators, or column filters, use SQL `MATCH` directly:
+
+```powershell
+somnus q "SELECT path FROM search WHERE search MATCH 'title:metadata OR body:envelope'" --tsv
+```
+
+Raw SQL does not automatically add the shortcut's joins, ranking, or excerpts. The virtual table is defined in `src/somnus/db/search.sql`; join `search.rowid` to `locations.id` and filter `locations.present = 1` when composing location-aware queries.
 
 ### `somnus ls`
 
@@ -116,7 +155,7 @@ somnus check SPEC.md DECISIONS.md --level semantic
 
 ### Output formats
 
-All tables go through `Ctx.table()`: aligned text by default, or TSV with a header row under `--tsv`. Diagnostics follow `path:line:col: severity CODE field: message`, or seven tab-separated columns with no header under `--tsv`. The only JSON the toolkit emits is `somnus schema --json-schema` (see [Agent integration](agent-integration.md)).
+All tables go through `Ctx.table()` in `src/somnus/commands/_common.py`: aligned text by default, or TSV with a header row under `--tsv`. Diagnostics follow `path:line:col: severity CODE field: message`, or seven tab-separated columns with no header under `--tsv`. Registry results never use JSON. `somnus schema --json-schema` is the explicit export exception; MCP uses JSON-RPC framing around text/TSV tool content (see [Agent integration](agent-integration.md)).
 
 ## Integration points
 
@@ -133,6 +172,7 @@ All tables go through `Ctx.table()`: aligned text by default, or TSV with a head
 - New `ls` filters: `Store.list_docs()` in `src/somnus/db/store.py` plus the flag in `src/somnus/cli.py`.
 - New stale findings or thresholds: `_findings()` in `src/somnus/commands/stale.py`.
 - Scan behavior: `Store.scan()` and `ScanReport` in `src/somnus/db/store.py`.
+- Search extraction and literal conversion: `searchable_body()` and `fts_query()` in `src/somnus/db/store.py`; ranking and excerpts: `SEARCH` in `src/somnus/commands/query.py`. Search cases are in `tests/test_store.py` and `tests/test_commands.py`; `TestSearch.test_unquoted_words_and_hints` covers two unquoted words, unmanaged-file notes, and a zero-match success, while `TestBasics.test_index_refuses_home_as_implicit_root` covers fallback refusal. The parent refresh's unittest discovery run passed 486 tests; installed-package acceptance and external MCP-host integration were not rerun.
 
 ## Key source files
 
@@ -146,3 +186,6 @@ All tables go through `Ctx.table()`: aligned text by default, or TSV with a head
 | `src/somnus/commands/check.py` | `somnus check` |
 | `src/somnus/db/store.py` | `Store.scan()`, `list_docs()`, `similar_titles()`, `connect_readonly()`, `run_query()` |
 | `src/somnus/db/schema.sql` | Registry DDL |
+| `src/somnus/db/search.sql` | FTS5 columns and tokenizer |
+| `src/somnus/cli.py` | Mutually exclusive query modes and search help |
+| `tests/test_commands.py` | Root-fallback refusal, search behavior, and informational hints |

@@ -1,6 +1,8 @@
 # Registry
 
-The registry is one global SQLite database (default `~/.somnus/somnus.db`) that indexes every managed file under the registered roots. `Store` in `src/somnus/db/store.py` scans roots, records immutable revision states, reconciles conflicts, and appends every mutating action to an append-only `events` ledger. Read paths (`somnus q`, the TUI browser, semantic resolution) use a separate read-only connection.
+Active contributors: calisweetleaf
+
+The registry is one global SQLite database (default `~/.somnus/somnus.db`) that indexes managed files under registered roots. `Store` in `src/somnus/db/store.py` scans roots, records immutable revision states, reconciles conflicts, and records actions in an append-only `events` ledger. Its full-text index is derived from observed locations, not an authority over files. Read paths (`somnus q`, the TUI browser, semantic resolution) use a separate read-only connection.
 
 ## Purpose
 
@@ -14,7 +16,8 @@ The registry is one global SQLite database (default `~/.somnus/somnus.db`) that 
 ```
 src/somnus/db/
   __init__.py   re-exports ScanReport, Store, connect_readonly, glob_regex, matches_any, now_iso, run_query
-  schema.sql    authoritative DDL, schema version 1 (tables, triggers, views)
+  schema.sql    base DDL, schema version 2 (tables, triggers, views)
+  search.sql    derived FTS5 index (path, title, summary, tags, body)
   store.py      Store class, scan and reconciliation, resolver(), read-only helpers
 ```
 
@@ -24,8 +27,10 @@ src/somnus/db/
 | --- | --- | --- |
 | `Store` | `src/somnus/db/store.py` | Writable connection plus actor name; context manager that commits on exit and rolls back on exception. |
 | `Store.open(db_path, actor, create)` | `src/somnus/db/store.py` | Creates the parent directory when allowed, connects with a 10 s timeout, sets `foreign_keys = ON` and `journal_mode = WAL`, then runs `_migrate()`. |
-| `Store._migrate()` | `src/somnus/db/store.py` | Reads `PRAGMA user_version`; refuses a newer version, returns when equal to `DB_USER_VERSION` (1, in `src/somnus/__init__.py`), otherwise runs `schema.sql` and sets the version. |
-| `ScanReport` | `src/somnus/db/store.py` | Counters (scanned, indexed, unchanged, unmanaged, examples, invalid, missing, new revisions, conflicts opened/resolved) and diagnostics for one pass. |
+| `Store._migrate()` | `src/somnus/db/store.py` | Refuses a newer `PRAGMA user_version`; runs base DDL and sets version 2 on older registries, then ensures the FTS5 table on every writable open. `DB_USER_VERSION` lives in `src/somnus/__init__.py`. |
+| `Store._ensure_search()`, `Store._index_text()` | `src/somnus/db/store.py` | Create the optional FTS5 index and replace one location's searchable observation. |
+| `searchable_body()`, `fts_query()` | `src/somnus/db/store.py` | Extract bounded host text and safely quote the plain-word query surface. |
+| `ScanReport` | `src/somnus/db/store.py` | Counters (scanned, indexed, unchanged, unmanaged, examples, invalid, missing, new revisions, conflicts opened/resolved), diagnostics, and `unmanaged_paths` (absolute POSIX-form host paths) for one pass. |
 | `Store.log()` | `src/somnus/db/store.py` | Inserts one `events` row with `now_iso()`, the actor, action, artifact, revision, path, and detail. |
 | `Store.scan()`, `Store.observe()` | `src/somnus/db/store.py` | Full reconciliation of roots, or re-indexing of one file under a registered root. |
 | `Store.resolver()` | `src/somnus/db/store.py` | Builds a `Resolver` (from `src/somnus/model/validate.py`) from `artifacts`, `revisions`, `regions`, `claims`, `entities`, and `open_conflicts`. |
@@ -50,6 +55,8 @@ src/somnus/db/
 | `conflicts` | `id`; unique open `(kind, conflict_key)` | `kind` in `revision`, `duplicate-id`, `authority`, `identity`; `state` `open` or `resolved` |
 | `events` | `id` autoincrement | Append-only ledger: `at`, `actor`, `action`, `artifact_id`, `revision`, `path`, `detail` |
 
+`src/somnus/db/search.sql` separately defines the FTS5 virtual table `search(path, title, summary, tags, body)`, keyed by `rowid = locations.id`. Its tokenizer is `porter unicode61 remove_diacritics 2`. This is a location index: identical mirrors can produce separate results, while artifact rows remain keyed by URN.
+
 Triggers `events_no_update` and `events_no_delete` raise `events are append-only` on any `UPDATE` or `DELETE` of `events`. The partial unique index `conflicts_one_open` allows only one open conflict per `(kind, conflict_key)`.
 
 Views:
@@ -62,6 +69,8 @@ Views:
 
 `add_root()` stores `Path(path).resolve().as_posix()`, and `_rel()` stores relative paths with `as_posix()`, so rows use forward slashes on Windows too. Ledger paths written through `Ctx.record()` in `src/somnus/commands/_common.py` are also converted to forward slashes by `path_text()`. `root_for()` picks the deepest registered root containing a path.
 
+Root-selection safety belongs to `src/somnus/commands/index.py`, not a blanket `Store.add_root()` restriction. Explicit `index ROOT...` arguments win, followed by registered roots; only if neither exists does the command use configured roots. That fallback refuses a root equal to the resolved home directory or filesystem anchor with exit 2 and suggests `somnus init --root DIR` or `somnus index DIR`. Explicitly named or already registered broad roots are not universally banned.
+
 ### Scan reconciliation
 
 `scan(roots, exclude, full)` registers any roots passed in (or uses all registered roots), then walks each with `os.walk`, pruning `.git`, `.hg`, `.svn`, and excluded directories. A file is visited when it is a sidecar, or when it has a known carrier and no sidecar beside it.
@@ -69,7 +78,7 @@ Views:
 ```mermaid
 graph TD
     Walk["os.walk root<br/>prune VCS dirs and excludes"] --> Visit["_visit(file)"]
-    Visit -->|"mtime and size unchanged, not --full"| Unchanged["count unchanged"]
+    Visit -->|"mtime and size unchanged, search row exists, not --full"| Unchanged["count unchanged"]
     Visit -->|"no envelope"| Unmanaged["count unmanaged"]
     Visit -->|"core errors"| Invalid["count invalid, keep diagnostics"]
     Visit -->|"example URN"| Example["skip indexing"]
@@ -84,7 +93,8 @@ graph TD
 `_visit()` details:
 
 - For a sidecar the location is recorded under the host file's relative path, and the change check uses the later of the two mtimes and the sum of both sizes.
-- Unchanged locations are skipped unless `full` is set. `observe()` always passes `full=True`.
+- Unchanged locations are skipped unless `full` is set or the available search index lacks their row. With no FTS5 index, the search-row check does not prevent skipping. `observe()` always passes `full=True`.
+- A document with no envelope and no loading issues increments `unmanaged` and appends `host.as_posix()` to `ScanReport.unmanaged_paths`; this is an absolute host path, not a sidecar path. It is not indexed. The CLI displays up to 10 paths, adds `and N more` when needed, and suggests previewing with `somnus stamp PATH` before `somnus stamp PATH --write`. These are informational stderr notes, not diagnostic warnings or errors, and unmanaged files alone do not fail the scan.
 - Files that fail `validate(doc, "core")` are counted invalid and their errors are added to the report; they are not indexed.
 - `urn:somnus:example:*` artifacts are counted and never indexed.
 
@@ -97,10 +107,25 @@ graph TD
 - Any other open `revision` conflict on the same path is resolved as "no longer observed".
 - When there is no conflict and the revision is at least the current one, the artifact columns and tags are updated. Otherwise only `last_seen_at` changes.
 - The location row is inserted or updated with `present = 1`. If the path previously held a different artifact ID, an `identity` conflict keyed by the path is opened.
+- `_index_text()` then replaces that location's search row, even when the observed revision conflicts with its stored state. Search text describes the file just observed; it does not replace the immutable revision or resolve its conflict.
 
 `_materialize()` uses `INSERT OR IGNORE` for regions, relations, entities, and claims of the new revision. Extensions are never read into these tables (SPEC section 4.3).
 
-`_mark_missing()` sets `present = 0` for every present location of the root not seen in this pass, logs `missing`, and resolves open `revision` conflicts on that path. Rows are never deleted.
+`_mark_missing()` sets `present = 0` for every present location of the root not seen in this pass, removes its derived search row, logs `missing`, and resolves open `revision` conflicts on that path. Artifact, revision, and location history is retained.
+
+### Full-text maintenance
+
+`Store._migrate()` in `src/somnus/db/store.py` upgrades a version-1 registry through the idempotent base DDL, sets `PRAGMA user_version = 2`, and calls `_ensure_search()`. It also calls `_ensure_search()` when the version is already 2. Opening the registry creates the virtual table but does not populate old locations; the next scan backfills missing search rows even when file mtime and size have not changed. Read-only queries do not migrate.
+
+If SQLite reports an FTS5-related `OperationalError` while creating the table, `_ensure_search()` disables search for that store but leaves the registry usable. Other operational errors propagate. `somnus q --text` reports a missing index with exit 2 and asks for `somnus index` using SQLite with FTS5. Schema version 2 alone is therefore not proof that full-text search is available.
+
+Each indexed observation supplies its absolute host path, title, optional summary, space-joined classification tags, and body. `searchable_body()` in `src/somnus/db/store.py` reads body lines outside embedded envelopes, or decodes the sidecar host as UTF-8 with optional BOM. Invalid UTF-8 sidecar hosts contribute an empty body but retain searchable metadata. Only the body is capped at `SEARCH_BODY_LIMIT = 1_000_000` characters; this is not a limit on all columns or on file loading.
+
+`somnus index --full` re-reads eligible files in the selected roots and refreshes their search rows without inventing new revisions. Ordinary incremental scans use mtime, size, and search-row presence, not a fresh content hash. Search covers successfully indexed, core-valid, non-example managed documents; it is not a general crawl of unmanaged files.
+
+`SEARCH` in `src/somnus/commands/query.py` joins present locations and artifact rows, ranks with BM25 weights path 2, title 10, summary 5, tags 5, body 1, then breaks ties by path. Returned title/type/status come from the artifact row, while matching text and excerpts come from the location observation. During a revision conflict those can differ. See [Querying](../features/querying.md) for plain-word and raw FTS5 syntax.
+
+In text mode, the query command combines `--text` with its optional positional argument before literal conversion through `fts_query()`; that positional value is additional search text, not executable SQL. Zero matches still exit 0 and render an empty table plus an informational stderr note explaining the managed-file scope and suggesting adoption, then reindexing. Neither hint widens search scope to unmanaged content.
 
 ### Registry-wide reconciliation
 
@@ -130,20 +155,24 @@ graph TD
 
 ## Entry points for modification
 
-- Schema changes: edit `src/somnus/db/schema.sql`, increase `DB_USER_VERSION` in `src/somnus/__init__.py`, and extend `_migrate()`. The current migration only runs the full DDL (all statements use `IF NOT EXISTS`), so a version 2 change to existing tables would need explicit `ALTER` steps.
+- Schema changes: edit `src/somnus/db/schema.sql`, increase `DB_USER_VERSION` in `src/somnus/__init__.py`, and extend `_migrate()`. The current base migration runs idempotent DDL; structural changes to existing tables need explicit migration steps. FTS5 DDL lives separately in `src/somnus/db/search.sql`.
 - New conflict kind: extend the `CHECK` constraint on `conflicts.kind`, add a reconcile step in `_reconcile()`, and map it to a diagnostic code in `canon()` in `src/somnus/model/validate.py`.
-- New materialized knowledge: add a table to `schema.sql`, write it in `_materialize()`, and read it in `resolver()` if validation needs it.
-- Tests live in `tests/test_store.py`.
+- New materialized knowledge: add a table to `src/somnus/db/schema.sql`, write it in `_materialize()`, and read it in `resolver()` if validation needs it.
+- `tests/test_store.py` covers reconciliation, FTS5 migration/backfill, refresh/removal, query quoting, and sidecar extraction. `tests/test_commands.py` covers CLI search results, prefixes, all-word matching, usage errors, implicit-home-root refusal, two-word unquoted search, unmanaged-file adoption notes, and zero-match success. The parent refresh's unittest discovery run passed 486 tests; installed-package acceptance, Doctor, native Windows behavior, and external MCP hosts were not revalidated by this page refresh.
 
 ## Key source files
 
 | File | Role |
 | --- | --- |
 | `src/somnus/db/schema.sql` | Tables, append-only triggers, views, indexes |
+| `src/somnus/db/search.sql` | FTS5 columns and tokenizer |
 | `src/somnus/db/store.py` | `Store`, scanning, conflict reconciliation, `resolver()`, read-only helpers |
+| `src/somnus/commands/query.py` | Search joins, ranking, excerpts, and query errors |
+| `src/somnus/__init__.py` | Package 2.1.0, database schema 2, unchanged core 2.0.0 |
 | `src/somnus/db/__init__.py` | Public re-exports |
 | `src/somnus/commands/_common.py` | `Ctx` registry helpers and `record()` |
 | `src/somnus/commands/index.py`, `src/somnus/commands/init.py` | `somnus index` and `somnus init` |
 | `tests/test_store.py` | Registry tests |
+| `tests/test_commands.py` | CLI root-safety, text-search, and informational-hint coverage |
 
 Related: [Architecture](../overview/architecture.md), [Glossary](../overview/glossary.md), [Data models](../reference/data-models.md), [Design decisions](../background/design-decisions.md).

@@ -36,7 +36,7 @@ src/somnus/model/
 | `ArtifactFacts`, `Resolver` | `src/somnus/model/validate.py` | Reference-resolution context: per-artifact type, status, standing, revisions, region and claim IDs per revision, known entity URNs, and open conflict kinds per artifact. |
 | `_Run` | `src/somnus/model/validate.py` | Per-document diagnostic accumulator. `err`/`warn` map a payload key path to a file position through `Document.diag`; `at` records a raw line and column. |
 | `validate(doc, level, resolver)` | `src/somnus/model/validate.py` | Pipeline entry point. |
-| `validate_payload(somnus)` | `src/somnus/model/validate.py` | Structural and consistency checks for an in-memory payload with no host body; used by the TUI form and `_common.py`. |
+| `validate_payload(somnus)` | `src/somnus/model/validate.py` | Structural and consistency checks for an in-memory payload with no host body; used by the TUI form and `src/somnus/commands/_common.py`. |
 | `permits_use(somnus, use, region_id)` | `src/somnus/model/validate.py` | Header-level answer to "may this artifact (or region) be used for `use`". |
 | `TRANSITIONS` | `src/somnus/model/lifecycle.py` | Lifecycle state machine, one frozen set of targets per status. |
 | `export()` | `src/somnus/model/jsonschema_export.py` | Core envelope schema as JSON Schema Draft 2020-12, with profile payloads under `$defs`. |
