@@ -59,7 +59,7 @@ MCP host as validated unless separately exercised.
 - `SPEC.md` is normative. If implementation and SPEC disagree, treat it as a
   defect; do not change the contract without an explicit decision and version
   update under SPEC §23.
-- `DECISIONS.md` records ratified rationale D1–D18. Do not silently revise a
+- `DECISIONS.md` records ratified rationale D1–D19. Do not silently revise a
   decision; add a new ratified decision for a material change.
 - `PLAN.md` is a current delivery/maintenance handoff, not the normative source.
 - `tests/test_conformance.py` is the executable 21-fixture acceptance suite.

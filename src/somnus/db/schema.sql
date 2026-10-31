@@ -1,4 +1,4 @@
--- Somnus global registry, schema version 1 (SPEC §18).
+-- Somnus global registry, schema version 2 (SPEC §18). The full-text index ships in search.sql (D19).
 -- Zero JSON: headers are canonical restricted YAML text; every column is a plain value.
 
 CREATE TABLE IF NOT EXISTS roots (

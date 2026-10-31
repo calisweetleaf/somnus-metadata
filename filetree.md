@@ -7,7 +7,7 @@ start with [`AGENTS.md`](AGENTS.md); this file is not normative.
 .
 ├── AGENTS.md                         # project entry packet, validation, constraints
 ├── SPEC.md                           # normative core 2.0.0 contract; §§20–23 CLI/MCP/conformance/versioning
-├── DECISIONS.md                      # ratified rationale D1–D18
+├── DECISIONS.md                      # ratified rationale D1–D19
 ├── PLAN.md                           # evidence, completion frontier, operator setup/handoff
 ├── CONTEXT.md                        # architectural relations and observed tool boundaries
 ├── AGENTS.somnus.v2.md                # inactive project-specific comparison candidate
@@ -39,7 +39,7 @@ start with [`AGENTS.md`](AGENTS.md); this file is not normative.
 │   │   ├── validate.py               # validation pipeline
 │   │   └── lifecycle.py              # lifecycle transition rules
 │   ├── carriers/                     # Markdown, comments, sidecar placement
-│   ├── db/                           # SQLite schema and registry store
+│   ├── db/                           # SQLite schema, FTS5 search index (D19), registry store
 │   ├── commands/                     # one command module per CLI operation
 │   │   └── set_fields.py             # `somnus set` implementation (D16)
 │   └── tui/                          # terminal UI implementation

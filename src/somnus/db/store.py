@@ -30,6 +30,33 @@ def _io_error(message: str) -> SomnusError:
     return SomnusError([Diagnostic("-", 0, 0, "error", "E_IO", "-", message)], EXIT_USAGE)
 
 
+# --------------------------------------------------------------------------- full-text search (D19)
+
+SEARCH_BODY_LIMIT = 1_000_000  # characters of host text indexed per location
+
+
+def searchable_body(doc: D.Document) -> str:
+    """Host text outside the envelope, truncated to ``SEARCH_BODY_LIMIT``; empty for non-UTF-8 sidecar hosts."""
+    if doc.is_sidecar:
+        try:
+            text = (doc.host_bytes or b"").decode("utf-8-sig")
+        except UnicodeDecodeError:
+            return ""
+    else:
+        text = "\n".join(doc.body_lines())
+    return text[:SEARCH_BODY_LIMIT]
+
+
+def fts_query(words: str) -> str:
+    """Plain search words as an FTS5 query: every word is required and ``word*`` matches a prefix."""
+    terms = []
+    for word in words.split():
+        core = word.rstrip("*")
+        if core:
+            terms.append('"' + core.replace('"', '""') + '"' + ("*" if word.endswith("*") else ""))
+    return " ".join(terms)
+
+
 # --------------------------------------------------------------------------- globs
 
 
@@ -141,6 +168,7 @@ class Store:
         self.conn = conn
         self.path = path
         self.actor = actor
+        self.search = False  # set by _ensure_search when the FTS5 index exists
 
     # ------------------------------------------------------------- lifecycle
     @classmethod
@@ -165,12 +193,41 @@ class Store:
         version = self.conn.execute("PRAGMA user_version").fetchone()[0]
         if version > DB_USER_VERSION:
             raise _io_error(f"registry schema version {version} is newer than this tool ({DB_USER_VERSION})")
-        if version == DB_USER_VERSION:
+        if version < DB_USER_VERSION:
+            ddl = resources.files("somnus.db").joinpath("schema.sql").read_text(encoding="utf-8")
+            self.conn.executescript(ddl)
+            self.conn.execute(f"PRAGMA user_version = {DB_USER_VERSION}")
+            self.conn.commit()
+        self._ensure_search()
+
+    def _ensure_search(self) -> None:
+        # Builds of SQLite without FTS5 still get a working registry; only `q --text` is unavailable.
+        ddl = resources.files("somnus.db").joinpath("search.sql").read_text(encoding="utf-8")
+        try:
+            self.conn.executescript(ddl)
+        except sqlite3.OperationalError as exc:
+            if "fts5" not in str(exc).lower():
+                raise
+            self.search = False
             return
-        ddl = resources.files("somnus.db").joinpath("schema.sql").read_text(encoding="utf-8")
-        self.conn.executescript(ddl)
-        self.conn.execute(f"PRAGMA user_version = {DB_USER_VERSION}")
-        self.conn.commit()
+        self.search = True
+
+    def _search_current(self, loc_id: int) -> bool:
+        """True when the location's full-text row exists (or no index is available to fill)."""
+        if not self.search:
+            return True
+        return self.conn.execute("SELECT 1 FROM search WHERE rowid = ?", (loc_id,)).fetchone() is not None
+
+    def _index_text(self, loc_id: int, path_text: str, doc: D.Document, somnus: dict) -> None:
+        """Replace the location's full-text row with the file as observed now."""
+        if not self.search:
+            return
+        self.conn.execute("DELETE FROM search WHERE rowid = ?", (loc_id,))
+        self.conn.execute(
+            "INSERT INTO search (rowid, path, title, summary, tags, body) VALUES (?, ?, ?, ?, ?, ?)",
+            (loc_id, path_text, somnus["title"], somnus.get("summary", ""),
+             " ".join(somnus["classification"].get("tags", [])), searchable_body(doc)),
+        )
 
     def close(self) -> None:
         """Commit pending work and close the connection."""
@@ -337,10 +394,11 @@ class Store:
             report.invalid += 1
             return host_rel
         loc = self.conn.execute(
-            "SELECT present, file_mtime, file_size FROM locations WHERE root_id = ? AND rel_path = ?",
+            "SELECT id, present, file_mtime, file_size FROM locations WHERE root_id = ? AND rel_path = ?",
             (root_id, host_rel),
         ).fetchone()
-        if not full and loc is not None and loc[0] == 1 and loc[1] == mtime and loc[2] == size:
+        if (not full and loc is not None and loc[1] == 1 and loc[2] == mtime and loc[3] == size
+                and self._search_current(loc[0])):
             report.unchanged += 1
             return host_rel
         try:
@@ -436,13 +494,16 @@ class Store:
         ).fetchone()
         carrier = doc.carrier.name
         if loc is None:
-            self.conn.execute(
+            cur = self.conn.execute(
                 "INSERT INTO locations (root_id, rel_path, artifact_id, revision, carrier, file_mtime, file_size,"
                 " payload_digest, body_digest, present, first_seen_at, last_seen_at)"
                 " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)",
                 (root_id, rel_path, aid, rev, carrier, mtime, size, pd, bd, now, now),
             )
+            loc_id = cur.lastrowid
+            assert loc_id is not None  # sqlite3 assigns lastrowid on INSERT
         else:
+            loc_id = loc[0]
             if loc[1] != aid:
                 self._open_conflict(report, "identity", path_text, aid, rev, path_text,
                                     f"path previously held {loc[1]}; now holds {aid}")
@@ -451,6 +512,7 @@ class Store:
                 " payload_digest = ?, body_digest = ?, present = 1, last_seen_at = ? WHERE id = ?",
                 (aid, rev, carrier, mtime, size, pd, bd, now, loc[0]),
             )
+        self._index_text(loc_id, path_text, doc, somnus)
 
     def _materialize(self, aid: str, rev: int, somnus: dict) -> None:
         """Write trusted knowledge rows for a new revision (extensions never feed these tables)."""
@@ -494,6 +556,8 @@ class Store:
                 continue
             path_text = _join(root.as_posix(), rel_path)
             self.conn.execute("UPDATE locations SET present = 0 WHERE id = ?", (loc_id,))
+            if self.search:
+                self.conn.execute("DELETE FROM search WHERE rowid = ?", (loc_id,))
             self.log("missing", aid, rev, path_text, "not observed during scan")
             report.missing += 1
             stale = self.conn.execute(

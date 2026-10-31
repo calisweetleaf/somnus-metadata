@@ -376,5 +376,34 @@ class TestSet(CliCase):
         compile(text, str(tool), "exec")
 
 
+class TestSearch(CliCase):
+    def test_text_search_over_markdown_and_sidecar_hosts(self) -> None:
+        self.init()
+        doc = Path(self.ok("new", "specification", "Search Doc", "--dir", str(self.ws)).strip())
+        with doc.open("a", encoding="utf-8") as fh:
+            fh.write("\nThe quokka ledger lives here.\n")
+        self.ok("bump", str(doc), "--reason", "body text")
+        notes = self.write("notes.json", '{"animal": "quokka", "color": "teal"}\n')
+        self.ok("stamp", str(notes), "--write")
+        self.ok("index")
+        out = self.ok("q", "--text", "quokka", "--tsv")
+        rows = [line.split("\t") for line in out.strip().splitlines()]
+        self.assertEqual(rows[0], ["id", "title", "type", "status", "path", "excerpt"])
+        self.assertEqual(sorted(Path(r[4]).name for r in rows[1:]), sorted(["notes.json", doc.name]))
+        self.assertIn("[quokka]", out)
+        self.assertEqual(len(self.ok("q", "--text", "quok*", "--tsv").strip().splitlines()), 3)
+        self.assertEqual(len(self.ok("q", "--text", "quokka teal", "--tsv").strip().splitlines()), 2)
+
+    def test_usage_errors(self) -> None:
+        self.init()
+        self.assertEqual(self.cli("q", "--text", "  ")[0], 2)
+        self.assertEqual(self.cli("q", "SELECT 1", "--text", "quokka")[0], 2)
+        with self.db() as conn:
+            conn.execute("DROP TABLE search")
+        code, out, err = self.cli("q", "--text", "quokka")
+        self.assertEqual(code, 2)
+        self.assertIn("no full-text index", out + err)
+
+
 if __name__ == "__main__":
     unittest.main()

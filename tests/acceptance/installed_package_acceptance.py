@@ -294,7 +294,7 @@ def phase_install(inst: Installed) -> None:
     rec = inst.rec
     proc = subprocess.run([str(inst.somnus), "--version"], capture_output=True, text=True,
                           timeout=CHECK_TIMEOUT)
-    rec.record("install: somnus --version", "pass" if proc.returncode == 0 and proc.stdout.strip() == "somnus 2.0.0" else "fail",
+    rec.record("install: somnus --version", "pass" if proc.returncode == 0 and proc.stdout.strip() == "somnus 2.1.0" else "fail",
                proc.stdout.strip() or proc.stderr.strip())
     probe = subprocess.run([str(inst.python), "-c", "import somnus; print(somnus.__file__)"],
                            capture_output=True, text=True, timeout=CHECK_TIMEOUT)

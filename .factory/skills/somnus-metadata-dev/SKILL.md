@@ -15,7 +15,7 @@ Consult `filetree.md` before deep directory traversal. Authority flows strictly 
 | --- | --- |
 | `AGENTS.md` | Repository operating rules, verification gate, and environment constraints. |
 | `SPEC.md` | Single normative contract (`somnus://metadata/core/2.0.0`). Implementation disagreements are code defects; contract changes require an explicit decision and version update under `SPEC.md` §23. |
-| `DECISIONS.md` | Ratified architecture decisions D1–D18. Never silently revise a decision; add a new ratified decision and bump revision (`somnus bump`). |
+| `DECISIONS.md` | Ratified architecture decisions D1–D19. Never silently revise a decision; add a new ratified decision and bump revision (`somnus bump`). |
 | `PLAN.md` | Current delivery state and maintenance handoff (non-normative). |
 | `filetree.md` | Spatial and dependency navigation map for the checkout. |
 | `CONTRIBUTING.md` | Observed naming rules (`E_*`/`W_*`, `_RE`/`_PATTERN`, command `run(args, ctx)`), PR checklist, and 7-day minimum release age policy. |
@@ -62,7 +62,7 @@ python -m somnus.cli check SPEC.md DECISIONS.md --level semantic
 - `src/somnus/yamlsub.py`: Restricted YAML parser and canonical serializer (D7). Double-quoted strings; no anchors, aliases, tags, nulls, duplicate keys, or implicit typing.
 - `src/somnus/carriers/`: Carrier protocol (`__init__.py`), Markdown frontmatter/HTML comment (`markdown.py`), `#`/`%`/`//`/`--` line comments (`linecomment.py`), CSS/XML block comments (`blockcomment.py`), and `<file>.somnus.yaml` sidecars (`sidecar.py`).
 - `src/somnus/document.py`: `Document` loader, `_verify_preserved` (`E_HOST` guard), and `atomic_write` (same-dir tempfile + `fsync` + `os.replace`).
-- `src/somnus/db/`: SQLite DDL (`schema.sql`, `DB_USER_VERSION = 1`) and `Store` (`store.py`). Zero JSON stored (D4).
+- `src/somnus/db/`: SQLite DDL (`schema.sql`, FTS5 `search.sql`, `DB_USER_VERSION = 2`) and `Store` (`store.py`). Zero JSON stored (D4).
 - `src/somnus/commands/` & `src/somnus/cli.py`: CLI surface (`init`, `new`, `stamp`, `check`, `index`, `q`, `ls`, `status`, `bump`, `set`, `fork`, `regions`, `migrate`, `stale`, `schema`, `brief`, `edit`, `mcp`). `_MODULES = {"q": "query", "set": "set_fields"}`.
 - `src/somnus/tui/`: Terminal UI (`app.py`, `term.py`, `widgets.py`) and shared editable field model (`form.py`, shared with `commands/set_fields.py` per D16).
 - `src/somnus/mcp.py`: Newline-delimited stdio JSON-RPC 2.0 MCP server (D17); exposes all CLI commands except `edit` and `mcp` as closed-schema tools and runs each via subprocess returning text/TSV output.

@@ -4,6 +4,31 @@ Updated 2026-10-23 (America/Chicago). Operational handoff, not normative source.
 SPEC.md owns the contract; DECISIONS.md records ratified rationale. Source and
 execution establish implementation and exercised behavior respectively.
 
+## Full-text search — D19, package 2.1.0 (2026-10-31)
+
+Registry schema 2 adds the derived FTS5 `search` index (SPEC §18.4, D19);
+`somnus q --text WORDS` searches managed file content, including UTF-8 sidecar
+hosts. Core schema stays 2.0.0. The package becomes 2.1.0 because tools that
+know only registry schema 1 refuse a schema-2 registry. Not yet built for or
+uploaded to PyPI; PyPI still serves 2.0.0.
+
+| File | Change |
+| --- | --- |
+| `src/somnus/db/search.sql` (new), `schema.sql`, `store.py` | FTS5 DDL; rows written on index, deleted on disappearance, backfilled when missing; FTS5-less SQLite degrades to no `search` table |
+| `src/somnus/commands/query.py`, `cli.py`, `brief.py` | `q --text` (plain words, `word*` prefix, BM25 ranking, excerpt column) |
+| `SPEC.md` r6, `DECISIONS.md` r5 | §18.1/§18.2/§18.4/§20; D19 plus the missing D18 summary row (revisions via `somnus bump`, temporary `SOMNUS_HOME`) |
+| `tests/test_store.py`, `tests/test_commands.py` | +8 tests: indexing, refresh, removal, backfill, v1 migration, sidecar text, query quoting, CLI errors |
+
+Evidence: 484 tests OK; semantic check 0/0; mypy clean (49 files); built 2.1.0
+wheel contains `search.sql`; installed acceptance 60/60
+(`/tmp/somnus-acceptance-prdh_nh1/runs/20261031T220214Z`). Doctor rescan NOT RUN.
+`DECISIONS.md` working copy is CRLF (index LF via `.gitattributes`); left as found.
+Only files with a Somnus envelope or sidecar are indexed; adopt others with `somnus stamp`.
+
+Next: HTTP transport is not required for ChatGPT. OpenAI Secure MCP Tunnel
+(`tunnel-client --mcp-command "somnus mcp"`) reaches a local stdio server
+outbound-only; plan eligibility for ChatGPT custom MCP on Plus is unverified.
+Then the npm installer (Droid, Codex, Antigravity).
 ## Version correction — Somnus Metadata 2.0.0
 
 The operator corrected the release identity: this completed system is version 2.

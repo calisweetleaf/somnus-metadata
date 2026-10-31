@@ -2,8 +2,8 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a12ac7-1fd7-7079-a78f-7426391f187d"
-  revision: 4
-  title: "Somnus Metadata Ratified Decisions D1-D18"
+  revision: 5
+  title: "Somnus Metadata Ratified Decisions D1-D19"
   summary: "Ratified architecture decisions governing SPEC.md and the somnus toolkit."
   classification:
     category: "governance"
@@ -20,7 +20,7 @@ somnus:
         aspects: ["content", "governance"]
   time:
     created_at: "2026-10-11T11:44:15+00:00"
-    updated_at: "2026-10-24T04:13:17+00:00"
+    updated_at: "2026-10-31T22:01:36+00:00"
   names:
     slug: "somnus-metadata-decisions"
   knowledge:
@@ -34,7 +34,7 @@ somnus:
     body_role: "narrative"
 ---
 
-# Somnus Metadata — Ratified Decisions D1–D18
+# Somnus Metadata — Ratified Decisions D1–D19
 
 These decisions govern [SPEC.md](SPEC.md) and the `somnus` toolkit in `src/somnus/`.
 The operator ratified D1–D15 by approving the implementation plan ([PLAN.md](PLAN.md)),
@@ -64,6 +64,8 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 | D15 | Dead-code isolation in `archive/` | new | §1 |
 | D16 | Non-interactive header edits with `somnus set` | new | §20 |
 | D17 | MCP server as a thin CLI adapter | new | §20 |
+| D18 | Near-duplicate titles are a registry advisory, not a warning code | new | §19.2 |
+| D19 | Full-text search as a derived registry index | new | §18.4, §20 |
 
 ---
 
@@ -317,6 +319,35 @@ consequences. SPEC section numbers are cited where the decision is enforced.
   `somnus://metadata/core/2.0.0`. `W_DUPLICATE_TITLE` was never emitted, so no
   consumer could depend on it. Document revisions advance through `somnus bump`.
 
+## D19 — Full-text search as a derived registry index
+
+- **Status:** ACCEPTED (applies D4)
+- **Context:** The registry indexed identity, revisions, relations, claims, and
+  conflicts, but not what managed files say. Agents and operators could find a
+  document by title, tag, or path, but not by a phrase in its body. Every carrier,
+  including sidecars for arbitrary file types, already passes through one indexing
+  path, so the content is in hand at index time.
+- **Alternatives:** (A) No content search; use external tools such as `grep`. (B) A
+  separate search store beside the registry. (C) An SQLite FTS5 table inside the
+  registry, filled by `somnus index` and queried by `somnus q --text`.
+- **Decision:** (C). The `search` table holds one row per present location (rowid
+  = `locations.id`) with `path`, `title`, `summary`, `tags`, and `body`. The body is
+  the host text outside the envelope. For a sidecar it is the host file when that
+  decodes as UTF-8, and empty otherwise. At most 1,000,000 characters are indexed
+  per location. Rows are written whenever a location is indexed, deleted when it is
+  no longer observed, and backfilled by an incremental scan when missing. `somnus q
+  --text WORDS` requires every word, accepts `word*` as a prefix, ranks by BM25 with
+  title weighted above summary, tags, path, and body, and prints aligned text or TSV
+  with a short excerpt. The registry schema version becomes 2. An SQLite build
+  without FTS5 keeps a working registry; only `--text` reports that the index is
+  unavailable.
+- **Consequences:** The index is derived from files on disk and is never a source
+  of truth; `somnus index --full` rebuilds it. It stores plain text, so D4 holds.
+  The registry grows roughly with indexed text. A registry written by schema 2 is
+  refused by tools that know only schema 1, so the package release becomes 2.1.0.
+  This is an optional feature under §23. The core schema URI stays
+  `somnus://metadata/core/2.0.0` because no artifact field changes.
+
 ---
 
 ## Ratification tracker
@@ -326,6 +357,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 | D1–D15 | ACCEPTED | Operator approval of PLAN.md implementation plan (2026-10-11) |
 | D16–D17 | ACCEPTED | Operator selection during the agent-usability review (2026-10-11) |
 | D18 | ACCEPTED | Operator decision on the completion commission (2026-10-23) |
+| D19 | ACCEPTED | Operator direction to add content search to the registry (2026-10-31) |
 
 Changing a decision requires a new revision of this document (`somnus bump`) and a
 matching SPEC release under §23.

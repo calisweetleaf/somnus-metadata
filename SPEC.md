@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a12a94-8657-715c-9044-852de0e3f08a"
-  revision: 5
+  revision: 6
   title: "Somnus Metadata System: Normative Specification"
   summary: "The single normative contract for Somnus artifact metadata, carriers, regions, validation, and the global registry."
   classification:
@@ -20,7 +20,7 @@ somnus:
         aspects: ["content", "semantic-model", "ingestion"]
   time:
     created_at: "2026-10-11T10:48:59+00:00"
-    updated_at: "2026-10-24T04:18:31+00:00"
+    updated_at: "2026-10-31T22:01:36+00:00"
     authored_on: "2026-10-11"
   knowledge:
     coverage: "artifact"
@@ -42,7 +42,7 @@ somnus:
 
 **Schema release:** `somnus://metadata/core/2.0.0`
 **Reference implementation:** the `somnus` Python package in `src/somnus/`
-**Decisions:** [DECISIONS.md](DECISIONS.md) (D1–D18)
+**Decisions:** [DECISIONS.md](DECISIONS.md) (D1–D19)
 
 This document is the only normative statement of the Somnus metadata standard.
 It merges the semantic model of the v2 proposal
@@ -716,7 +716,7 @@ The registry is one SQLite database at `$SOMNUS_HOME/somnus.db` (default
   restricted YAML text. Every column is a plain value, and all names are
   plain English.
 - WAL journaling, foreign keys on, and `PRAGMA user_version` tracking schema
-  migrations. Current version: **1**.
+  migrations. Current version: **2** (schema 1 plus the `search` index).
 - `somnus q` opens the database read-only (`mode=ro`, `query_only`).
 - Every mutating tool action appends one row to `events`. Events are never
   updated or deleted by the tool.
@@ -735,6 +735,7 @@ The authoritative DDL ships as `src/somnus/db/schema.sql`. Tables:
 | `regions`, `relations`, `entities`, `claims` | Knowledge records per revision |
 | `conflicts` | `revision`, `duplicate-id`, `authority`, `identity` conflicts with open/resolved state |
 | `events` | Append-only ledger (`at`, `actor`, `action`, `artifact_id`, `revision`, `path`, `detail`) |
+| `search` | Derived full-text index of present locations (Section 18.4); DDL in `src/somnus/db/search.sql` |
 
 Views: `docs` (present artifacts with path), `open_conflicts`, `history`
 (events, newest first).
@@ -763,6 +764,30 @@ Views: `docs` (present artifacts with path), `open_conflicts`, `history`
   This is never a tombstone or a deletion.
 - `urn:somnus:example:*` artifacts are not indexed.
 
+### 18.4 Full-text search (D19)
+
+The `search` table is an SQLite FTS5 index derived from managed files. Its DDL
+ships as `src/somnus/db/search.sql`, with the Porter stemmer over `unicode61`
+tokens.
+
+- **Rows.** One row per present location; the rowid is `locations.id`. Columns
+  are `path`, `title`, `summary`, `tags` (space-separated), and `body`.
+- **Body.** The host text outside the envelope. For a sidecar, the body is the
+  host file when it decodes as UTF-8 (a BOM is dropped) and empty otherwise. At
+  most 1,000,000 characters are indexed per location.
+- **Maintenance.** Indexing a location replaces its row from the file as observed.
+  A location marked `present = 0` loses its row. An incremental scan re-reads an
+  unchanged file whose row is missing, so a registry upgraded from schema 1 fills
+  the index on its next `somnus index`.
+- **Derived state.** The index is never a source of truth and never feeds
+  validation, conflicts, or the event ledger. `somnus index --full` rebuilds it.
+- **Query.** `somnus q --text WORDS` requires every word, treats a trailing `*` as
+  a prefix, and ranks by BM25 with column weights path 2, title 10, summary 5,
+  tags 5, body 1. It prints `id`, `title`, `type`, `status`, `path`, and an
+  `excerpt` with matches in brackets. Raw FTS5 syntax remains available through
+  `somnus q` SQL with `MATCH`.
+- **Availability.** When SQLite lacks FTS5, the registry works without the table
+  and `q --text` fails with a usage error `[E_IO]`.
 ## 19. Validation pipeline (D5, D14)
 
 ### 19.1 Levels
@@ -831,7 +856,7 @@ operations, or conflicts. `2` means usage, I/O, or environment errors.
 | `stamp PATH… [--write] [--type] [--title]` | Infer and inject a header into an unmanaged file; dry-run diff unless `--write` |
 | `check [PATH…] [--all] [--level L]` | Run the pipeline and print diagnostics |
 | `index [ROOT…] [--full]` | Reconcile roots into the registry |
-| `q [SQL] [--docs\|--conflicts\|--history\|--tables] [--limit N]` | Read-only queries in aligned text or TSV |
+| `q [SQL] [--docs\|--conflicts\|--history\|--tables\|--text WORDS] [--limit N]` | Read-only queries in aligned text or TSV; `--text` is full-text search (Section 18.4) |
 | `ls [--type] [--status] [--standing] [--tag] [--path-contains]` | List present artifacts |
 | `status PATH NEW_STATUS [--reason] [--replacement REF]…` | Validated lifecycle transition (new revision) |
 | `bump PATH [--reason]` | New revision; resolves revision conflicts |

@@ -18,7 +18,7 @@
 ## 1. Authority and Normative Boundaries
 
 - **`SPEC.md` is normative.** If implementation and `SPEC.md` disagree, treat the discrepancy as an implementation defect. Do not alter the normative contract without an explicit ratified decision and a version update under `SPEC.md` §23.
-- **`DECISIONS.md` records ratified rationale D1–D18.** Never silently revise an existing decision; material changes require adding a new ratified decision record and bumping the document revision (`somnus bump`).
+- **`DECISIONS.md` records ratified rationale D1–D19.** Never silently revise an existing decision; material changes require adding a new ratified decision record and bumping the document revision (`somnus bump`).
 - **`tests/test_conformance.py` is the executable 21-fixture acceptance suite** corresponding to `SPEC.md` §21.
 - **`Somnus Markdown Metadata Standard Research.md` is frozen historical evidence** and must never be modified or overwritten.
 - **`archive/` is historical and non-normative (D15).** Code under `src/` must never import from `archive/`.

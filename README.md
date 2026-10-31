@@ -5,7 +5,8 @@ The Somnus metadata standard (core `somnus://metadata/core/2.0.0`) and its stdli
 Every managed file carries exactly one `somnus:` header. Markdown files use frontmatter or a hidden
 comment envelope. Code and config files use a comment envelope. All other files use a
 `<file>.somnus.yaml` sidecar. A global SQLite registry (`~/.somnus/somnus.db`) indexes identity,
-revisions, relations, claims, and conflicts. It contains no JSON.
+revisions, relations, claims, conflicts, and a full-text index of managed file content. It contains
+no JSON.
 
 - Normative specification: [SPEC.md](SPEC.md)
 - Ratified decisions: [DECISIONS.md](DECISIONS.md)
@@ -31,7 +32,7 @@ For development from a source checkout, use `uv tool install --editable .`.
 The installed tool works outside this repository; register the project roots you
 want to manage with `somnus init --root /path/to/project`.
 
-Somnus Metadata **2.0.0** implements metadata core **2.0.0**.
+Somnus Metadata **2.1.0** implements metadata core **2.0.0**.
 The material under `archive/v2-proposal/` is historical, not the active release.
 The CLI, terminal UI and stdio MCP adapter share one backend. A distributable
 coding-agent plugin is not included in this release.
@@ -46,6 +47,7 @@ somnus stamp notes.py                # dry-run diff; add --write to apply
 somnus index                         # reconcile roots into the registry
 somnus ls
 somnus q --conflicts
+somnus q --text "host bytes"         # full-text search; every word must match
 somnus set my-spec.md "classification.tags=memory, design"   # header edit, new revision
 somnus edit                          # terminal UI
 ```

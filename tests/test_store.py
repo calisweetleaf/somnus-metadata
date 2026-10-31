@@ -11,7 +11,8 @@ from pathlib import Path
 from somnus import DB_USER_VERSION
 from somnus import document as D
 from somnus.db import Store, connect_readonly, glob_regex, matches_any, run_query
-from somnus.db.store import intervals_overlap
+from somnus.carriers.sidecar import SIDECAR
+from somnus.db.store import SEARCH_BODY_LIMIT, fts_query, intervals_overlap, searchable_body
 
 REPO = Path(__file__).resolve().parents[1]
 SPEC = REPO / "SPEC.md"
@@ -165,6 +166,70 @@ class TestIndexing(StoreTestCase):
 
     def _aid(self) -> str:
         return self.store.conn.execute("SELECT id FROM artifacts").fetchone()[0]
+
+
+class TestSearchIndex(StoreTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        shutil.copy(SPEC, self.root / "spec.md")
+
+    def search(self, words: str) -> list[str]:
+        sql = ("SELECT l.rel_path FROM search JOIN locations l ON l.id = search.rowid"
+               " WHERE search MATCH ? ORDER BY l.rel_path")
+        return [r[0] for r in self.store.conn.execute(sql, (fts_query(words),))]
+
+    def test_title_and_body_are_searchable(self) -> None:
+        self.store.scan([self.root])
+        self.assertTrue(self.store.search)
+        self.assertEqual(self.search("normative specification"), ["spec.md"])
+        self.assertEqual(self.search("restricted yaml subset"), ["spec.md"])
+        self.assertEqual(self.search("zebraquokka"), [])
+
+    def test_changed_file_refreshes_and_missing_file_leaves_index(self) -> None:
+        self.store.scan([self.root])
+        with (self.root / "spec.md").open("a", encoding="utf-8") as fh:
+            fh.write("\nzebraquokka\n")
+        self.store.scan([self.root])
+        self.assertEqual(self.search("zebraquokka"), ["spec.md"])
+        (self.root / "spec.md").unlink()
+        self.store.scan([self.root])
+        self.assertEqual(self.search("zebraquokka"), [])
+        self.assertEqual(self.count("SELECT count(*) FROM search"), 0)
+
+    def test_unchanged_file_is_skipped_but_missing_row_is_backfilled(self) -> None:
+        self.store.scan([self.root])
+        self.assertEqual(self.store.scan([self.root]).unchanged, 1)
+        self.store.conn.execute("DELETE FROM search")
+        self.store.conn.commit()
+        report = self.store.scan([self.root])
+        self.assertEqual((report.indexed, report.new_revisions), (1, 0))
+        self.assertEqual(self.search("normative"), ["spec.md"])
+
+    def test_version_1_registry_migrates(self) -> None:
+        self.store.close()
+        conn = sqlite3.connect(self.db)
+        conn.execute("DROP TABLE search")
+        conn.execute("PRAGMA user_version = 1")
+        conn.commit()
+        conn.close()
+        self.store = Store.open(self.db, actor="test")
+        self.assertEqual(self.count("PRAGMA user_version"), DB_USER_VERSION)
+        self.assertEqual(self.count("SELECT count(*) FROM sqlite_master WHERE name = 'search'"), 1)
+
+    def test_sidecar_host_text(self) -> None:
+        def body(host: bytes) -> str:
+            doc = D.Document(Path("a.bin"), Path("a.bin.somnus.yaml"), SIDECAR, [], [], False, host_bytes=host)
+            return searchable_body(doc)
+        self.assertEqual(body(b"\xef\xbb\xbfhello"), "hello")
+        self.assertEqual(body(b"\xff\xfe\x00binary"), "")
+        self.assertEqual(len(body(b"x" * (SEARCH_BODY_LIMIT + 10))), SEARCH_BODY_LIMIT)
+
+
+class TestFtsQuery(unittest.TestCase):
+    def test_words_are_quoted_and_required(self) -> None:
+        self.assertEqual(fts_query("host  bytes"), '"host" "bytes"')
+        self.assertEqual(fts_query('pre* "x" a-b'), '"pre"* """x""" "a-b"')
+        self.assertEqual(fts_query(" * ** "), "")
 
 
 class TestHelpers(unittest.TestCase):

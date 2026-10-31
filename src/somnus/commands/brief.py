@@ -37,6 +37,7 @@ Normative contract: `SPEC.md`. Every managed file carries exactly one `somnus:` 
 | Derive a copy | `somnus fork PATH [--title …]` |
 | Upgrade v0.1 | `somnus migrate PATH` then `--write` |
 | Registry | `somnus index`, `somnus ls`, `somnus q --docs\\|--conflicts\\|--history`, `somnus stale` |
+| Search content | `somnus q --text "words to find"` (every word must match; `word*` is a prefix) |
 | Field docs | `somnus schema classification.type` |
 | MCP tools | `somnus mcp` (stdio server; every command above as a tool) |
 

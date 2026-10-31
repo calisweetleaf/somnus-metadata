@@ -67,13 +67,15 @@ def build_parser(commands: Optional[dict[str, argparse.ArgumentParser]] = None) 
     p.add_argument("roots", nargs="*", metavar="ROOT")
     p.add_argument("--full", action="store_true", help="re-read files even when mtime and size are unchanged")
 
-    p = cmd("q", "read-only registry queries")
+    p = cmd("q", "read-only registry queries and full-text search")
     p.add_argument("sql", nargs="?", metavar="SQL")
     shortcut = p.add_mutually_exclusive_group()
     shortcut.add_argument("--docs", action="store_true")
     shortcut.add_argument("--conflicts", action="store_true")
     shortcut.add_argument("--history", action="store_true")
     shortcut.add_argument("--tables", action="store_true")
+    shortcut.add_argument("--text", metavar="WORDS",
+                          help="full-text search of indexed files; every word must match, word* matches a prefix")
     p.add_argument("--limit", type=int, metavar="N")
 
     p = cmd("ls", "list present artifacts")
