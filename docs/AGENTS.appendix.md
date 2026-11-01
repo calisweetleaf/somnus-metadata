@@ -1,6 +1,6 @@
 # Global `AGENTS.md` Appendix for Somnus Metadata
 
-Copy the single fenced Markdown block below and paste it into your global agent instruction file (`~/.factory/AGENTS.md` for Factory Droid, `~/.codex/AGENTS.md` for Codex CLI, or your global Google Antigravity rules).
+Copy the single fenced Markdown block below and paste it into your global agent instruction file (`~/.factory/AGENTS.md` for Factory Droid, `~/.codex/AGENTS.md` for Codex CLI, `~/.config/opencode/AGENTS.md` for OpenCode, or your global Google Antigravity rules).
 
 Why this block is needed: installing `somnus-metadata-plugin` registers the `somnus-metadata` skill and the `somnus-metadata` MCP server in each host, but an agent only activates a skill or calls an MCP tool before writing a new document if its always-on instructions tell it that the global registry exists. This block is kept compact so it fits cleanly inside your always-on prompt budget.
 

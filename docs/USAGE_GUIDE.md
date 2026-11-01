@@ -20,8 +20,8 @@ Somnus Metadata is a local-first metadata standard (`somnus://metadata/core/2.0.
 1. [What Somnus Metadata Is and How It Is Layered](#1-what-somnus-metadata-is-and-how-it-is-layered)
 2. [Installation on Ubuntu / Linux](#2-installation-on-ubuntu--linux)
    - [2.1 Package Name vs. Command Name](#21-package-name-vs-command-name)
-   - [2.2 Primary Install Path (`uv tool install`)](#22-primary-install-path-uv-tool-install)
-   - [2.3 Why Plain `pip install` Fails or Shadows on Ubuntu](#23-why-plain-pip-install-fails-or-shadows-on-ubuntu)
+   - [2.2 Primary Install Path (`pip` in a Virtual Environment)](#22-primary-install-path-pip-in-a-virtual-environment)
+   - [2.3 PEP 668 Refusals and Shadowed Copies](#23-pep-668-refusals-and-shadowed-copies)
    - [2.4 Checking Which Binary Is Running](#24-checking-which-binary-is-running)
    - [2.5 Upgrading and Uninstalling](#25-upgrading-and-uninstalling)
 3. [First-Run Walkthrough (Step by Step)](#3-first-run-walkthrough-step-by-step)
@@ -80,7 +80,8 @@ flowchart LR
     subgraph Adapters["Agent Host Adapters (somnus-metadata-plugin)"]
         DROID["Factory Droid\n(~/.factory/)"]
         CODEX["Codex CLI\n(~/.codex/)"]
-        AGY["Google Antigravity\n(~/.gemini/config/plugins/)"]
+        AGY["Google Antigravity\n(~/.gemini/)"]
+        OC["OpenCode\n(~/.config/opencode/)"]
     end
 
     FILES <--> ENGINE
@@ -91,11 +92,12 @@ flowchart LR
     MCP <--> DROID
     MCP <--> CODEX
     MCP <--> AGY
+    MCP <--> OC
 ```
 
 - **Python Backend (`src/somnus/`)**: Owns all schema validation, carrier placement, host-byte preservation, and SQLite indexing. Has zero third-party runtime dependencies (Python 3.11+ standard library only).
 - **CLI (`somnus`), TUI (`somnus edit`), and MCP Server (`somnus mcp`)**: Thin surfaces over the same backend. `somnus mcp` generates its 16 MCP tool schemas directly from the CLI `argparse` definitions and runs the CLI in a child process for each call, so CLI and MCP behavior can never drift.
-- **Agent Host Plugin (`calisweetleaf/somnus-metadata-plugin`)**: A zero-dependency Node.js installer that copies the `somnus-metadata` agent skill and registers `somnus --actor <host> mcp` in Factory Droid, Codex, and Google Antigravity. It contains no metadata logic; upgrading the Python backend never requires a plugin release.
+- **Agent Host Plugin (`calisweetleaf/somnus-metadata-plugin`)**: A zero-dependency Node.js installer that copies the `somnus-metadata` agent skill and registers `somnus --actor <host> mcp` in Factory Droid, Codex, Google Antigravity, and OpenCode. It contains no metadata logic; upgrading the Python backend never requires a plugin release.
 
 ---
 
@@ -104,89 +106,78 @@ flowchart LR
 ### 2.1 Package Name vs. Command Name
 
 - **Distribution / package name**: `somnus-metadata` (used because an unrelated project already owned the bare name `somnus` on PyPI).
-- **Command name**: `somnus` (primary CLI command and Python import name `somnus`).
-- **Command alias in 2.1.0**: Starting in version **2.1.0** (in the repository checkout), `pyproject.toml` also installs `somnus-metadata` as a console-script alias for `somnus`, so typing either `somnus` or `somnus-metadata` runs the exact same CLI.
-- **Version 2.0.0 vs. 2.1.0**: Public PyPI currently serves **2.0.0**, which exposes **only** the `somnus` command (not the `somnus-metadata` alias) and uses registry schema 1 (no `q --text` full-text search). The repository checkout is at **2.1.0** (registry schema 2 with `q --text` full-text search, agent hints, and the `somnus-metadata` command alias).
+- **Command names**: `somnus` and `somnus-metadata`. Both run the exact same CLI. The Python import name is `somnus`.
+- **Versions**: PyPI serves **2.1.0** (registry schema 2, `q --text` full-text search, agent hints, and the `somnus-metadata` alias). The older 2.0.0 release had only the `somnus` command and registry schema 1, and it cannot open a schema-2 registry.
 
 > **Warning:** Never install the unrelated PyPI package named `somnus` (`pip install somnus`). It is a different project and collides with the `somnus` command and Python module namespace.
 
-### 2.2 Primary Install Path (`uv tool install`)
+### 2.2 Primary Install Path (`pip` in a Virtual Environment)
 
-On Ubuntu and other Linux distributions, install the CLI into an isolated tool environment placed on `~/.local/bin` using `uv`:
-
-**To install 2.1.0 from your local repository checkout (recommended today):**
+Install with plain `pip` into a virtual environment, then put that environment's `bin` directory on `PATH`:
 
 ```sh
-uv tool install --force /home/daeron/Repositories/somnus-metadata
+python3 -m venv ~/.venvs/global                    # once
+~/.venvs/global/bin/pip install -U somnus-metadata
+echo 'export PATH="$HOME/.venvs/global/bin:$PATH"' >> ~/.bashrc
 ```
 
-**To install from PyPI (currently installs 2.0.0 until 2.1.0 is published):**
+`~/.bashrc` only runs for interactive shells. Agent hosts, desktop launchers, and cron jobs often start non-interactive shells that never read it, so also link the commands into `~/.local/bin`, which Ubuntu's `~/.profile` puts on `PATH` for every login:
 
 ```sh
-uv tool install somnus-metadata
+mkdir -p ~/.local/bin
+ln -sf ~/.venvs/global/bin/somnus ~/.local/bin/somnus
+ln -sf ~/.venvs/global/bin/somnus-metadata ~/.local/bin/somnus-metadata
 ```
 
-If you do not use `uv`, `pipx` provides the same isolated tool installation:
+To install from a source checkout instead of PyPI, pass the path: `pip install -U /home/daeron/Repositories/somnus-metadata` (add `-e` for an editable development install).
 
-```sh
-pipx install /home/daeron/Repositories/somnus-metadata
-```
+`uv tool install somnus-metadata` and `pipx install somnus-metadata` also work. Pick one method and keep a single copy on the machine.
 
-### 2.3 Why Plain `pip install` Fails or Shadows on Ubuntu
+### 2.3 PEP 668 Refusals and Shadowed Copies
 
-On modern Ubuntu systems, two traps occur when running `pip install somnus-metadata`:
+Two problems come up on Ubuntu:
 
-1. **PEP 668 `externally-managed-environment` refusal**: If you run system `/usr/bin/pip install somnus-metadata` outside a virtual environment, Ubuntu refuses the install because `/usr/lib/python3.*/EXTERNALLY-MANAGED` protects system Python packages.
-2. **The Global-Venv / PyPI 2.0.0 Shadow Trap (What Happened Today)**: If your shell startup activates a global default virtual environment (for example `~/.venvs/global/bin` placed ahead of `~/.local/bin` on `PATH`) and you run `pip install somnus-metadata`, `pip` downloads **2.0.0** from PyPI into `~/.venvs/global/bin/somnus`.
-   - Because 2.0.0 did not yet have the `somnus-metadata` alias, running `somnus-metadata` returned `command not found`.
-   - Worse, `~/.venvs/global/bin/somnus` (2.0.0, registry schema 1) shadowed `~/.local/bin/somnus` (2.1.0, registry schema 2). When 2.0.0 tried to open a schema-2 registry created by 2.1.0, it failed with:
-     `error E_IO -: registry schema version 2 is newer than this tool (1)`.
-
-**Rule:** Always install `somnus-metadata` as a user tool via `uv tool install`, and never `pip install somnus-metadata` into a shared virtual environment that sits ahead of `~/.local/bin` on your `PATH`.
+1. **`externally-managed-environment` refusal**: the system `/usr/bin/pip` refuses to install outside a virtual environment, because `/usr/lib/python3.*/EXTERNALLY-MANAGED` protects system Python packages (PEP 668). Use a virtual environment as shown above.
+2. **A shadowed older copy**: if two installs exist (for example a `pip` copy in `~/.venvs/global/bin` and a `uv tool` copy in `~/.local/bin`), whichever comes first on `PATH` wins. If that copy is older than the registry it opens, it fails with:
+   `error E_IO -: registry schema version 2 is newer than this tool (1)`.
+   Remove the extra copy so only one install remains.
 
 ### 2.4 Checking Which Binary Is Running
 
-Run `which -a` and `--version` to confirm that `~/.local/bin/somnus` (2.1.0) is first on your `PATH` and no older copy shadows it:
-
 ```sh
 $ which -a somnus somnus-metadata
+/home/daeron/.venvs/global/bin/somnus
 /home/daeron/.local/bin/somnus
+/home/daeron/.venvs/global/bin/somnus-metadata
 /home/daeron/.local/bin/somnus-metadata
+
+$ readlink -f ~/.local/bin/somnus
+/home/daeron/.venvs/global/bin/somnus
 
 $ somnus --version
 somnus 2.1.0
-
-$ somnus-metadata --version
-somnus 2.1.0
-
-$ uv tool list
-somnus-metadata v2.1.0
-- somnus
-- somnus-metadata
 ```
 
-If `which -a somnus` shows a second path (such as `~/.venvs/global/bin/somnus`), remove the shadowing copy from that virtual environment:
-
-```sh
-~/.venvs/global/bin/pip uninstall somnus-metadata
-hash -r
-```
+Two paths are expected here: the `~/.local/bin` entries are links to the same `pip` install. If `readlink -f` points anywhere else, or `--version` is older than 2.1.0, you have a second install to remove. Run `hash -r` after removing one so the shell forgets the old location.
 
 ### 2.5 Upgrading and Uninstalling
 
 ```sh
-# Upgrade or reinstall from the local 2.1.0 checkout
-uv tool install --force /home/daeron/Repositories/somnus-metadata
+# Upgrade to the newest release on PyPI
+~/.venvs/global/bin/pip install -U somnus-metadata
 
-# Uninstall the CLI tool (leaves ~/.somnus/somnus.db intact)
-uv tool uninstall somnus-metadata
+# Uninstall (leaves ~/.somnus/config.toml and ~/.somnus/somnus.db intact)
+~/.venvs/global/bin/pip uninstall somnus-metadata
+rm -f ~/.local/bin/somnus ~/.local/bin/somnus-metadata
 ```
+
+The agent host entries written by the plugin use an absolute path to `somnus`. After moving the install, re-run `somnus-plugin install --somnus /abs/path/to/somnus`.
 
 ---
 
 ## 3. First-Run Walkthrough (Step by Step)
 
-Every command and output snippet below was executed with `~/.local/bin/somnus` 2.1.0 against an isolated `$SOMNUS_HOME`. By default, `somnus` stores its configuration and SQLite registry in `~/.somnus/` (`~/.somnus/config.toml` and `~/.somnus/somnus.db`). If you want to practice or run throwaway experiments without touching your real `~/.somnus/somnus.db` registry, set `export SOMNUS_HOME=$(mktemp -d)` in that shell first. You can also pass `--actor <name>` before any subcommand (or set `SOMNUS_ACTOR`) so the registry ledger records who performed the action.
+Every command and output snippet below was executed with `somnus` 2.1.0 against an isolated `$SOMNUS_HOME`. By default, `somnus` stores its configuration and SQLite registry in `~/.somnus/` (`~/.somnus/config.toml` and `~/.somnus/somnus.db`). If you want to practice or run throwaway experiments without touching your real `~/.somnus/somnus.db` registry, set `export SOMNUS_HOME=$(mktemp -d)` in that shell first. You can also pass `--actor <name>` before any subcommand (or set `SOMNUS_ACTOR`) so the registry ledger records who performed the action.
 
 ### 3.1 Initialize the Registry and Register a Project Root (`init`)
 
@@ -510,11 +501,11 @@ The **Editor Screen** displays the 10 editable fields at the top (`Title`, `Summ
 
 ### 6.2 The Multi-Host Agent Plugin (`somnus-metadata-plugin`)
 
-The repository `github.com/calisweetleaf/somnus-metadata-plugin` is a **private** GitHub repository that installs the `somnus-metadata` agent skill and registers the `somnus-metadata` MCP server across Factory Droid, OpenAI Codex CLI, and Google Antigravity.
+The repository `github.com/calisweetleaf/somnus-metadata-plugin` is a **private** GitHub repository that installs the `somnus-metadata` agent skill and registers the `somnus-metadata` MCP server in Factory Droid, OpenAI Codex CLI, Google Antigravity, and OpenCode.
 
 **Prerequisites:**
 1. Node.js 18.17+ (`node` and `npx`).
-2. `somnus` 2.1.0+ installed (`~/.local/bin/somnus`).
+2. `somnus` 2.1.0+ installed (`pip install -U somnus-metadata`, see Section 2.2).
 3. Authenticated GitHub access to the private repository `calisweetleaf/somnus-metadata-plugin` (via `gh auth login` or SSH/HTTPS git credentials) when invoking via `npx github:...`, or a local clone at `/home/daeron/Repositories/somnus-metadata-plugin`.
 
 **Commands:**
@@ -526,12 +517,13 @@ npx github:calisweetleaf/somnus-metadata-plugin hosts
 # Preview what install will do without modifying any files
 npx github:calisweetleaf/somnus-metadata-plugin install --dry-run
 
-# Install the skill and MCP server into every detected host (Droid, Codex, Antigravity)
+# Install the skill and MCP server into every detected host (Droid, Codex, Antigravity, OpenCode)
 npx github:calisweetleaf/somnus-metadata-plugin install
 
-# Target specific hosts only, or install/upgrade the Python backend at the same time
+# Target specific hosts, pin the somnus executable, or install/upgrade the backend first
 npx github:calisweetleaf/somnus-metadata-plugin install --host droid,codex
-npx github:calisweetleaf/somnus-metadata-plugin install --install-backend /home/daeron/Repositories/somnus-metadata
+npx github:calisweetleaf/somnus-metadata-plugin install --somnus ~/.venvs/global/bin/somnus
+npx github:calisweetleaf/somnus-metadata-plugin install --install-backend somnus-metadata
 
 # Verify backend version, registry health, skill SHA-256 drift, and live 16-tool MCP handshake per host
 npx github:calisweetleaf/somnus-metadata-plugin doctor
@@ -540,33 +532,40 @@ npx github:calisweetleaf/somnus-metadata-plugin doctor
 npx github:calisweetleaf/somnus-metadata-plugin uninstall
 ```
 
+`--install-backend SRC` runs `pip install --upgrade SRC` first. If `pip` is missing or refuses (PEP 668), it falls back to `uv tool install`, then `pipx install`. `SRC` is a PyPI name or a source checkout path.
+
 If you have the plugin repository cloned locally at `/home/daeron/Repositories/somnus-metadata-plugin`, you can also run `node /home/daeron/Repositories/somnus-metadata-plugin/bin/somnus-plugin.mjs <command>` directly with no network access.
 
-**Sample `doctor` output on a healthy machine:**
+**`doctor` output on this laptop (plugin 1.1.0, 2026-11-01):**
 
 ```text
 ok   backend: /home/daeron/.local/bin/somnus (somnus 2.1.0)
 ok   registry: 5 managed artifact(s) present
-ok   droid: skill 1.0.0 at /home/daeron/.factory/skills/somnus-metadata matches the packaged skill
-ok   droid: MCP '/home/daeron/.local/bin/somnus --actor droid mcp' serves 16 tools (somnus 2.1.0)
-ok   codex: skill 1.0.0 at /home/daeron/.codex/skills/somnus-metadata matches the packaged skill
-ok   codex: MCP '/home/daeron/.local/bin/somnus --actor codex mcp' serves 16 tools (somnus 2.1.0)
-ok   antigravity: skill 1.0.0 at /home/daeron/.gemini/config/plugins/somnus-metadata matches the packaged skill
-ok   antigravity: MCP '/home/daeron/.local/bin/somnus --actor antigravity mcp' serves 16 tools (somnus 2.1.0)
+ok   droid: skill 1.1.0 at /home/daeron/.factory/skills/somnus-metadata matches the packaged skill
+ok   droid: MCP '/home/daeron/.venvs/global/bin/somnus --actor droid mcp' serves 16 tools (somnus 2.1.0)
+ok   codex: skill 1.1.0 at /home/daeron/.codex/skills/custom/somnus-metadata matches the packaged skill
+ok   codex: MCP '/home/daeron/.venvs/global/bin/somnus --actor codex mcp' serves 16 tools (somnus 2.1.0)
+ok   antigravity: skill 1.1.0 at /home/daeron/.gemini/skills/somnus-metadata matches the packaged skill
+ok   antigravity: MCP '/home/daeron/.venvs/global/bin/somnus --actor antigravity mcp' serves 16 tools (somnus 2.1.0)
+ok   opencode: skill 1.1.0 at /home/daeron/.config/opencode/skills/somnus-metadata matches the packaged skill
+ok   opencode: MCP '/home/daeron/.venvs/global/bin/somnus --actor opencode mcp' serves 16 tools (somnus 2.1.0)
 all checks passed
 ```
 
 ### 6.3 What the Plugin Writes per Host
 
-Before modifying any host configuration file, the plugin creates a timestamped backup `<file>.bak-somnus-plugin-<UTC-timestamp>` and marks managed skill directories with `.somnus-plugin.json` (storing `plugin`, `version`, `skillHash`, and `installedAt`).
+Before modifying any host configuration file, the plugin creates a timestamped backup `<file>.bak-somnus-plugin-<UTC-timestamp>` and marks managed skill directories with `.somnus-plugin.json` (storing `plugin`, `version`, `skillHash`, and `installedAt`). Each skill directory holds `SKILL.md` and `references/` (`mcp-tools.md`, `recipes.md`, `setup.md`).
 
 | Agent Host | Skill Location Written | MCP Server Configuration Written | Actor Flag Used |
 | --- | --- | --- | --- |
-| **Factory Droid** | `~/.factory/skills/somnus-metadata/` (`SKILL.md`, `references/recipes.md`, `.somnus-plugin.json`) | `mcpServers["somnus-metadata"]` in `~/.factory/mcp.json` | `--actor droid` |
-| **Codex CLI** | `$CODEX_HOME/skills/somnus-metadata/` (default `~/.codex/skills/somnus-metadata/`) | Managed `# >>> somnus-metadata-plugin` ... `# <<< somnus-metadata-plugin` block in `~/.codex/config.toml` defining `[mcp_servers.somnus-metadata]` | `--actor codex` |
-| **Google Antigravity** | `~/.gemini/config/plugins/somnus-metadata/skills/somnus-metadata/` | `~/.gemini/config/plugins/somnus-metadata/plugin.json` and `mcp_config.json` | `--actor antigravity` |
+| **Factory Droid** | `~/.factory/skills/somnus-metadata/` | `mcpServers["somnus-metadata"]` in `~/.factory/mcp.json` | `--actor droid` |
+| **Codex CLI** | `$CODEX_HOME/skills/custom/somnus-metadata/` (default `~/.codex/skills/custom/somnus-metadata/`) | Managed `# >>> somnus-metadata-plugin` ... `# <<< somnus-metadata-plugin` block in `~/.codex/config.toml` defining `[mcp_servers.somnus-metadata]` | `--actor codex` |
+| **Google Antigravity** | `~/.gemini/skills/somnus-metadata/` | `~/.gemini/config/plugins/somnus-metadata/plugin.json` and `mcp_config.json` | `--actor antigravity` |
+| **OpenCode** | `~/.config/opencode/skills/somnus-metadata/` | `mcp["somnus-metadata"]` (`type: local`, `enabled: true`) in `~/.config/opencode/opencode.jsonc` or `opencode.json` | `--actor opencode` |
 
-**Important:** Restart each running agent host (Droid, Codex, Antigravity) after running `install` or `uninstall` so the host reloads its skill catalog and spawns the MCP server. To make agents check the registry proactively in every session even before a skill is triggered, paste the global snippet from [`docs/AGENTS.appendix.md`](AGENTS.appendix.md) into your global `AGENTS.md`.
+Upgrading from plugin 1.0.0 removes the old Codex skill directory (`~/.codex/skills/somnus-metadata/`) and the old `skills/` copy inside the Antigravity plugin directory, but only when they carry the plugin's marker. An `opencode.jsonc` that contains comments is never rewritten: `install` prints the entry for you to paste into the `mcp` object.
+
+**Important:** Restart each running agent host after running `install` or `uninstall` so it reloads its skill catalog and spawns the MCP server. OpenCode runs a background server; restart it with `opencode service restart`. To make agents check the registry proactively in every session even before a skill is triggered, paste the global snippet from [`docs/AGENTS.appendix.md`](AGENTS.appendix.md) into your global `AGENTS.md`.
 
 ---
 
@@ -651,8 +650,8 @@ Raw public HTTPS tunnels (`cloudflared`, Tailscale Funnel, `ngrok`) were evaluat
 
 | Symptom / Exact Diagnostic | Root Cause | Exact Fix |
 | --- | --- | --- |
-| `somnus-metadata: command not found` or `somnus: command not found` | Either `somnus-metadata` is not installed in `~/.local/bin`, `~/.local/bin` is not on `PATH`, or you installed PyPI `2.0.0` (which only had `somnus`, not the `2.1.0` `somnus-metadata` alias). | Run `uv tool install --force /home/daeron/Repositories/somnus-metadata`, ensure `~/.local/bin` is on `PATH`, and run `hash -r`. Verify with `which -a somnus somnus-metadata`. |
-| `error E_IO -: registry schema version 2 is newer than this tool (1)` | An older `somnus 2.0.0` binary (for example, pip-installed inside `~/.venvs/global/bin/somnus`) is first on `PATH` and trying to open a schema-2 `~/.somnus/somnus.db` created by `somnus 2.1.0`. | Run `which -a somnus`. Uninstall the 2.0.0 copy from the shadowing venv (`~/.venvs/global/bin/pip uninstall somnus-metadata`), then run `hash -r` and confirm `somnus --version` prints `somnus 2.1.0`. |
+| `somnus-metadata: command not found` or `somnus: command not found` | The package is not installed, or its `bin` directory is not on the `PATH` of the shell that ran the command. Non-interactive shells (agent hosts, launchers) do not read `~/.bashrc`. | Run `~/.venvs/global/bin/pip install -U somnus-metadata`, link the commands into `~/.local/bin` (Section 2.2), and run `hash -r`. Verify with `which -a somnus somnus-metadata`. |
+| `error E_IO -: registry schema version 2 is newer than this tool (1)` | An older `somnus 2.0.0` copy is first on `PATH` and is opening a schema-2 `~/.somnus/somnus.db` created by 2.1.0. | Run `which -a somnus` and `readlink -f` on each path. Remove the old copy (`pip uninstall somnus-metadata` in its environment, or `uv tool uninstall somnus-metadata`), then `pip install -U somnus-metadata`, run `hash -r`, and confirm `somnus --version` prints `somnus 2.1.0`. |
 | `error E_IO -: registry /home/.../.somnus/somnus.db does not exist; run 'somnus init'` (or TUI `no registry; run 'somnus init' and 'somnus index'`) | `~/.somnus/somnus.db` has not been created yet in the active `$SOMNUS_HOME`. | Run `somnus init --root /abs/path/to/project` followed by `somnus index`. |
 | `error E_IO -: file not found` on an MCP call, followed by `note: relative path(s) <path> resolve from the server directory <dir>; pass absolute paths` | An agent called an MCP tool (`check`, `stamp`, `set`, `status`, `bump`, ...) with a relative path. The MCP server resolves relative paths against its own working directory. | Always pass **absolute paths** (`/home/.../file.md`) in every MCP tool call. |
 | `error E_IO -: no roots are registered and the fallback /home/daeron is too broad to scan; register a project with 'somnus init --root DIR' or name one: 'somnus index DIR'` | `somnus index` was run with no registered roots in `config.toml` while the fallback directory was `$HOME` or `/`. | Register a specific project directory first: `somnus init --root /abs/path/to/project`, then run `somnus index`. |
@@ -671,10 +670,10 @@ Every item below reflects verified state as of **2026-10-31**:
 
 | Surface / Capability | Current Status | Verification Evidence |
 | --- | --- | --- |
-| **Core Specification & Decisions** | **OPERATIONAL** (`somnus://metadata/core/2.0.0`, `SPEC.md` r9, `DECISIONS.md` r5 D1–D19) | `somnus check SPEC.md DECISIONS.md --level semantic` -> `0 error(s), 0 warning(s)` (exit `0`). |
-| **Python Backend & CLI (`2.1.0` checkout)** | **OPERATIONAL** (`~/.local/bin/somnus` and `~/.local/bin/somnus-metadata` `2.1.0`, registry schema 2 with FTS5 `q --text`) | Unit suite: **534/534 tests pass** (`0 ResourceWarning`, **88.76%** branch+statement coverage); `mypy` clean across **49 source files**; `ruff` clean under the `.pre-commit-config.yaml` rule selection (enforced in CI `hooks and coverage`, not repo-wide default `ruff`); `import-linter` **6/6 architecture contracts kept**; installed-package acceptance harness: **66/66 checks pass** (including `somnus-metadata` alias, PTY TUI, MCP stdio, FTS5 search, conflict recovery). |
+| **Core Specification & Decisions** | **OPERATIONAL** (`somnus://metadata/core/2.0.0`, `SPEC.md` r7, `DECISIONS.md` r5 D1–D19) | `somnus check SPEC.md DECISIONS.md --level semantic` -> `0 error(s), 0 warning(s)` (exit `0`). |
+| **Python Backend & CLI (`2.1.0`)** | **OPERATIONAL** (`pip` install in `~/.venvs/global`, linked into `~/.local/bin`; registry schema 2 with FTS5 `q --text`) | Unit suite: **534/534 tests pass** (`0 ResourceWarning`, **88.76%** branch+statement coverage); `mypy` clean across **49 source files**; `ruff` clean under the `.pre-commit-config.yaml` rule selection (enforced in CI `hooks and coverage`, not repo-wide default `ruff`); `import-linter` **6/6 architecture contracts kept**; installed-package acceptance harness: **66/66 checks pass** (including `somnus-metadata` alias, PTY TUI, MCP stdio, FTS5 search, conflict recovery). |
 | **GitHub CI & CodeQL (`calisweetleaf/somnus-metadata`)** | **OPERATIONAL** | GitHub Actions `CI` (including `installed_package_acceptance.py`), `CodeQL`, and `Droid Wiki Refresh` workflows all passing on `main`. |
-| **Multi-Host Agent Plugin (`calisweetleaf/somnus-metadata-plugin`)** | **OPERATIONAL** (v1.0.0 installed on this laptop for Droid, Codex, and Antigravity) | `npm test` **18/18 unit tests pass** (and 6/6 matrix jobs on GitHub Actions CI); `somnus-plugin doctor` passes all checks (`16 tools` handshake per host, SHA-256 skill-drift check clean); in-host MCP calls verified live in Factory Droid, Codex CLI, and Google Antigravity. |
-| **Public PyPI Distribution (`pypi.org/project/somnus-metadata/`)** | **AT VERSION 2.0.0** (`2.1.0` not yet uploaded) | PyPI currently serves `2.0.0` (verified 60/60 at release). Version `2.1.0` (which adds registry schema 2 FTS5 `q --text`, agent hints, and the `somnus-metadata` console-script alias) is installed locally from the checkout and awaits an authorized PyPI release upload (`runbooks/package-release.md`). |
+| **Multi-Host Agent Plugin (`calisweetleaf/somnus-metadata-plugin`)** | **OPERATIONAL** (v1.1.0 installed on this laptop for Droid, Codex, Antigravity, and OpenCode) | `npm test` **21/21 tests pass**; `somnus-plugin doctor` passes all checks on this laptop (`16 tools` handshake per host, SHA-256 skill-drift check clean). In-host MCP calls were verified live in Factory Droid, Codex CLI, and Google Antigravity with plugin 1.0.0. OpenCode: `opencode debug config` loads the `somnus-metadata` entry; an in-session OpenCode tool call is **NOT RUN**. |
+| **Public PyPI Distribution (`pypi.org/project/somnus-metadata/`)** | **AT VERSION 2.1.0** | `somnus_metadata-2.1.0-py3-none-any.whl` and the sdist were uploaded on 2026-10-31 after the same files passed a clean-venv smoke test (`somnus` and `somnus-metadata --version`, init/stamp/index/`q --text`, MCP `tools/list` = 16). This laptop runs that release from `~/.venvs/global` via `pip`. |
 | **Live Windows OS Console TUI (`kernel32`/`msvcrt`)** | **UNIT-TESTED VIA FAKES ONLY** | `tests/test_term_windows.py` (12 tests, 96% coverage of `src/somnus/tui/term.py`) and plugin `win32` `spawnForm()` unit tests pass on Linux; live execution on a physical Windows console is **NOT RUN**. |
 | **Remote Access Setup (Droid Remote Control / ChatGPT Tunnel)** | **ARCHITECTURE DECIDED; LIVE TUNNEL NOT YET STARTED** | Decision recorded in Section 7: use `droid daemon --remote-control` for Droid web/phone; ChatGPT Plus custom MCP tunnel eligibility requires a 1-step UI check in ChatGPT web (`[UNVERIFIED — CONFIRM BEFORE OPERATIONAL USE]`). |

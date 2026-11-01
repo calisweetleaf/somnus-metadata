@@ -18,23 +18,23 @@ no JSON.
 
 Requires Python 3.11+ and has no third-party dependencies.
 
-On Ubuntu and other Linux distributions, install with `uv tool install` (puts `somnus` on `~/.local/bin` without touching system Python):
+Install from PyPI with `pip` into a virtual environment that is on your `PATH`:
 
 ```sh
-uv tool install --force .            # from this 2.1.0 checkout (recommended until 2.1.0 is on PyPI)
-uv tool install somnus-metadata      # from PyPI (currently serves 2.0.0)
+python3 -m venv ~/.venvs/global
+~/.venvs/global/bin/pip install -U somnus-metadata
 somnus --version
 ```
 
-Alternatively, use `pipx install .` (or `pipx install somnus-metadata`). On PEP 668 Linux distributions (Ubuntu 23.04+), plain `pip install` outside a virtual environment is refused with `externally-managed-environment`, and running `pip install somnus-metadata` inside a shared virtual environment on `PATH` will install PyPI `2.0.0` ahead of `~/.local/bin/somnus`. Verify which binary is active with `which -a somnus` and `somnus --version`.
+On PEP 668 Linux distributions (Ubuntu 23.04+), the system `pip` refuses installs outside a virtual environment with `externally-managed-environment`, so use a venv. `uv tool install somnus-metadata` and `pipx install somnus-metadata` also work; keep only one install so an older copy cannot shadow the newer one. Check with `which -a somnus` and `somnus --version`. The [usage guide](https://github.com/calisweetleaf/somnus-metadata/blob/main/docs/USAGE_GUIDE.md#2-installation-on-ubuntu--linux) covers `PATH` setup for agent hosts.
 
-The PyPI distribution is **somnus-metadata**; the command is **somnus** (in **2.1.0+**, `somnus-metadata` is also installed as a command alias for `somnus`) and the Python import is `somnus`. Do not install the unrelated PyPI distribution named `somnus` into the same environment: it owns the same command and import names.
+The PyPI distribution is **somnus-metadata**; the commands are **somnus** and its alias **somnus-metadata**, and the Python import is `somnus`. Do not install the unrelated PyPI distribution named `somnus` into the same environment: it owns the same command and import names.
 
-For editable development from a source checkout, use `uv tool install --editable .`.
+For editable development from a source checkout, use `pip install -e .` in a virtual environment.
 The installed tool works outside this repository; register the project roots you
 want to manage with `somnus init --root /path/to/project`.
 
-Somnus Metadata **2.1.0** implements metadata core **2.0.0** and registry schema **2** (adding `somnus q --text` full-text search and the `somnus-metadata` command alias; PyPI currently serves **2.0.0** until 2.1.0 is published).
+Somnus Metadata **2.1.0** implements metadata core **2.0.0** and registry schema **2** (adding `somnus q --text` full-text search and the `somnus-metadata` command alias).
 The material under `archive/v2-proposal/` is historical, not the active release.
 The CLI, terminal UI and stdio MCP adapter share one backend. A distributable
 coding-agent plugin is not included in this release.
