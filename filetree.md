@@ -22,10 +22,13 @@ start with [`AGENTS.md`](AGENTS.md); this file is not normative.
 ├── .importlinter                     # 6-contract architecture layer enforcement
 ├── .coveragerc                       # branch + statement coverage configuration (fail_under = 85)
 ├── workflows.md                      # supplied BB7 suggested playbook
-├── docs/references-unrelated-to-codebase/ # user-owned collaboration context, including House fable
+├── docs/
+│   ├── USAGE_GUIDE.md                # step-by-step operator and coding-agent usage guide
+│   ├── AGENTS.appendix.md            # global AGENTS.md snippet for proactive Somnus Metadata use
+│   └── references-unrelated-to-codebase/ # user-owned collaboration context, including House fable
 ├── README.md                         # install and quick start
 ├── filetree.md                       # this navigation map
-├── pyproject.toml                    # stdlib-only package, `somnus` entry point
+├── pyproject.toml                    # stdlib-only package, `somnus` and `somnus-metadata` entry points
 ├── MANIFEST.in                       # minimal release contents; excludes private operator/research artifacts
 ├── runbooks/
 │   ├── registry-recovery.md          # global registry backup, restore, conflict resolution, re-init
@@ -59,7 +62,7 @@ start with [`AGENTS.md`](AGENTS.md); this file is not normative.
 │   ├── test_term_windows.py          # Windows console/key unit tests via kernel32/msvcrt fakes
 │   ├── test_*.py                     # module and CLI behavior suites
 │   └── acceptance/
-│       └── installed_package_acceptance.py # explicit 65-check installed-wheel acceptance (not discovered)
+│       └── installed_package_acceptance.py # explicit 66-check installed-wheel acceptance (not discovered)
 ├── droid-wiki/                       # explanatory wiki; secondary to SPEC/DECISIONS
 │   ├── background/, features/
 │   ├── how-to-contribute/, overview/

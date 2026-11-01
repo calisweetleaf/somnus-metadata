@@ -298,6 +298,11 @@ def phase_install(inst: Installed) -> None:
                           timeout=CHECK_TIMEOUT)
     rec.record("install: somnus --version", "pass" if proc.returncode == 0 and proc.stdout.strip() == "somnus 2.1.0" else "fail",
                proc.stdout.strip() or proc.stderr.strip())
+    alias = subprocess.run([str(inst.somnus.with_name("somnus-metadata")), "--version"], capture_output=True,
+                           text=True, timeout=CHECK_TIMEOUT)
+    rec.record("install: somnus-metadata alias runs the same CLI",
+               "pass" if alias.returncode == 0 and alias.stdout.strip() == "somnus 2.1.0" else "fail",
+               alias.stdout.strip() or alias.stderr.strip())
     probe = subprocess.run([str(inst.python), "-c", "import somnus; print(somnus.__file__)"],
                            capture_output=True, text=True, timeout=CHECK_TIMEOUT)
     path = probe.stdout.strip()

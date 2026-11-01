@@ -18,6 +18,8 @@ Issues = "https://github.com/calisweetleaf/somnus-metadata/issues"
 
 [project.scripts]
 somnus = "somnus.cli:main"
+# Same CLI under the distribution name, for people who type what they installed.
+somnus-metadata = "somnus.cli:main"
 
 [project.optional-dependencies]
 dev = ["mypy>=1.9"]
