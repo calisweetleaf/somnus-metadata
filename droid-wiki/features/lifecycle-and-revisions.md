@@ -1,5 +1,7 @@
 # Lifecycle and revisions
 
+Active contributors: calisweetleaf, Christian
+
 `somnus status` moves an artifact through the SPEC §7 lifecycle state machine, `somnus bump` records a new revision without a status change, and `somnus fork` creates a separate artifact that keeps a `derived_from` link to its parent. All three write a new header revision and validate it before it reaches disk.
 
 ## Purpose

@@ -1,12 +1,14 @@
 # Querying the registry
 
-Active contributors: calisweetleaf
+Active contributors: calisweetleaf, Christian
 
 `somnus index` reconciles files on disk into the global SQLite registry at `$SOMNUS_HOME/somnus.db`, and `somnus q`, `ls`, and `stale` read it back as aligned text or TSV. `somnus q --text` searches indexed metadata and host content with ranked excerpts. `somnus regions` audits one file's region markers, and `somnus check --all` validates every configured root.
 
 ## Purpose
 
 The registry answers questions a single file cannot: which artifacts exist across all roots, where they live now, which revisions were observed, which conflicts are open, and what the tool has done (the append-only `events` ledger). Decision D4 keeps it free of JSON: headers are stored as canonical restricted YAML text and every column is a plain value, so output is text or TSV only.
+
+Toolkit 2.1.0 uses registry schema 2 with a derived FTS5 index; the normative metadata core remains 2.0.0. The runtime stays stdlib-only, with FTS5 availability determined by the Python installation's SQLite build. See [Registry](../systems/registry.md) for schema migration and connection ownership.
 
 ## How it works
 
@@ -48,6 +50,8 @@ somnus index docs --full     # one root, re-read every file
 It prints diagnostics followed by a summary line such as `scanned 42, indexed 3, unchanged 39, new revisions 1, unmanaged 5, examples 0, invalid 0, missing 0, conflicts opened 0, resolved 1`. The exit code is 1 when any error diagnostic appeared or any conflict was opened.
 
 When a visited document has no envelope and no loading issues, `ScanReport.unmanaged_paths` records its absolute host path with forward slashes. After the summary, `index` prints at most 10 such paths, adds `and N more` if necessary, and explains that these files are not searchable. It suggests `somnus stamp PATH` for a preview, then `somnus stamp PATH --write` to adopt. These stderr notes are informational, not warning/error diagnostics; unmanaged files alone do not cause exit 1.
+
+The current operator completion job in `HANDOFF.md` separates root registration, explicit-file adoption, reconciliation, and real agent searches. Its starting snapshot has five indexed artifacts and `roots = []` in global configuration, not a completed corpus. An empty configured list alone does not establish what is in the registry's separate `roots` table. Inspect both surfaces, preserve exclusions, and verify known-topic hits after adoption. Fresh Droid and Codex MCP search evidence remains required; local SQL or a protocol handshake does not replace it. See [Configuration](../reference/configuration.md) and [Agent integration](agent-integration.md).
 
 ### `somnus q`
 
@@ -172,7 +176,13 @@ All tables go through `Ctx.table()` in `src/somnus/commands/_common.py`: aligned
 - New `ls` filters: `Store.list_docs()` in `src/somnus/db/store.py` plus the flag in `src/somnus/cli.py`.
 - New stale findings or thresholds: `_findings()` in `src/somnus/commands/stale.py`.
 - Scan behavior: `Store.scan()` and `ScanReport` in `src/somnus/db/store.py`.
-- Search extraction and literal conversion: `searchable_body()` and `fts_query()` in `src/somnus/db/store.py`; ranking and excerpts: `SEARCH` in `src/somnus/commands/query.py`. Search cases are in `tests/test_store.py` and `tests/test_commands.py`; `TestSearch.test_unquoted_words_and_hints` covers two unquoted words, unmanaged-file notes, and a zero-match success, while `TestBasics.test_index_refuses_home_as_implicit_root` covers fallback refusal. The parent refresh's unittest discovery run passed 486 tests; installed-package acceptance and external MCP-host integration were not rerun.
+- Search extraction and literal conversion: `searchable_body()` and `fts_query()` in `src/somnus/db/store.py`; ranking and excerpts: `SEARCH` in `src/somnus/commands/query.py`. Search cases are in `tests/test_store.py` and `tests/test_commands.py`; `TestSearch.test_unquoted_words_and_hints` covers two unquoted words, unmanaged-file notes, and a zero-match success, while `TestBasics.test_index_refuses_home_as_implicit_root` covers fallback refusal.
+
+## Evidence and limits
+
+`tests/acceptance/installed_package_acceptance.py` now includes `phase_agent_hints`: installed CLI checks for a two-word unquoted FTS search, zero-result adoption guidance, unmanaged-file/stamp hints, and implicit home/broad-root refusal. Its MCP phase separately checks that a failed relative path names the server directory. A zero-result search is distinct from an empty search argument: the former succeeds with guidance, while the latter remains a usage error.
+
+This refresh passed the existing 534-test checkout suite. The latest 2026-10-31 operator evidence in `PLAN.md` separately records 88.76% total branch-plus-statement coverage and 65/65 installed-package acceptance checks across CLI, files, SQLite, MCP, and POSIX PTYs. Coverage, installed acceptance, and host integrations were not rerun here. Real in-host read calls are recorded separately for Droid, Codex, and Antigravity; host write tools remain unexercised. See [Testing](../how-to-contribute/testing.md) and [Agent integration](agent-integration.md) for the distinct acceptance boundaries.
 
 ## Key source files
 
@@ -189,3 +199,5 @@ All tables go through `Ctx.table()` in `src/somnus/commands/_common.py`: aligned
 | `src/somnus/db/search.sql` | FTS5 columns and tokenizer |
 | `src/somnus/cli.py` | Mutually exclusive query modes and search help |
 | `tests/test_commands.py` | Root-fallback refusal, search behavior, and informational hints |
+| `tests/test_store.py` | Search-index maintenance, migration/fallback, and registry failure paths |
+| `tests/acceptance/installed_package_acceptance.py` | Explicit installed CLI search/adoption/root-safety checks and MCP relative-path hint |

@@ -1,5 +1,7 @@
 # Validation
 
+Active contributors: calisweetleaf, Christian
+
 The validator checks one loaded `Document` in four cumulative levels (`carrier`, `core`, `semantic`, `canon`) and returns a list of `Diagnostic` records. It is driven by a declarative schema tree, a set of controlled vocabularies, and a `Resolver` that supplies registry facts for cross-document checks. The same package holds the lifecycle state machine and the JSON Schema exporter.
 
 ## Purpose

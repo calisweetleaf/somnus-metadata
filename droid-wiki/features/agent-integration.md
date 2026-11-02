@@ -14,25 +14,55 @@ Agents working in a Somnus-managed repository need the handful of rules that kee
 | --- | --- | --- |
 | CLI and MCP adapter | `src/somnus/cli.py` and `src/somnus/mcp.py`, installed by the `somnus-metadata` distribution | Executable tooling; MCP projects the same CLI rather than implementing another backend. |
 | Repository instructions | `AGENTS.md`, `.factory/skills/somnus-metadata-dev/SKILL.md`, and `.claude/skills/somnus-metadata-dev/SKILL.md` | Markdown guidance for agents working in this checkout, not executable extensions or proof of host activation. |
-| Private host adapter | Separate [somnus-metadata-plugin](https://github.com/calisweetleaf/somnus-metadata-plugin) repository, recorded in `PLAN.md` at commit `71a6b5b` | Installs a skill and MCP configuration for Droid, Codex, and Antigravity. It is outside this repository and Python distribution; its implementation was not inspected during this refresh. |
+| Optional global appendix | [`docs/AGENTS.appendix.md`](../../docs/AGENTS.appendix.md), with the walkthrough in [`docs/USAGE_GUIDE.md`](../../docs/USAGE_GUIDE.md) | Manual opt-in guidance for an operator's global instruction file; not auto-installed, host activation, or authorization to mutate files. |
+| Private host adapter | Separate [somnus-metadata-plugin](https://github.com/calisweetleaf/somnus-metadata-plugin) repository, version 1.1.0 recorded in `docs/USAGE_GUIDE.md` | Installs a skill and MCP configuration for Droid, Codex, Antigravity, and OpenCode. It is outside this repository and Python distribution; its implementation was not inspected during this refresh. |
 
 The two `somnus-metadata-dev` skills describe the authority spine, stdlib-only runtime, verification commands, safe metadata edits, and host-byte preservation. They are repository operating instructions, not a portable plugin installation. `MANIFEST.in` prunes `.factory/` and `.claude/` from source distributions; `pyproject.toml` discovers packages only under `src/`. Installing `somnus-metadata` therefore does not install these skills into a coding-agent host. See [Deployment](../deployment.md) for package boundaries and [Architecture](../overview/architecture.md) for shared runtime owners.
 
+### Optional always-on guidance
+
+`docs/AGENTS.appendix.md` supplies a fenced block the operator may manually copy into a global instruction file: `~/.factory/AGENTS.md`, `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md`, or global Antigravity rules. Neither installing the Python package nor adding its console alias performs that copy. The block complements `somnus brief` and the optional consumer skill; its presence in this repository does not prove any host loaded it.
+
+Its workflow is to search before creating (`q --text`, `ls`), reuse or fork a matching artifact, adopt only files the operator wants tracked (`stamp` preview, then authorized `--write`), and validate managed-file edits with `check /abs/file --level semantic`. For substantial document work it recommends `index`, `q --conflicts`, and `stale`. These recommendations do not authorize bulk adoption of unmanaged files or changes to global configuration.
+
+Use the owning mutation commands: `set` for supported header fields (including `classification.tags`, not bare `tags`), `status` for lifecycle transitions, and `bump` after body changes to indexed files. Do not hand-edit identity, revision, lifecycle, authority, or time metadata, or fabricate evidence. Always pass absolute paths to MCP tools because relative paths resolve from the server directory. The appendix's `/home/daeron/...` guide path is an operator-environment example; locate `docs/USAGE_GUIDE.md` in your own checkout rather than assuming that path exists.
+
+The published 2.1.0 package's `somnus-metadata` console alias reaches the same `somnus.cli:main` as `somnus`, including `brief` and `mcp`; it adds no command or tool. The usage guide also records remote-control and tunnel architecture, but no live remote acceptance follows from those instructions. `src/somnus/mcp.py` remains stdio-only, with no HTTP transport or authentication server; ChatGPT tunnel setup remains unperformed in the recorded handoff.
+
 ### Private adapter handoff
 
-The newest 2026-10-31 entry in `PLAN.md` supersedes that file's older deferred-plugin account. It records the separate private adapter as Node 18+, zero dependencies, and ten passing `node --test` tests. The adapter installs the `somnus-metadata` skill and an MCP command of `somnus --actor <host> mcp`; this consumer skill is distinct from the repository's `somnus-metadata-dev` instructions.
+`docs/USAGE_GUIDE.md` sections 6 and 9 record plugin 1.1.0 and 21/21 passing tests for the separate private adapter, superseding the older three-host/18-test handoff in `PLAN.md`. The adapter installs the `somnus-metadata` consumer skill and an MCP command of `somnus --actor <host> mcp`; this skill is distinct from the repository's `somnus-metadata-dev` instructions. These are guide-reported behaviors; no external adapter implementation was inspected here.
 
-The recorded diagnostic command is `npx github:calisweetleaf/somnus-metadata-plugin doctor`. It requires access to the private repository and is not part of the Python CLI. No adapter download, installation, or host-configuration change was performed during this documentation refresh.
+The plugin requires Node.js 18.17+, an installed Somnus backend 2.1.0+, and authenticated access to the private repository (or a local clone). The recorded diagnostic command is `npx github:calisweetleaf/somnus-metadata-plugin doctor`; it is not part of the Python CLI. `install --dry-run` previews changes, `install --host droid,codex` limits hosts, and `install --somnus /abs/path/to/somnus` pins the executable. Per the guide, `install --install-backend SRC` tries `pip install --upgrade SRC`, then `uv tool install`, then `pipx install` if pip is absent or refuses. No adapter download, installation, or host-configuration change was performed during this refresh.
 
-| Boundary | Evidence recorded in `PLAN.md` |
+| Host | Consumer skill directory | MCP configuration | Actor |
+| --- | --- | --- | --- |
+| Droid | `~/.factory/skills/somnus-metadata/` | `~/.factory/mcp.json`: `mcpServers["somnus-metadata"]` | `droid` |
+| Codex | `$CODEX_HOME/skills/custom/somnus-metadata/` (default `~/.codex/skills/custom/somnus-metadata/`) | `~/.codex/config.toml`: managed `# >>> somnus-metadata-plugin` / `# <<< somnus-metadata-plugin` block defining `[mcp_servers.somnus-metadata]` | `codex` |
+| Antigravity | `~/.gemini/skills/somnus-metadata/` | `~/.gemini/config/plugins/somnus-metadata/plugin.json` and `mcp_config.json` | `antigravity` |
+| OpenCode | `~/.config/opencode/skills/somnus-metadata/` | `~/.config/opencode/opencode.jsonc` or `opencode.json`: `mcp["somnus-metadata"]`, `type: local`, `enabled: true` | `opencode` |
+
+Each skill has `SKILL.md` plus `references/mcp-tools.md`, `references/recipes.md`, and `references/setup.md`. The guide records timestamped host-config backups and a `.somnus-plugin.json` marker carrying version, install time, and skill hash. Migration removes the old `~/.codex/skills/somnus-metadata/` and Antigravity plugin-local `skills/` copies only when plugin-marked; it must not remove unmarked user skills. Commented `opencode.jsonc` is never rewritten: the installer prints an entry for manual insertion into its `mcp` object.
+
+Host entries use an absolute executable path. Rerun `install --somnus /abs/path/to/somnus` after relocating the backend. Restart hosts after install/uninstall to reload skills and MCP configuration; OpenCode's background service needs `opencode service restart`. See [Getting started](../overview/getting-started.md) for the pip-first backend installation.
+
+| Boundary | Evidence recorded in `docs/USAGE_GUIDE.md` |
 | --- | --- |
-| Backend installation | Toolkit 2.1.0 installed from a checkout on the operator's Linux laptop; PyPI still serves 2.0.0. |
-| Host configuration | Adapter installed for Droid, Codex, and Antigravity; the Codex TOML configuration parsed successfully. |
-| Diagnostic protocol checks | Doctor reported live handshakes and 16 tools per host. This is not proof that each host loaded its entry. |
-| In-host use | Droid made a real `q --text` call through its own MCP connection. |
-| Still unexercised | Codex and Antigravity require restart/loading and real in-host calls; ChatGPT via OpenAI Secure MCP Tunnel is not set up. |
+| Backend installation | Public PyPI 2.1.0; operator's pip installation in `~/.venvs/global`, linked into `~/.local/bin`. Publication availability is distinct from the guide's recorded clean-venv release smoke test. |
+| Host configuration | Plugin 1.1.0 installed for all four hosts; `opencode debug config` loads the entry. |
+| Diagnostic protocol checks | Doctor reported clean skill hashes and live 16-tool handshakes for all four hosts (2026-11-01 output). This is not proof of an in-session host call. |
+| In-host read use | Droid, Codex, and Antigravity made real read calls with plugin 1.0.0; those results do not establish host acceptance of every 1.1.0 change. |
+| Still unexercised | In-session OpenCode MCP call, host write tools, live remote-control/tunnel sessions, and native Windows execution remain NOT RUN. |
 
 These are recorded operator-environment results, not observations from the current CI runner or a review of the external adapter's source. The adapter configures consumers of `src/somnus/mcp.py`; it does not change core 2.0.0 or add a second metadata backend.
+
+### Full-index acceptance
+
+`AGENTS.md` now directs completion work to `HANDOFF.md` before older next actions in `PLAN.md`. The 2026-11-01 handoff records a healthy backend and four-host plugin, but only five indexed artifacts at its starting snapshot. That is an adoption/indexing gap, not evidence that carrier support or toolkit features were removed.
+
+After the intended roots have been adopted and indexed, the handoff requires searches through Droid's MCP connection and a `codex exec` session using its MCP tool, not a shell substitute. The required surfaces are `q` with `text` for three known topics, `ls` filtered to `specification`, `stale`, and `q` with `conflicts`. Record returned artifacts and conflict dispositions; a tool list or doctor handshake alone cannot prove that agents can find the intended content. See [Querying](querying.md) for registry scope and [Adopting files](adopting-files.md) for preparation.
+
+These fresh full-corpus search checks remain part of the unfinished operator job. The earlier successful in-host queries above do not satisfy it, and this wiki refresh did not access the operator's roots or exercise those external clients.
 
 ## How it works
 
@@ -151,17 +181,21 @@ Search reads the last indexed managed-file observations, not arbitrary host file
 
 `run_cli()` in `src/somnus/mcp.py` runs that argv with the server's own interpreter, with `PYTHONIOENCODING=utf-8`, no stdin, a 600-second timeout, and no console window on Windows. The result contains exactly one text content item with the command's stdout and stderr, with Windows line endings normalized. A non-zero exit sets `isError` and appends `[exit N]`, so agents keep the 0/1/2 distinction. JSON-RPC is transport framing; registry output remains text or TSV. The explicit JSON Schema export is still returned as text content.
 
+The runner also sets `NO_COLOR=1`, prepends its package root to the inherited `PYTHONPATH`, and forwards the server's actor. Captured bytes decode as UTF-8 with replacement for invalid sequences. `subprocess.TimeoutExpired` becomes exit 2 with `somnus COMMAND timed out after 600 seconds`; a launch `OSError` becomes exit 2 with `could not start somnus: ...`. These are ordinary failed tool results, not protocol errors. An unexpected exception escaping the runner is contained by `Server.handle()`: stderr receives the diagnostic, the response uses JSON-RPC `-32603` with the exception type only, and the session can continue.
+
 The adapter maintains no application state between calls. Each command reads or writes files and the registry independently. Relative paths in tool arguments resolve against the server's working directory, so absolute paths are the safe choice.
 
 After a nonzero runner exit, `Server.call()` adds a path-resolution note when arguments contain relative paths under `PATH_PARAMS = {path, paths, roots, root, dir, out}`. `_relative_paths()` collects nonempty relative strings (including string-array entries), sorts them, and the note names those paths and `os.getcwd()` before the final `[exit N]`: `note: relative path(s) a.md resolve from the server directory ...; pass absolute paths`. It is not added to successful calls, failures with only absolute paths, or argument-conversion `ToolError` results (which return before the runner). It does not change path resolution, make the adapter stateful, or turn a command failure into a JSON-RPC protocol error.
 
 ### Acceptance boundary
 
-`tests/test_mcp.py` covers protocol handling, generated schemas, argument conversion, and a child-process stdio session. `TestProtocol.test_call_maps_exit_codes` checks the failed-relative-path note, current working directory, final exit marker, and absence of that note for an absolute path. `tests/test_commands.py` covers two-word unquoted text search, unmanaged-file adoption notes, zero-match success, and implicit-home-root refusal. The parent refresh's unittest discovery run passed 486 tests; that does not establish external-client integration. Separately, `tests/acceptance/installed_package_acceptance.py` builds and installs an isolated wheel and launches the installed `somnus mcp` outside the checkout. Its real stdio client checks initialization, exactly 16 tools and closed schemas, text/TSV content, failing-command and argument errors, unknown-method and parse errors, session survival, and empty server stderr.
+`tests/test_mcp.py` covers protocol handling, generated schemas, argument conversion, and a child-process stdio session. `TestRunCli` adds a real child `brief` call plus mocked checks for actor/environment/stdin/timeout forwarding, lenient decoding, CRLF normalization, timeout, and launch failure. `TestRunnerFailures` checks internal-error containment and a succeeding ping after a runner exception. `TestTools.test_argument_validation` rejects missing required arguments, wrong scalar/array types, booleans used as integers, and NUL-containing strings. `TestProtocol.test_call_maps_exit_codes` checks the failed-relative-path note, current working directory, final exit marker, and absence of that note for an absolute path.
 
-`PLAN.md` records a prior 60/60 result for the complete installed CLI/SQLite/file/MCP/POSIX PTY harness, not 60 MCP checks or a new result from this documentation refresh. This harness requires explicit invocation and is not collected by unittest discovery. See [Testing](../how-to-contribute/testing.md).
+`tests/test_commands.py` covers two-word unquoted text search, unmanaged-file adoption notes, zero-match success, and implicit-home-root refusal. Separately, `tests/acceptance/installed_package_acceptance.py` builds and installs an isolated wheel and launches the installed `somnus mcp` outside the checkout. Its real stdio client checks initialization, exactly 16 tools and closed schemas, text/TSV content, failing-command and argument errors, unknown-method and parse errors, session survival, empty server stderr, and the failed-relative-path server-directory hint. Its agent-hints phase covers unquoted search words, zero-result adoption guidance, unmanaged-file hints, and implicit broad-root refusal.
 
-These tests establish adapter and installed-package behavior, not external-host acceptance or coding-agent skill loading. Separately, the latest handoff in `PLAN.md` records a Droid in-host search call and diagnostic handshakes for all three configured hosts, as described above. Codex and Antigravity in-host use remains unexercised. Native Windows terminal behavior is not established by the POSIX acceptance run.
+The latest operator evidence in `docs/USAGE_GUIDE.md` section 9 records 534 passing unit tests, 88.76% total branch-plus-statement coverage, 49 source files clean under mypy, and 66/66 checks for the complete installed CLI/SQLite/file/MCP/POSIX PTY harness, not 66 MCP checks. These are prior operator results, not new runs from this documentation refresh. The alias assertion in `phase_install` is included; older 65/65 runs in `PLAN.md` remain historical. The installed harness requires explicit invocation and is not collected by unittest discovery. See [Testing](../how-to-contribute/testing.md).
+
+Repository tests establish adapter and installed-package behavior, not external-host acceptance or coding-agent skill loading. The preceding wiki refresh recorded a passing 534-test checkout suite, including `tests/test_mcp.py`; that is not a new test result for this documentation-only update. Separately, the guide records real in-host read calls for Droid, Codex, and Antigravity with plugin 1.0.0, as described above; OpenCode in-session calls and host write tools remain unexercised, and ChatGPT is not set up. Native Windows terminal behavior is not established by the POSIX acceptance run or faked console tests.
 
 ## Integration points
 
@@ -195,10 +229,13 @@ These tests establish adapter and installed-package behavior, not external-host 
 | `src/somnus/model/jsonschema_export.py` | JSON Schema Draft 2020-12 export |
 | `src/somnus/model/schema.py` | Declarative schema tree shared by validation, docs, and export |
 | `AGENTS.md` | Repository agent rules that mirror the brief |
-| `PLAN.md` | Dated handoff for the separate private adapter and host-specific evidence |
+| `HANDOFF.md` | Current full-index job and required Droid/Codex MCP search evidence |
+| `docs/AGENTS.appendix.md` | Optional manually copied global search/adoption/mutation guidance |
+| `docs/USAGE_GUIDE.md` | Current pip-first installation, four-host plugin 1.1.0 paths, release evidence, and unexercised remote-access architecture |
+| `PLAN.md` | Historical private-adapter milestones and host-specific evidence; older publication state is superseded by the guide |
 | `.factory/skills/somnus-metadata-dev/SKILL.md` | Factory/Droid repository operating instructions, not a packaged plugin |
 | `.claude/skills/somnus-metadata-dev/SKILL.md` | Corresponding repository skill instructions for Claude |
-| `tests/test_mcp.py` | Protocol, generated schemas, conversion, and subprocess stdio coverage |
+| `tests/test_mcp.py` | Protocol, generated schemas, argument validation, child runner failures, session survival, and subprocess stdio coverage |
 | `tests/test_commands.py` | Search-word handling, root safety, and adoption/no-match hint coverage |
 | `tests/acceptance/installed_package_acceptance.py` | Explicit isolated-wheel CLI and real stdio MCP acceptance |
 | `pyproject.toml`, `MANIFEST.in` | Distribution/package discovery and exclusion of repository-only instruction directories |

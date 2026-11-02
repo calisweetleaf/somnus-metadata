@@ -1,11 +1,13 @@
 # How to contribute
 
-This section explains how to pick up work, test it, and review it against the Somnus contract. Follow the active `AGENTS.md`: recover the current objective and evidence from `PLAN.md`, read only the relevant section of `CONTEXT.md`, and use `filetree.md` for navigation. `.codex/OPERATING.md` is an adaptive operating route, not a compulsory sequence or proof that its tools are installed. `AGENTS.v1.md` is preserved but superseded.
+This section explains how to pick up work, test it, and review it against the Somnus contract. Follow the active `AGENTS.md`: start with `HANDOFF.md`, whose 2026-11-01 completion job outranks older next actions in `PLAN.md` until its "Done means" criteria are met. Use `PLAN.md` for supporting evidence, read only the relevant section of `CONTEXT.md`, and use `filetree.md` for navigation. `.codex/OPERATING.md` is an adaptive operating route, not a compulsory sequence or proof that its tools are installed. `AGENTS.v1.md` is preserved but superseded.
+
+The current handoff concerns an operator-machine rollout: register intended roots, adopt eligible files after carrier checks, reconcile the index, and prove searches through Droid and Codex MCP. Its recorded installation and passing tests do not establish complete indexing. A wiki refresh documents this frontier; it does not perform bulk adoption, modify global configuration, or certify external hosts. See [Adopting files](../features/adopting-files.md) and [Agent integration](../features/agent-integration.md).
 
 ## Working model
 
 - `.github/workflows/ci.yml` runs on pushes to `main`, pull requests, and manual dispatch. It defines cross-platform tests, policy guards, and an installed-wheel smoke test. The configuration does not establish required reviews or branch protection.
-- `.github/workflows/droid-wiki-refresh.yml` generates the wiki on pushes to `main` and opens or updates a rolling pull request from `factory/droid-wiki`. Review generated pages before merging. See [Automation](../deployment.md).
+- `.github/workflows/droid-wiki-refresh.yml` generates the wiki on pushes to `main`, except pushes touching only `droid-wiki/**`, and opens or updates a rolling pull request from `factory/droid-wiki`. Review generated pages before merging. See [Automation](../deployment.md).
 - The authority order is fixed by `AGENTS.md`: `SPEC.md` is normative, `DECISIONS.md` explains why, `tests/test_conformance.py` is the executable acceptance criteria, and `src/somnus/` is the runnable truth. When code and `SPEC.md` disagree, the spec wins and the code is the bug.
 - `archive/` is historical. Nothing under `src/` may import from it, and nothing in it may be cited as an active rule (DECISIONS.md D15).
 - `Somnus Markdown Metadata Standard Research.md` is evidence only and must never be overwritten.
@@ -14,7 +16,7 @@ This section explains how to pick up work, test it, and review it against the So
 
 A change is finished when all of the following hold:
 
-1. **Relevant checks pass.** From the root, run `PYTHONPATH=src python -m unittest discover -s tests` and inspect its exit status and final summary. The current suite has 486 tests in 13 modules. Also run `python -m mypy` (optional development tooling, required verification gate). See [Testing](testing.md) for PowerShell, targeted runs, and the observed mypy-version limitation.
+1. **Relevant checks pass.** From the root, run `PYTHONPATH=src python -m unittest discover -s tests` and inspect its exit status and final summary. The current suite has 534 tests in 14 modules. Also run `python -m mypy` (optional development tooling, required verification gate). See [Testing](testing.md) for PowerShell, targeted runs, and the observed mypy-version limitation.
 2. **Somnus-managed documents are clean.** `PYTHONPATH=src python -m somnus.cli check SPEC.md DECISIONS.md --level semantic` reports no errors.
 3. **Diagnostics are reviewed.** When using somnus-debug, investigate new serious findings rather than assuming they are false positives. See [Tooling](tooling.md).
 4. **The spec still wins.** Fix implementation drift in code. A material contract change needs explicit authorization, a new ratified decision where applicable, and the release procedure in `SPEC.md` section 23. See [Development workflow](development-workflow.md).
@@ -31,7 +33,7 @@ Development/build dependencies, hook revisions, and Actions updates must be at l
 | Page | Covers |
 | --- | --- |
 | [Development workflow](development-workflow.md) | The edit, test, commit cycle and when a spec change needs a decision revision |
-| [Testing](testing.md) | The 13 suites, what each covers, and the fixture patterns they use |
+| [Testing](testing.md) | The 14 suites, what each covers, and the fixture patterns they use |
 | [Debugging](debugging.md) | Diagnostic codes, `--debug`, reading the registry, common errors |
 | [Tooling](tooling.md) | `pyproject.toml`, uv, somnus-debug, Surgeon, git attributes |
 | [Patterns and conventions](patterns-and-conventions.md) | Code style and recurring idioms in `src/somnus/` |

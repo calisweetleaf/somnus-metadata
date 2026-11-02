@@ -4,6 +4,10 @@ Active contributors: calisweetleaf
 
 `somnus` is an argparse CLI with 18 subcommands, each implemented as one module under `src/somnus/commands/` and imported only when invoked. Every command receives the same `Ctx` object, which supplies configuration, output formatting, registry access, and event recording.
 
+The 2.1.0 checkout declares two equivalent console entry points in `pyproject.toml`: `somnus` and `somnus-metadata`, both targeting `somnus.cli:main`. For example, `somnus-metadata q --docs` is the same invocation as `somnus q --docs`. This is a packaging alias, not a nineteenth subcommand or another MCP tool: the counts remain 18 commands and 16 tools. The parser's program name and version text still say `somnus`; both entry points print `somnus 2.1.0` with `--version`.
+
+The public 2.1.0 release includes this alias; `docs/USAGE_GUIDE.md` records publication and [PyPI release metadata](https://pypi.org/pypi/somnus-metadata/2.1.0/json) confirms both distribution artifacts. Install with pip in a virtual environment on `PATH`, or use uv/pipx as alternatives. See the operator walkthrough in [`docs/USAGE_GUIDE.md`](../../docs/USAGE_GUIDE.md) for installation, binary shadowing, first-run commands, TUI, and MCP use. Its remote-access architecture is guidance, not evidence of a live remote integration.
+
 ## Purpose
 
 The CLI is the only supported way to create, adopt, revise, and retire Somnus-managed files. It enforces the SPEC rules that hand edits tend to break: IDs are minted rather than typed, lifecycle changes follow the state machine, every write is validated before it reaches disk, and every mutation is logged to the registry ledger. The command table in SPEC §20 is the normative contract; `src/somnus/cli.py` implements it.
@@ -143,6 +147,9 @@ Module-level helpers in `src/somnus/commands/_common.py`: `load_valid()` (load a
 
 | File | Role |
 | --- | --- |
+| `pyproject.toml` | Both console entry points target `somnus.cli:main` |
+| `docs/USAGE_GUIDE.md` | Operator walkthrough and checkout-versus-published installation guidance |
+| `tests/acceptance/installed_package_acceptance.py` | Installed alias `--version` assertion in `phase_install` |
 | `src/somnus/cli.py` | Parser, global flags, lazy dispatch, exit-code boundary |
 | `src/somnus/commands/_common.py` | `Ctx`, payload builders, commit helpers, file walking |
 | `src/somnus/commands/*.py` | One module per subcommand |

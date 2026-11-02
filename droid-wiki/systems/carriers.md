@@ -1,5 +1,7 @@
 # Carriers
 
+Active contributors: calisweetleaf, Christian
+
 A carrier knows how one family of file types stores the `somnus:` envelope: where it may appear, how its lines are delimited and prefixed, and how to write it back without touching any other line. The carriers live in `src/somnus/carriers/` and implement SPEC section 17.
 
 ## Purpose

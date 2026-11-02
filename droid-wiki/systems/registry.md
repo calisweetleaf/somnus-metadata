@@ -1,6 +1,6 @@
 # Registry
 
-Active contributors: calisweetleaf
+Active contributors: calisweetleaf, Christian
 
 The registry is one global SQLite database (default `~/.somnus/somnus.db`) that indexes managed files under registered roots. `Store` in `src/somnus/db/store.py` scans roots, records immutable revision states, reconciles conflicts, and records actions in an append-only `events` ledger. Its full-text index is derived from observed locations, not an authority over files. Read paths (`somnus q`, the TUI browser, semantic resolution) use a separate read-only connection.
 
@@ -26,7 +26,7 @@ src/somnus/db/
 | Name | File path | Description |
 | --- | --- | --- |
 | `Store` | `src/somnus/db/store.py` | Writable connection plus actor name; context manager that commits on exit and rolls back on exception. |
-| `Store.open(db_path, actor, create)` | `src/somnus/db/store.py` | Creates the parent directory when allowed, connects with a 10 s timeout, sets `foreign_keys = ON` and `journal_mode = WAL`, then runs `_migrate()`. |
+| `Store.open(db_path, actor, create)` | `src/somnus/db/store.py` | Creates the parent directory when allowed, connects with a 10 s timeout, sets `foreign_keys = ON` and `journal_mode = WAL`, then runs `_migrate()`. Closes the connection on failed setup; transfers ownership to the returned store only after success. |
 | `Store._migrate()` | `src/somnus/db/store.py` | Refuses a newer `PRAGMA user_version`; runs base DDL and sets version 2 on older registries, then ensures the FTS5 table on every writable open. `DB_USER_VERSION` lives in `src/somnus/__init__.py`. |
 | `Store._ensure_search()`, `Store._index_text()` | `src/somnus/db/store.py` | Create the optional FTS5 index and replace one location's searchable observation. |
 | `searchable_body()`, `fts_query()` | `src/somnus/db/store.py` | Extract bounded host text and safely quote the plain-word query surface. |
@@ -39,6 +39,14 @@ src/somnus/db/
 | `intervals_overlap()` | `src/somnus/db/store.py` | Half-open overlap test for two `valid_time` objects; missing bounds count as unbounded, so `timeless` and `unknown` overlap everything. |
 
 ## How it works
+
+### Connection ownership and failed opens
+
+`Store.open()` in `src/somnus/db/store.py` owns the newly allocated connection until setup and `_migrate()` both succeed. Previously, a failure after `sqlite3.connect()` could leave that connection open: a malformed database raises a SQLite error during setup, while a newer schema is refused by `_migrate()` with a `SomnusError`. Catching only SQLite exceptions was not enough to clean up both paths.
+
+The local connection starts as `None`, and a `finally` block closes it if it has been allocated. After successful migration, the local reference is cleared before returning the store, so cleanup does not close a live store's connection. SQLite failures become `E_IO` with exit 2 and retain their original exception as the cause; the newer-schema refusal also reports `E_IO` with exit 2 and leaves `user_version` unchanged. Successful callers still own normal shutdown through `Store.close()` or the context manager.
+
+`TestOpenFailures` in `tests/test_store.py` checks both refusal paths and tracks their actual connections: executing `SELECT 1` afterward must raise `sqlite3.ProgrammingError` because the connection is closed. The separate read-only setup path has the same cleanup obligation, described under [Read-only access](#read-only-access).
 
 ### Tables and views
 
@@ -98,6 +106,8 @@ graph TD
 - Files that fail `validate(doc, "core")` are counted invalid and their errors are added to the report; they are not indexed.
 - `urn:somnus:example:*` artifacts are counted and never indexed.
 
+Failure handling in `src/somnus/db/store.py` is per-file where possible: a failed stat or a `SomnusError` from document loading increments `invalid`, records diagnostics, and returns the host relative path so an already indexed location is not treated as missing merely because it could not be read. A root that is not a directory gets an `E_IO` diagnostic and is skipped. `TestScanFailures` in `tests/test_store.py` covers invalid UTF-8 and an unstatable dangling symlink alongside a valid file, a missing root, and an unreadable stored authority header. The symlink case skips when the host cannot create symlinks; these tests do not prove behavior on every filesystem.
+
 `_index_document()` details:
 
 - Inserts the artifact row on first sight.
@@ -117,7 +127,7 @@ graph TD
 
 `Store._migrate()` in `src/somnus/db/store.py` upgrades a version-1 registry through the idempotent base DDL, sets `PRAGMA user_version = 2`, and calls `_ensure_search()`. It also calls `_ensure_search()` when the version is already 2. Opening the registry creates the virtual table but does not populate old locations; the next scan backfills missing search rows even when file mtime and size have not changed. Read-only queries do not migrate.
 
-If SQLite reports an FTS5-related `OperationalError` while creating the table, `_ensure_search()` disables search for that store but leaves the registry usable. Other operational errors propagate. `somnus q --text` reports a missing index with exit 2 and asks for `somnus index` using SQLite with FTS5. Schema version 2 alone is therefore not proof that full-text search is available.
+If SQLite reports an `OperationalError` whose message contains `fts5` (case-insensitive) while creating the table, `_ensure_search()` disables search for that store but leaves the registry usable. This is the no-FTS5 fallback, not a blanket suppression of DDL failures. Other operational errors propagate; during `Store.open()` they become `E_IO` and the failed-open connection is closed. `TestOpenFailures` in `tests/test_store.py` injects `no such module: fts5` to check `search = False` and the no-backfill fast path, then injects `disk I/O error` to check that an unrelated DDL error is not swallowed. `somnus q --text` reports a missing index with exit 2 and asks for `somnus index` using SQLite with FTS5. Schema version 2 alone is therefore not proof that full-text search is available.
 
 Each indexed observation supplies its absolute host path, title, optional summary, space-joined classification tags, and body. `searchable_body()` in `src/somnus/db/store.py` reads body lines outside embedded envelopes, or decodes the sidecar host as UTF-8 with optional BOM. Invalid UTF-8 sidecar hosts contribute an empty body but retain searchable metadata. Only the body is capped at `SEARCH_BODY_LIMIT = 1_000_000` characters; this is not a limit on all columns or on file loading.
 
@@ -143,6 +153,8 @@ In text mode, the query command combines `--text` with its optional positional a
 
 `connect_readonly()` raises `E_IO` (exit 2) if the database file does not exist, then opens it with a `file:` URI and `mode=ro` and sets `query_only`. `run_query()` executes one statement and wraps any `sqlite3.Error` as `E_IO`. `somnus q` (`src/somnus/commands/query.py`), `ls`, `new`, `stale`, `Ctx.resolver()`, and the TUI's `load_rows()` all use this path, so they cannot write. See [Querying](../features/querying.md).
 
+If SQLite setup fails after allocating the read-only connection, `connect_readonly()` in `src/somnus/db/store.py` closes it before raising `E_IO` with the SQLite exception as its cause. On success it returns the open connection to the caller, which must close it. `TestOpenFailures` in `tests/test_store.py` injects a failure in `PRAGMA query_only`, verifies exit 2 and the preserved cause, and checks that the allocated connection is closed. Missing-registry coverage also checks the `somnus init` recovery hint. Read-only opens never run migrations.
+
 `list_docs()` filters the `docs` view by type, status, standing, tag, and a path substring. `similar_titles()` uses `difflib.SequenceMatcher` with a 0.85 default threshold for near-duplicate titles.
 
 ## Integration points
@@ -158,7 +170,9 @@ In text mode, the query command combines `--text` with its optional positional a
 - Schema changes: edit `src/somnus/db/schema.sql`, increase `DB_USER_VERSION` in `src/somnus/__init__.py`, and extend `_migrate()`. The current base migration runs idempotent DDL; structural changes to existing tables need explicit migration steps. FTS5 DDL lives separately in `src/somnus/db/search.sql`.
 - New conflict kind: extend the `CHECK` constraint on `conflicts.kind`, add a reconcile step in `_reconcile()`, and map it to a diagnostic code in `canon()` in `src/somnus/model/validate.py`.
 - New materialized knowledge: add a table to `src/somnus/db/schema.sql`, write it in `_materialize()`, and read it in `resolver()` if validation needs it.
-- `tests/test_store.py` covers reconciliation, FTS5 migration/backfill, refresh/removal, query quoting, and sidecar extraction. `tests/test_commands.py` covers CLI search results, prefixes, all-word matching, usage errors, implicit-home-root refusal, two-word unquoted search, unmanaged-file adoption notes, and zero-match success. The parent refresh's unittest discovery run passed 486 tests; installed-package acceptance, Doctor, native Windows behavior, and external MCP hosts were not revalidated by this page refresh.
+- `tests/test_store.py` covers reconciliation, FTS5 migration/backfill, refresh/removal, query quoting, sidecar extraction, refused-open cleanup, read-only setup failure, optional-FTS5 fallback, and scan diagnostics. `tests/test_commands.py` covers CLI search results, prefixes, all-word matching, usage errors, implicit-home-root refusal, two-word unquoted search, unmanaged-file adoption notes, and zero-match success. See [Testing](../how-to-contribute/testing.md) for suite commands and verification boundaries.
+
+This refresh passed the existing 534-test suite across 14 modules, semantic validation, and isolated mypy 1.18.2. `PLAN.md` records separate historical operator results of 88.76% coverage, 65/65 acceptance checks, and 374 Doctor issues including 71 serious issues (reviewed, with a nonzero gate). Those records are not fresh runner results or proof of native Windows behavior, an installed package, or an external MCP host.
 
 ## Key source files
 
@@ -172,7 +186,7 @@ In text mode, the query command combines `--text` with its optional positional a
 | `src/somnus/db/__init__.py` | Public re-exports |
 | `src/somnus/commands/_common.py` | `Ctx` registry helpers and `record()` |
 | `src/somnus/commands/index.py`, `src/somnus/commands/init.py` | `somnus index` and `somnus init` |
-| `tests/test_store.py` | Registry tests |
+| `tests/test_store.py` | Registry behavior, `TestOpenFailures` connection cleanup/fallback tests, and `TestScanFailures` diagnostics |
 | `tests/test_commands.py` | CLI root-safety, text-search, and informational-hint coverage |
 
 Related: [Architecture](../overview/architecture.md), [Glossary](../overview/glossary.md), [Data models](../reference/data-models.md), [Design decisions](../background/design-decisions.md).
