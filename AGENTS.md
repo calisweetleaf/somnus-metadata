@@ -6,6 +6,11 @@
 
 ## First move
 
+**Open work as of 2026-11-01: `HANDOFF.md`.** It records the verified install,
+plugin, and test state, and the remaining job (index every file under Daeron's
+roots, prove search from Droid and Codex). Execute it end to end; it outranks
+older next actions in PLAN.md until its "Done means" list is met.
+
 Own the integrated completion objective in PLAN.md. Read its current evidence
 and immediate next action, then only the CONTEXT.md section that changes your
 move. Use .codex/OPERATING.md as the adaptive transition map, not a mandatory
