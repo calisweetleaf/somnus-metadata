@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-7882-770a-9fc8-811ac57f407d"
-  revision: 1
+  revision: 2
   title: "AGENTS.md — somnus-metadata (mission-first entry)"
   classification:
     category: "engineering"
@@ -17,7 +17,8 @@ somnus:
     scopes:
       - target_ref: "urn:somnus:artifact:01a19a67-7882-770a-9fc8-811ac57f407d"
         aspects: ["content"]
-  time: {}
+  time:
+    updated_at: "2026-11-02T06:00:11+00:00"
   names:
     slug: "agents-md-somnus-metadata-mission-first-entry"
   knowledge:
@@ -38,10 +39,13 @@ somnus:
 
 ## First move
 
-**Open work as of 2026-11-01: `HANDOFF.md`.** It records the verified install,
-plugin, and test state, and the remaining job (index every file under Daeron's
-roots, prove search from Droid and Codex). Execute it end to end; it outranks
-older next actions in PLAN.md until its "Done means" list is met.
+**Current completion scope, corrected by the operator on 2026-11-01:** release
+and installation, not bulk use of the system. Verify the newest PyPI package is
+installed globally through pip, push main with upstream tracking in the backend
+and plugin repos, clean-reinstall the current plugin/skill for Codex and Factory,
+and prove installed skill fidelity and live MCP operation. HANDOFF.md and the top
+of PLAN.md record that state. Earlier cross-root adoption instructions are
+superseded history; do not resume adoption or make zero unmanaged files a gate.
 
 Own the integrated completion objective in PLAN.md. Read its current evidence
 and immediate next action, then only the CONTEXT.md section that changes your

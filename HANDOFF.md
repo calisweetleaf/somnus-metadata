@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78be-745c-b7a2-ded39bc0328a"
-  revision: 5
+  revision: 7
   title: "HANDOFF — finish Somnus Metadata end to end (2026-11-01)"
   classification:
     category: "engineering"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78be-745c-b7a2-ded39bc0328a"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T05:40:00+00:00"
+    updated_at: "2026-11-02T06:00:42+00:00"
   names:
     slug: "handoff-finish-somnus-metadata-end-to-end-2026-11-01"
   knowledge:
@@ -33,7 +33,40 @@ somnus:
 ---
 # HANDOFF — finish Somnus Metadata end to end (2026-11-01)
 
-## Resume from the live frontier (2026-11-01, later session)
+## Current commission — operator correction, 2026-11-01
+
+Finished means the software is released and installed, not that all files on the
+machine have been adopted. The operator explicitly corrected this distinction.
+The earlier cross-root adoption job and its zero-unmanaged acceptance criterion
+below are superseded history. Do not resume them without a new request.
+
+- PyPI latest and global plain-pip install: **somnus-metadata 2.1.1**.
+  Fresh pip index verification and no-cache pip upgrade both confirm it.
+- Both repository main branches were pushed with **git push -u origin main**.
+- Shared host-agnostic plugin/skill: **1.1.1**, source commit **3000082**.
+- Clean uninstall removed the owned Codex and Droid skills/MCP entries; the host
+  inventory then confirmed both absent. Reinstall recreated them, with native
+  configuration backups. Both fresh 16-tool / backend-2.1.1 handshakes and
+  complete skill-tree fidelity checks pass.
+- Codex cache inventory contained **no Somnus Metadata files**. This adapter uses
+  direct skills plus MCP configuration, not that cache; unrelated plugins were
+  not deleted. The fresh installed skill was read at both requested paths:
+  /home/daeron/.codex/skills/custom/somnus-metadata/SKILL.md and
+  /home/daeron/.factory/skills/somnus-metadata/SKILL.md.
+- Fresh source gates: **537 tests pass**, semantic SPEC/DECISIONS **0 errors /
+  0 warnings**, mypy **49 files clean**. Fresh plugin tests: **21 pass**.
+- Prior exact uploaded-wheel acceptance remains **67/67**. No runtime change or
+  new package version was introduced by this final reinstall/document correction.
+- Fresh Codex and Factory MCP lifecycle queries both returned the same two real
+  full paths. Factory session: 039db1c1-ba79-4868-919b-9c9c6f8fd137.
+- The corrected release/install commission is complete; no adoption gate remains.
+
+Existing cross-root metadata changes are preserved, not silently rolled back or
+committed into unrelated projects. Their adoption count is not release readiness.
+New host sessions load the refreshed skill; already-running sessions may retain
+previously loaded context. No user application was forcibly restarted.
+
+## Superseded adoption frontier (historical, not an active job)
 
 Read the top of PLAN.md, not the original five-artifact baseline below.
 The all-file discovery defect is fixed and released as **2.1.1** on PyPI,
@@ -66,8 +99,8 @@ Keep the live Somnus-MCP data plane and generated dependency stores excluded.
 Do not re-register nested roots; it creates duplicate observations. Preserve the
 original exceptions and cross-repository commit/push limits below.
 
-Paste everything below the line into a fresh agent session (Droid or Codex) started in
-`/home/daeron/Repositories/somnus-metadata`. It is self-contained.
+The original packet below is retained for history only. Its adoption objective and
+"Done means" list do not govern the corrected release/install commission.
 
 ---
 

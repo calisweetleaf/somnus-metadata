@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
-  revision: 8
+  revision: 10
   title: "Somnus Metadata — Completion and Operator Integration Plan"
   classification:
     category: "operations"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T05:40:00+00:00"
+    updated_at: "2026-11-02T06:00:42+00:00"
   names:
     slug: "somnus-metadata-completion-and-operator-integration-plan"
   knowledge:
@@ -37,9 +37,33 @@ Updated 2026-11-01 (America/Chicago). Operational handoff, not normative source.
 SPEC.md owns the contract; DECISIONS.md records ratified rationale. Source and
 execution establish implementation and exercised behavior respectively.
 
-## Active rollout frontier — 2026-11-01
+## Current release/install completion — operator correction, 2026-11-01
 
-The original commission remains the complete cross-root adoption in HANDOFF.md.
+The operator explicitly clarified: finish means publish the package, install the
+latest global backend, push main with upstream tracking, and clean-install the
+host-agnostic plugin plus current skill for Codex and Factory. It does **not** mean
+use the system to adopt all files. Cross-root adoption has stopped. The older
+frontier and zero-unmanaged acceptance criterion below are historical, not gates.
+
+Verified finalization: PyPI latest/global pip **2.1.1**; plugin/skill **1.1.1**;
+**git push -u origin main** completed in both repositories. Clean uninstall removed
+Codex/Droid skill and MCP entries and inventory showed both absent; native install
+recreated both, preserving config backups. Both skill trees match the package and
+both fresh handshakes serve **16 tools from installed 2.1.1**. Their installed
+SKILL.md bodies were inspected through Surgeon. Codex plugin cache inventory
+contained no Somnus Metadata files, so unrelated cache entries were left alone.
+Fresh source checks: **537 pass**, SPEC/DECISIONS semantic **0 errors/0 warnings**,
+mypy **49 files clean**; fresh plugin tests **21 pass**. Exact release-wheel
+acceptance remains **67/67**. The runtime package was not changed during this pass.
+Fresh Codex and Factory MCP lifecycle queries returned the same two actual full
+paths. Factory post-reinstall session: 039db1c1-ba79-4868-919b-9c9c6f8fd137.
+The corrected release/install objective is **COMPLETE**; no bulk-adoption gate remains.
+Do not resume bulk adoption, perform unrelated cache cleanup, or treat unadopted
+files as unfinished software. Existing cross-root changes are preserved untouched.
+
+## Superseded rollout frontier — historical
+
+The earlier commission was described as complete cross-root adoption in HANDOFF.md.
 The installed/public toolkit is now **2.1.1**, not 2.1.0. Core schema remains
 2.0.0 and registry schema remains 2.
 
@@ -184,7 +208,7 @@ native `Store.scan(...).unmanaged_paths` list and native stamp batches. Keep the
 Somnus-MCP data plane excluded, preserve source bodies and pre-existing work,
 commit other repos locally, and push only metadata/plugin as authorized.
 OpenCode in-session calls and physical Windows console execution remain NOT RUN;
-remote-control/tunnel work remains deferred. The full goal is **not complete**.
+remote-control/tunnel work remains deferred. That earlier adoption objective is **superseded**, not a condition on release/install completion.
 
 ## Colony foray — failing components (2026-10-31)
 

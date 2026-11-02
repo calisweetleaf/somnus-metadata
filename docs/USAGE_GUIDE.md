@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-791b-7090-ab7e-0d4da8974aa0"
-  revision: 5
+  revision: 6
   title: "Somnus Metadata — Operator and Agent Usage Guide"
   classification:
     category: "engineering"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-791b-7090-ab7e-0d4da8974aa0"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T04:53:05+00:00"
+    updated_at: "2026-11-02T06:00:11+00:00"
   names:
     slug: "somnus-metadata-operator-and-agent-usage-guide"
   knowledge:
@@ -700,18 +700,19 @@ Raw public HTTPS tunnels (`cloudflared`, Tailscale Funnel, `ngrok`) were evaluat
 ## 9. Current System State and Verification Matrix
 
 The table distinguishes the local checks rerun on **2026-11-01** from historical
-hosted or platform evidence. PLAN.md owns the detailed rollout frontier.
+hosted or platform evidence. PLAN.md owns release/install completion. The operator
+clarified that bulk adoption is use of the system, not a software-completion gate.
 
 | Surface / Capability | Current Status | Verification Evidence |
 | --- | --- | --- |
 | **Core Specification & Decisions** | **OPERATIONAL** (core 2.0.0, SPEC r7, DECISIONS r5 D1–D19) | Semantic check rerun: 0 errors / 0 warnings. No normative changes made during adoption. |
 | **Python Backend & CLI (2.1.1)** | **PASS on the exercised Linux boundary** | 537/537 source tests; mypy clean in 49 files; installed-wheel acceptance 67/67. Patch 2.1.1 reports unmanaged sidecar-only hosts without loading their binary contents. |
 | **Public PyPI distribution** | **Released and installed: 2.1.1** | Wheel and sdist passed Twine; 51 runtime wheel files match the accepted wheel. Uploaded successfully and fetched through no-cache plain pip. |
-| **Multi-host plugin (1.1.0)** | **PASS** for installed skill fidelity and live handshake in all four hosts | 21/21 plugin tests; reinstalled from the plugin checkout; doctor passes Droid, Codex, Antigravity and OpenCode, 16 tools each. The skill now directs agents to request TSV for complete paths. |
+| **Multi-host plugin (1.1.1)** | **PASS**; clean-reinstalled for Codex and Factory Droid | Owned skill/MCP entries removed, absence verified, then recreated; 21/21 tests; both installed skill trees match the packaged source and both live handshakes serve 16 tools from backend 2.1.1. Shared skill is host-agnostic. No metadata files existed in the Codex plugin cache, so unrelated caches were preserved. |
 | **Droid and Codex in-host search** | **PASS** | Both called MCP `q` for three known topics, `ls` for specifications, `stale`, and `q --conflicts`; every text search returned real hits. Complete TSV paths were separately proven in both hosts. At this checkpoint: 1 specification, 7 near-title advisories, 0 open conflicts. Session evidence is in PLAN.md. |
-| **Global registry adoption** | **IN PROGRESS — not complete** | Five roots; 1,064 managed hosts, 27,202 unmanaged across all carrier types, 0 invalid/conflicts at the checkpoint. Documents (899) and Projects (4) are adopted; their two nested Git commits remain local. Repositories/LAB/Somnus-MCP remain open. |
+| **Global registry adoption** | **Optional usage, not a completion gate** | Operator stopped bulk adoption. Last scan: five roots, 2,659 managed / 21,554 unmanaged / 0 invalid / 0 missing / 0 conflicts. Existing changes are preserved; do not resume adoption without a new request. |
 | **Preservation and exclusions** | **APPLIED; explicit exceptions retained** | Real carrier preflight preserved skill frontmatter, Python preambles, TOML/YAML, JSON, HTML and binary host bytes. Archives, frozen research, credentials, model weights, environments, generated state and the live Somnus-MCP data plane are excluded. Two pre-existing malformed Sentari Markdown files are explicitly excluded, not silently repaired. |
-| **GitHub CI & CodeQL** | **Earlier adoption CI passed; patch-source CI pending finalization** | Core e82e8bc and plugin f68b355 passed CI. Do not project those earlier runs onto the subsequent 2.1.1 patch commit. |
+| **GitHub CI & CodeQL** | **Runtime patch and plugin CI passed** | Backend 07a6039 passed CI 41390991791 and CodeQL 41390991803; plugin 3000082 passed CI 41395258614. Both main branches track origin/main; release/install documentation changes do not replace those runtime checks. |
 | **OpenCode in-session invocation** | **NOT RUN** | Its installed configuration and live 16-tool handshake pass; this is not an OpenCode agent-session invocation. |
 | **Live Windows console TUI** | **NOT RUN** | Existing Windows branch/fake tests run on Linux; no physical Windows console was exercised. |
 | **Remote access / ChatGPT tunnel** | **Deferred boundary, unchanged** | Architecture remains in section 7. No remote-control daemon or tunnel was started by the adoption work. |
