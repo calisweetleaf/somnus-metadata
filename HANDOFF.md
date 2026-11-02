@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78be-745c-b7a2-ded39bc0328a"
-  revision: 8
+  revision: 9
   title: "HANDOFF — finish Somnus Metadata end to end (2026-11-01)"
   classification:
     category: "engineering"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78be-745c-b7a2-ded39bc0328a"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T06:26:30+00:00"
+    updated_at: "2026-11-02T06:49:21+00:00"
   names:
     slug: "handoff-finish-somnus-metadata-end-to-end-2026-11-01"
   knowledge:
@@ -33,7 +33,20 @@ somnus:
 ---
 # HANDOFF — finish Somnus Metadata end to end (2026-11-01)
 
-## Current native-plugin completion — 2026-11-02
+## Production payload correction — 2026-11-02
+
+Native plugin **1.2.1**, pushed as **35c228a**, no longer ships the development
+checkout as the runtime. Both catalogs target native/somnus-metadata-plugin, a
+checked-in reproducible export of exactly **8 runtime files**. Both installed
+caches were inspected after clean native remove/install: **0 .somnus.yaml files**,
+no package.json/.gitignore or Node development adapter code. SKILL.md retains its
+embedded YAML frontmatter. Source indexing annotations are not runtime assets.
+No other repositories or registry adoption were changed by this correction.
+The build's --check and new packaging regression reject stale/unexpected export
+files. **26 tests pass**, and hosted CI **41402125903** passed. The globally
+installed/published backend remains **2.1.1**. No hooks were added or copied.
+
+## Previous native-plugin verification — 2026-11-02
 
 The operator caught a real verification error: a direct skill/MCP adapter was
 reported as a native installed plugin. Those are different surfaces. Version

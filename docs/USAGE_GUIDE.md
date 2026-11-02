@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-791b-7090-ab7e-0d4da8974aa0"
-  revision: 7
+  revision: 8
   title: "Somnus Metadata — Operator and Agent Usage Guide"
   classification:
     category: "engineering"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-791b-7090-ab7e-0d4da8974aa0"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T06:26:31+00:00"
+    updated_at: "2026-11-02T06:49:21+00:00"
   names:
     slug: "somnus-metadata-operator-and-agent-usage-guide"
   knowledge:
@@ -708,7 +708,7 @@ clarified that bulk adoption is use of the system, not a software-completion gat
 | **Core Specification & Decisions** | **OPERATIONAL** (core 2.0.0, SPEC r7, DECISIONS r5 D1–D19) | Semantic check rerun: 0 errors / 0 warnings. No normative changes made during adoption. |
 | **Python Backend & CLI (2.1.1)** | **PASS on the exercised Linux boundary** | 537/537 source tests; mypy clean in 49 files; installed-wheel acceptance 67/67. Patch 2.1.1 reports unmanaged sidecar-only hosts without loading their binary contents. |
 | **Public PyPI distribution** | **Released and installed: 2.1.1** | Wheel and sdist passed Twine; 51 runtime wheel files match the accepted wheel. Uploaded successfully and fetched through no-cache plain pip. |
-| **Native multi-host plugin (1.2.0)** | **Installed and enabled in Codex and Factory** | Portable/native manifests and catalogs shipped in 4deee50; 25 tests and CI 41399524229 pass. Both native caches were refreshed through host remove/install commands. Both cached skill trees and requested custom copies match the canonical skill. Direct MCP duplicates were removed; fresh host sessions still queried successfully through native plugins. Factory/Codex hook contracts remain separate; no hooks are declared or copied. |
+| **Native multi-host plugin (1.2.1)** | **Installed in Codex and Factory from the clean production payload** | Commit 35c228a; 26 tests and CI 41402125903 pass. Both catalogs select the reproducible 8-file native export, not the development root. Both actual native caches have zero .somnus.yaml files and retain embedded skill frontmatter. Backend stays globally installed 2.1.1; host hook contracts remain separate and no hooks are copied. |
 | **Droid and Codex in-host search** | **PASS** | Both called MCP `q` for three known topics, `ls` for specifications, `stale`, and `q --conflicts`; every text search returned real hits. Complete TSV paths were separately proven in both hosts. At this checkpoint: 1 specification, 7 near-title advisories, 0 open conflicts. Session evidence is in PLAN.md. |
 | **Global registry adoption** | **Optional usage, not a completion gate** | Operator stopped bulk adoption. Last scan: five roots, 2,659 managed / 21,554 unmanaged / 0 invalid / 0 missing / 0 conflicts. Existing changes are preserved; do not resume adoption without a new request. |
 | **Preservation and exclusions** | **APPLIED; explicit exceptions retained** | Real carrier preflight preserved skill frontmatter, Python preambles, TOML/YAML, JSON, HTML and binary host bytes. Archives, frozen research, credentials, model weights, environments, generated state and the live Somnus-MCP data plane are excluded. Two pre-existing malformed Sentari Markdown files are explicitly excluded, not silently repaired. |
