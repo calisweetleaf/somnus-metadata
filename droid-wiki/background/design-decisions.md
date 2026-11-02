@@ -1,35 +1,3 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-793d-7400-9a5c-3b38c37692e2"
-  revision: 1
-  title: "Design decisions"
-  classification:
-    category: "governance"
-    type: "decision-record"
-    role: "normative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-793d-7400-9a5c-3b38c37692e2"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "design-decisions"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-793d-7400-9a5c-3b38c37692e2"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Design decisions
 
 `DECISIONS.md` records nineteen ratified decisions, D1 to D19, that shape `SPEC.md` and the toolkit. The operator ratified D1 to D15 on 2026-10-11 by approving the implementation plan in `PLAN.md`; they replace five PROPOSED recommendations from an earlier draft, which survives in commit `5f1df5d`. D16 and D17 were ratified the same day during the agent-usability review that followed the build. They add `somnus set` and `somnus mcp` without changing the metadata schema, so the release stays `somnus://metadata/core/2.0.0` and `SPEC.md` moved to revision 2.
@@ -90,7 +58,7 @@ Every standardized object is closed. An unknown field at any depth is `E_SCHEMA`
 
 D19 chooses an FTS5 table inside the existing database rather than a second search store or external grep. `src/somnus/db/search.sql` defines plain-text `path`, `title`, `summary`, `tags`, and `body` columns. `src/somnus/db/store.py` maintains one row per present location; `src/somnus/commands/query.py` implements `somnus q --text` with required words, prefix matching, BM25 ranking, and text/TSV excerpts.
 
-The index never feeds validation, conflicts, or the event ledger. Missing rows are backfilled by an incremental scan, and `somnus index --full` refreshes content from disk. SQLite builds without FTS5 retain the registry without content search. D19 advances registry schema to 2, which older writers refuse, and package version to 2.1.0. It leaves core metadata at 2.0.0 because no artifact fields change. `PLAN.md` records that package as not yet published. See [Registry](../systems/registry.md) and [Querying](../features/querying.md).
+The index never feeds validation, conflicts, or the event ledger. Missing rows are backfilled by an incremental scan, and `somnus index --full` refreshes disk content. SQLite builds without FTS5 retain the registry without content search. D19 introduced registry schema 2, which older writers refuse, and package version 2.1.0, leaving core metadata 2.0.0 unchanged. The later 2.1.1 patch repairs unmanaged sidecar-host discovery in `src/somnus/db/store.py` without revising D19 or the schemas. Publication and installation are recorded in the latest sections of `PLAN.md` and `runbooks/package-release.md`. See [Registry](../systems/registry.md), [Querying](../features/querying.md), and [Getting started](../overview/getting-started.md).
 
 ## Notes on the rest
 

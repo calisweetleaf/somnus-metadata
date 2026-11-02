@@ -1,42 +1,10 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-7a67-77f0-8d9b-a9f2b0dedeac"
-  revision: 1
-  title: "Development workflow"
-  classification:
-    category: "engineering"
-    type: "report"
-    role: "informative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-7a67-77f0-8d9b-a9f2b0dedeac"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "development-workflow"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-7a67-77f0-8d9b-a9f2b0dedeac"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Development workflow
 
 Changes follow a short loop: read the governing contract, make a scoped edit, run relevant tests, and review the diff. `AGENTS.md` defines the safety rules; `.github/workflows/ci.yml` adds checks on pull requests and pushes to `main`. Changes to the standard carry extra obligations because `SPEC.md` and `DECISIONS.md` are Somnus-managed artifacts with their own revisions.
 
 ## The loop
 
-1. **Orient.** Follow the mission-first `AGENTS.md`: recover the integrated objective, current evidence, and next action in `PLAN.md`, then read the relevant relationships in `CONTEXT.md`. Use `.codex/OPERATING.md` as a transition map, not a mandatory ceremony. Find the governing rule in `SPEC.md` (sections 3 to 13 for fields, 16 and 17 for carriers, 18 for the registry, 19 for validation, 20 for the CLI). `filetree.md` maps where code lives; [architecture](../overview/architecture.md) explains the layers. Preserve the superseded `AGENTS.v1.md`; it is not the active entry.
+1. **Orient.** Follow the mission-first `AGENTS.md`: read `HANDOFF.md` first, using its latest evidence and the top of `PLAN.md`, not its original starting snapshot. Five roots are already registered; adoption of the core and plugin repositories and actual Droid/Codex search proof are complete. The release and installation commission is recorded complete (operator correction, 2026-11-01); bulk adoption of the remaining roots was stopped by the operator and is superseded history, not an open frontier, so do not resume it without a new operator request, and do not repeat completed registration or adoption. Read the relevant relationships in `CONTEXT.md` and current rollout evidence in `docs/USAGE_GUIDE.md` section 9. Use `.codex/OPERATING.md` as a transition map, not a mandatory ceremony. Find the governing rule in `SPEC.md` (sections 3 to 13 for fields, 16 and 17 for carriers, 18 for the registry, 19 for validation, 20 for the CLI). `filetree.md` maps where code lives; [architecture](../overview/architecture.md) explains the layers. Preserve the superseded `AGENTS.v1.md`; it is not the active entry.
 2. **Inspect the working tree.** Preserve existing changes. Use a topic branch when appropriate. `CODEOWNERS` names `@calisweetleaf` and calls for owner review of `SPEC.md` and `DECISIONS.md`; required approval enforcement depends on repository settings.
 3. **Edit.** Keep changes at their owning code path. In OneDrive-synced checkouts, edit one file per call: multi-file Surgeon transactions fail with WinError 5 (`AGENTS.md`). See [Tooling](tooling.md).
 4. **Test.** Run the suite from the repository root:
@@ -47,7 +15,7 @@ Changes follow a short loop: read the governing contract, make a scoped edit, ru
 
    In PowerShell, set `$env:PYTHONPATH="src"` and run the same Python module. For one suite, use `python -m unittest discover -s tests -p test_validate.py` with that environment (`tests/` is not a package).
 5. **Check documents.** `PYTHONPATH=src python -m somnus.cli check SPEC.md DECISIONS.md --level semantic`.
-6. **Type-check and review diagnostics.** Run `python -m mypy`, the third required gate in `CONTRIBUTING.md`; `python -m pip install -e ".[dev]"` installs the optional development extra. See [Testing](testing.md) for the passing isolated 1.18.2 check and historical 1.9.0 finding. Use the somnus-debug configs when appropriate. Record separately whether an installed wheel, external MCP client, or live terminal was exercised.
+6. **Type-check and review diagnostics.** Run `python -m mypy`, the third required gate in `CONTRIBUTING.md`; `python -m pip install -e ".[dev]"` installs the optional development extra inside an activated virtual environment. Create one with `python3 -m venv .venv` or `uv venv .venv` before installation on PEP 668 Linux hosts, where system pip is refused. On 2026-11-02, isolated mypy 2.4.1 passed all 49 source files, while 1.18.2 rejected the new metadata comment at `src/somnus/__init__.py:9` as invalid syntax. The declared `mypy>=1.9` range remains incompletely validated; this documentation refresh makes no dependency or product fix. See [Testing](testing.md) for results and historical evidence. Use the somnus-debug configs when appropriate. Record separately whether an installed wheel, external MCP client, or live terminal was exercised.
 7. **Review and deliver.** Inspect the diff and test results before a requested commit or pull request. `.github/pull_request_template.md` asks for exact gate results, explicit normative-document impact, and test coverage. Use conventional prefixes matching history, including `ci:` for workflow changes. The CI matrix, policy guards, and installed-wheel test are described in [Automation](../deployment.md); configured jobs are not proof of a successful run.
 
 Run `pre-commit run --all-files` when installed. `.pre-commit-config.yaml` has Ruff, mypy, and hygiene checks, but no formatter. Only the whitespace fixers skip Markdown, `archive/`, `archives/`, and `tests/`; those exclusions are not global.

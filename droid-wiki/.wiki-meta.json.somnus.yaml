@@ -1,7 +1,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-792c-730b-8e5b-d79f1092e31e"
-  revision: 1
+  revision: 6
   title: ".wiki Meta"
   classification:
     category: "research"
@@ -16,7 +16,8 @@ somnus:
     scopes:
       - target_ref: "urn:somnus:artifact:01a19a67-792c-730b-8e5b-d79f1092e31e"
         aspects: ["content"]
-  time: {}
+  time:
+    updated_at: "2026-11-02T07:01:06+00:00"
   names:
     slug: "wiki-meta"
   knowledge:

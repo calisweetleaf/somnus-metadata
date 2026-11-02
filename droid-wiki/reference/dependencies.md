@@ -1,35 +1,3 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-7b6f-753f-b674-63e18af74214"
-  revision: 1
-  title: "Dependencies"
-  classification:
-    category: "engineering"
-    type: "report"
-    role: "informative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-7b6f-753f-b674-63e18af74214"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "dependencies"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-7b6f-753f-b674-63e18af74214"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Dependencies
 
 The `somnus` package has no runtime dependencies outside the Python standard library, and that is a project rule, not an accident. `pyproject.toml` declares `dependencies = []` and `requires-python = ">=3.11"`; this page lists the stdlib modules the toolkit relies on and the tools used to develop it.
@@ -43,6 +11,18 @@ The `somnus` package has no runtime dependencies outside the Python standard lib
 | No third-party packages | `AGENTS.md`: "Stdlib only. `pyproject.toml` declares `dependencies = []`; keep it that way." |
 
 The stdlib-only rule is why the project includes its own restricted YAML parser and serializer (`src/somnus/yamlsub.py`, D7) instead of PyYAML, and its own terminal UI (`src/somnus/tui/`) instead of curses wrappers or Textual.
+
+## Distribution and entry points
+
+The distribution is named `somnus-metadata`; its Python import remains `somnus`. `pyproject.toml` and `src/somnus/__init__.py` declare **2.1.1**, implementing core `somnus://metadata/core/2.0.0` and registry schema **2**. These are distinct version identities. The latest sections of `PLAN.md` and `runbooks/package-release.md` record public publication and installation of 2.1.1; older 2.1.0 and unpublished statements are historical.
+
+`pyproject.toml` declares both `somnus = "somnus.cli:main"` and `somnus-metadata = "somnus.cli:main"` under `[project.scripts]`. Both ship in public 2.1.0. The second name is a packaging alias, not a dependency, new Python package, extra subcommand, or extra MCP tool. The counts stay 18 commands and 16 MCP tools, and `src/somnus/cli.py` still labels help/version output `somnus`. The older 2.0.0 package lacks the alias and cannot open a schema-2 registry.
+
+The 2.1.1 release section in `runbooks/package-release.md` records strict Twine checks, matching public wheel/sdist digests, matching accepted-wheel runtime files, exact-wheel 67/67 acceptance, and a no-cache pip installation. These are recorded operator results, not a fresh public-index install by this refresh. The local installed-wheel harness was separately rerun at the `6cfc132` wiki checkpoint, not for this operator-document-only delta; see [Testing](../how-to-contribute/testing.md).
+
+`tests/acceptance/installed_package_acceptance.py` has 67 checks, including the alias version assertion and unmanaged JSON/binary discovery. Both console versions are compared to `[project].version` in `pyproject.toml`. The `6cfc132` refresh passed 67/67 using a wheel built from the checkout; the operator separately records 67/67 for the released wheel. Neither installed result was repeated here. Older 65/65 and 66/66 results are historical. See [Testing](../how-to-contribute/testing.md) for acceptance scope and [Automation](../deployment.md) for CI/release boundaries. [`docs/USAGE_GUIDE.md`](../../docs/USAGE_GUIDE.md) covers pip-first venv installation, alternatives, and `PATH` shadowing. Never install the unrelated PyPI distribution `somnus` into the same environment.
+
+The optional global instructions in [`docs/AGENTS.appendix.md`](../../docs/AGENTS.appendix.md) are manually copied guidance, not an installed dependency or an automatic host configuration change. `PLAN.md`, `HANDOFF.md`, and `docs/USAGE_GUIDE.md` (corrected in commit fe19ce3) record the separate private native plugin at 1.2.1 (source commit 35c228a, 26 tests, hosted CI 41402125903 passed), installed in Codex and Factory from the clean production payload: both catalogs target the checked-in reproducible 8-file native export, and both installed caches were inspected after a clean native remove/install with 0 .somnus.yaml files. The 1.2.0 record (commit 4deee50, 25 tests, CI 41399524229) established the native installed/enabled identity `somnus-metadata-plugin@somnus-metadata-plugin` in both hosts; the guide's status row now reads "Native multi-host plugin (1.2.1) — Installed in Codex and Factory from the clean production payload". The earlier 1.1.1 record was a superseded direct-adapter report (operator correction, 2026-11-02), and the 1.1.0 snapshot is older history. The guide documents Node.js 18.17+ and private-repository access as requirements; it configures Droid, Codex, Antigravity, and OpenCode but is not shipped in the Python distribution. Its canonical consumer skill is host-agnostic; installed host copies are projections rather than independent authoring sources. See [Agent integration](../features/agent-integration.md) for fresh plugin evidence; the earlier Droid skill-read versus Codex NOT RUN boundary is closed, with the installed skill read at both requested paths after the clean reinstall for Codex and Factory Droid. Neither it nor the guide's remote-access options are Python runtime requirements or evidence of remote integrations exercised here.
 
 ## Standard library modules in use
 
@@ -81,11 +61,12 @@ Grouped by purpose, from the imports in `src/somnus/`:
 
 None of these are imported by the package or needed to run it.
 
-`pyproject.toml` declares zero runtime dependencies, one build requirement (`setuptools>=68.0.0`), and one optional `dev` requirement (`mypy>=1.9`). Install the latter with `python -m pip install -e ".[dev]"`. Other tools below have separate configuration or are optional operator tools.
+`pyproject.toml` declares zero runtime dependencies, one build requirement (`setuptools>=68.0.0`), and one optional `dev` requirement (`mypy>=1.9`). Install the latter with `python -m pip install -e ".[dev]"` inside an activated development venv. Other tools below have separate configuration or are optional operator tools.
 
 | Tool | Role | More |
 | --- | --- | --- |
-| uv | `uv tool install --editable .` installs the `somnus` command | [Tooling](../how-to-contribute/tooling.md) |
+| pip and venv | Primary public install: `~/.venvs/global/bin/pip install -U somnus-metadata`; editable checkout development: `python -m pip install -e ".[dev]"` in a venv | [Tooling](../how-to-contribute/tooling.md) |
+| uv or pipx | Optional isolated public installs (`uv tool install somnus-metadata` / `pipx install somnus-metadata`); uv also supports `uv tool install --editable .` | [Tooling](../how-to-contribute/tooling.md) |
 | somnus-debug | Static Python diagnostics with `.somnus-debug/python_doctor.yaml` and `.somnus-debug/python_doctor.src.yaml` | [Tooling](../how-to-contribute/tooling.md) |
 | Surgeon | MCP tool used for all source edits, one file per call in this folder | [Tooling](../how-to-contribute/tooling.md) |
 | `unittest` (stdlib) | The test runner; no pytest | [Testing](../how-to-contribute/testing.md) |
@@ -113,3 +94,13 @@ The wiki publisher remains pinned to `peter-evans/create-pull-request@5f6978faf0
 ## Adding a dependency
 
 Do not. If a feature seems to need a third-party package, the expected path is a small stdlib implementation or a change to the feature. A real exception would be a change to the project's constraints in `AGENTS.md` and would need the operator's explicit decision.
+
+## Key source files
+
+| File | Role |
+| --- | --- |
+| `pyproject.toml` | Distribution version, empty runtime dependencies, build/dev requirements, both console scripts, and SQL package data |
+| `src/somnus/cli.py` | Shared parser and `somnus` help/version identity |
+| `tests/acceptance/installed_package_acceptance.py` | Isolated installation and alias version assertion |
+| `PLAN.md`, `runbooks/package-release.md` | Current 2.1.1 publication and acceptance records, with older release evidence preserved |
+| `README.md`, `docs/USAGE_GUIDE.md`, `docs/AGENTS.appendix.md` | Current public release/install guidance, four-host setup boundaries, and optional manual agent instructions |

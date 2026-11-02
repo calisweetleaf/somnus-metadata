@@ -1,40 +1,12 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-79e9-768c-a071-9c598be093ff"
-  revision: 1
-  title: "CLI commands"
-  classification:
-    category: "engineering"
-    type: "report"
-    role: "informative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-79e9-768c-a071-9c598be093ff"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "cli-commands"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-79e9-768c-a071-9c598be093ff"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # CLI commands
 
 Active contributors: calisweetleaf
 
 `somnus` is an argparse CLI with 18 subcommands, each implemented as one module under `src/somnus/commands/` and imported only when invoked. Every command receives the same `Ctx` object, which supplies configuration, output formatting, registry access, and event recording.
+
+The 2.1.1 checkout declares two equivalent console entry points in `pyproject.toml`: `somnus` and `somnus-metadata`, both targeting `somnus.cli:main`. For example, `somnus-metadata q --docs` is the same invocation as `somnus q --docs`. This alias was introduced in 2.1.0, not as a nineteenth subcommand or another MCP tool: the counts remain 18 commands and 16 tools. The parser's program name and version text still say `somnus`; both entry points now print `somnus 2.1.1` with `--version`.
+
+The public release is now 2.1.1; the top of `PLAN.md` records matching uploaded artifact digests, exact-release wheel acceptance, and a no-cache pip installation. The alias remains available. Install with pip in a virtual environment on `PATH`, or use uv/pipx as alternatives. See the operator walkthrough in [`docs/USAGE_GUIDE.md`](../../docs/USAGE_GUIDE.md) for installation, binary shadowing, first-run commands, TUI, and MCP use. Its remote-access architecture is guidance, not evidence of a live remote integration.
 
 ## Purpose
 
@@ -86,6 +58,8 @@ The index is location-derived, populated only from managed documents successfull
 With explicit roots, `index` scans those roots; otherwise it scans registered roots. Only when neither exists does it fall back to configured roots. In that fallback branch, a root equal to the resolved home directory or filesystem anchor is refused with exit 2 and guidance to use `somnus init --root DIR` or `somnus index DIR`. This is not a universal ban on explicitly named or already registered broad roots.
 
 After scanning, `index` reports up to 10 unmanaged absolute host paths, adds `and N more` when needed, and suggests `somnus stamp PATH` to preview followed by `somnus stamp PATH --write` to adopt. These are informational stderr notes, not warnings or errors; unmanaged files alone do not make indexing fail. `tests/test_commands.py` covers the implicit-home refusal, two-word unquoted search, unmanaged-file notes, and zero-match hint.
+
+Since 2.1.1, `Store.scan()` in `src/somnus/db/store.py` also counts hosts with neither an embedded carrier nor a sidecar, including JSON, text, extensionless files, and binaries. It appends their absolute POSIX-form paths to the full native `ScanReport.unmanaged_paths` list without reading their payloads; exclusions apply first. A host with a sidecar is skipped in favor of observing that sidecar once. Discovery creates no metadata and no search row: authorized `stamp --write` adoption and successful indexing are still required. See [Adopting files](adopting-files.md) for the current five-root checkpoint and [Testing](../how-to-contribute/testing.md) for discovery regressions and the 67-check installed harness.
 
 ## How it works
 
@@ -175,6 +149,9 @@ Module-level helpers in `src/somnus/commands/_common.py`: `load_valid()` (load a
 
 | File | Role |
 | --- | --- |
+| `pyproject.toml` | Both console entry points target `somnus.cli:main` |
+| `docs/USAGE_GUIDE.md` | Operator walkthrough and checkout-versus-published installation guidance |
+| `tests/acceptance/installed_package_acceptance.py` | Both installed entry-point versions checked against `pyproject.toml`; JSON/binary discovery assertion |
 | `src/somnus/cli.py` | Parser, global flags, lazy dispatch, exit-code boundary |
 | `src/somnus/commands/_common.py` | `Ctx`, payload builders, commit helpers, file walking |
 | `src/somnus/commands/*.py` | One module per subcommand |
@@ -183,4 +160,5 @@ Module-level helpers in `src/somnus/commands/_common.py`: `load_valid()` (load a
 | `src/somnus/commands/index.py` | Root selection, fallback safety, unmanaged-file adoption notes |
 | `src/somnus/db/store.py`, `src/somnus/db/search.sql` | Search population, migration/backfill, and FTS5 definition |
 | `tests/test_commands.py` | CLI root-safety, search, and informational-hint coverage |
+| `tests/test_store.py` | Sidecar-only discovery, bounded allocation, exclusions, and stamp/removal reconciliation |
 | `SPEC.md` | §19.3 exit codes, §20 CLI contract |

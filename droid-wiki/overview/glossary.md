@@ -1,35 +1,3 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-7b1b-7359-b8a5-6b5f189966c8"
-  revision: 1
-  title: "Glossary"
-  classification:
-    category: "engineering"
-    type: "report"
-    role: "informative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-7b1b-7359-b8a5-6b5f189966c8"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "glossary"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-7b1b-7359-b8a5-6b5f189966c8"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Glossary
 
 Terms used across `SPEC.md`, the code, and this wiki. Controlled vocabularies are defined in `src/somnus/model/vocab.py`.
@@ -59,9 +27,11 @@ Terms used across `SPEC.md`, the code, and this wiki. Controlled vocabularies ar
 | Registry | The global SQLite database at `$SOMNUS_HOME/somnus.db`. See [Registry](../systems/registry.md). |
 | Search index | Derived FTS5 table with one row per present location, using Porter stemming over Unicode tokens (`src/somnus/db/search.sql`). `somnus q --text` searches it; it is not authority or revision evidence (D19 in `DECISIONS.md`). See [Querying](../features/querying.md). |
 | Root | A directory registered with `somnus init --root` and scanned by `somnus index`. |
+| Unmanaged host | A discovered host with no Somnus metadata. Since toolkit 2.1.1, `Store.scan` in `src/somnus/db/store.py` also counts hosts needing a new sidecar without loading their bytes. `ScanReport.unmanaged_paths` is the complete discovered list; the CLI prints at most ten examples. Discovery is not adoption or content indexing. |
 | Conflict | A registry row for a problem across files. The `conflicts.kind` column allows `revision`, `duplicate-id`, `authority`, and `identity`. Registry-wide graph cycles are reported as `E_GRAPH` diagnostics during a scan, not stored as conflicts. |
 | Event | A row in the append-only `events` ledger recording who changed what and when. |
 | Diagnostic | One finding, printed as `path:line:col: severity CODE field: message` (`src/somnus/output.py`). |
 | Settable field | One of the ten header paths the `somnus edit` form exposes (`FIELDS` in `src/somnus/tui/form.py`): `title`, `summary`, `purpose`, `classification.category`, `.type`, `.role`, `.scope`, `.tags`, `access.visibility`, and `ingestion.disposition`. `somnus set` accepts exactly these. See [Agent integration](../features/agent-integration.md). |
 | MCP server | `somnus mcp`, a stdio Model Context Protocol server in `src/somnus/mcp.py`. Each tool is one CLI command (all except `edit` and `mcp`), and each call runs the CLI. |
+| Command alias | In toolkit 2.1.0, `somnus-metadata` and `somnus` are console scripts targeting the same `somnus.cli:main` function (`pyproject.toml`, `src/somnus/cli.py`). Both print `somnus` in help and version output; the Python import name is unchanged. |
 | Mojibake | Text corrupted by decoding UTF-8 as cp1252. Hit this repo once; see [Pitfalls](../background/pitfalls.md). |

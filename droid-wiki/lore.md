@@ -1,42 +1,10 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-7ac7-7666-8085-a04ad1e6aa8f"
-  revision: 1
-  title: "Lore"
-  classification:
-    category: "engineering"
-    type: "report"
-    role: "informative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-7ac7-7666-8085-a04ad1e6aa8f"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "lore"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-7ac7-7666-8085-a04ad1e6aa8f"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Lore
 
-This page tells the history of somnus-metadata through `22117e9` on 2026-10-31 UTC, using dates recorded in git and inside the documents. Where a commit or document does not say why something happened, the reasons given here are inferences and are marked as such. For the decisions themselves, see [design decisions](background/design-decisions.md). For how old material maps to new, see [migration context](background/migration-context.md). The current system is described in [the overview](overview/index.md) and [architecture](overview/architecture.md); workflow operation belongs in [Automation](deployment.md).
+This page tells the history of somnus-metadata through `fe19ce3` on 2026-11-02 UTC, using dates recorded in git and inside the documents. Where a commit or document does not say why something happened, the reasons given here are inferences and are marked as such. For the decisions themselves, see [design decisions](background/design-decisions.md). For how old material maps to new, see [migration context](background/migration-context.md). The current system is described in [the overview](overview/index.md) and [architecture](overview/architecture.md); workflow operation belongs in [Automation](deployment.md).
 
 ## Timeline
 
-Git times below retain the recorded UTC-05:00 offset unless explicitly marked UTC. Dates inside documents are separate evidence, not inferred commit dates. The UTC activity buckets on [By the numbers](by-the-numbers.md) therefore place late October 11 local-time commits on October 12.
+Git times below retain the recorded UTC-05:00 offset unless explicitly marked otherwise. The latest milestone uses UTC and also gives its recorded UTC-06:00 local time. Dates inside documents are separate evidence, not inferred commit dates. The UTC activity buckets on [By the numbers](by-the-numbers.md) therefore place late October 11 local-time commits on October 12.
 
 | Date | Event | Evidence |
 | --- | --- | --- |
@@ -64,6 +32,11 @@ Git times below retain the recorded UTC-05:00 offset unless explicitly marked UT
 | 2026-10-31 (document date) | D19 accepts content search as a derived registry index | `DECISIONS.md` ratification tracker; `SPEC.md` §18.4 |
 | 2026-10-31 17:07:29 (22:07:29 UTC) | Full-text search, registry schema 2, and toolkit version 2.1.0 committed; core stays 2.0.0 | `27408fa`; 21 files, 320 insertions and 43 deletions; `PLAN.md` says 2.1.0 is not yet published |
 | 2026-10-31 17:41:31 (22:41:31 UTC) | Mission-first entry policy promoted; CLI adoption/search hints and MCP relative-path diagnostics added | `22117e9`; 12 files, 166 insertions and 92 deletions; `AGENTS.md`, `AGENTS.v1.md`, `SPEC.md` revision 7 |
+| 2026-11-02 04:09:05 UTC (November 1, 22:09:05 UTC-06:00) | Project-file metadata adoption and verified operator registry rollout recorded | `e82e8bc`; 141 files, 4,682 insertions and 20 deletions; `PLAN.md`, `HANDOFF.md`, `CONTEXT.md`, `docs/USAGE_GUIDE.md` |
+| 2026-11-02 04:46:40 UTC (November 1, 22:46:40 UTC-06:00) | Universal unmanaged discovery repaired, toolkit 2.1.1 release recorded, and five-root rollout continued | `6cfc132`; 13 files, 394 insertions and 166 deletions; `src/somnus/db/store.py`, `tests/test_store.py`, `tests/acceptance/installed_package_acceptance.py`, `pyproject.toml`, `PLAN.md`, `HANDOFF.md` |
+| 2026-11-02 06:00:42 UTC (November 2, 00:00:42 UTC-06:00) | Operator correction closes the release/install commission and supersedes the bulk-adoption scope | `3e09b64`; 4 files, 85 insertions and 23 deletions; `AGENTS.md`, `HANDOFF.md`, `PLAN.md`, `docs/USAGE_GUIDE.md` |
+| 2026-11-02 06:26:32 UTC (November 2, 00:26:32 UTC-06:00) | Operator correction of a verification error: native plugin installation replaces the direct-adapter record | `605c5a8`; 4 files, 92 insertions and 13 deletions; `AGENTS.md`, `HANDOFF.md`, `PLAN.md`, `docs/USAGE_GUIDE.md` |
+| 2026-11-02 06:49:21 UTC (November 2, 00:49:21 UTC-06:00) | Clean production plugin payload: native plugin 1.2.1 ships the reproducible 8-file export, installed in Codex and Factory | `fe19ce3`; 3 files, 35 insertions and 9 deletions; `HANDOFF.md`, `PLAN.md`, `docs/USAGE_GUIDE.md` |
 
 ## Eras
 
@@ -121,6 +94,24 @@ The same commit addresses CLI/MCP friction. `src/somnus/commands/index.py` lists
 
 `SPEC.md` advances to revision 7 to describe search-word handling and the MCP note. Core remains 2.0.0, toolkit identity remains 2.1.0 in `pyproject.toml`, and no new product-contract decision follows D19 in `DECISIONS.md`. `tests/test_commands.py` adds two test methods; `tests/test_mcp.py` strengthens an existing method. The commit records **486 passing tests** and semantic 0/0 with mypy clean. That is distinct from the earlier 484-test search milestone and is historical commit evidence, not a new installed-package or external-host acceptance result.
 
+**Registry rollout recorded, 2026-11-02 UTC.** Commit `e82e8bc` adds native Somnus envelopes and sidecars to project files while preserving the source/test host content and all 64 Python ASTs. This is metadata adoption, not a runtime rewrite. `PLAN.md`, `HANDOFF.md`, `CONTEXT.md`, and `docs/USAGE_GUIDE.md` record five registered roots, 141 core plus 14 plugin files adopted, 160 unique present paths with no open conflicts, and real Droid/Codex MCP searches returning complete TSV paths. They also record toolkit 2.1.0/plugin 1.1.0 installation evidence, 534 tests, and the separate 66-check acceptance harness. These are operator records, not new results from this wiki refresh. Rollout is still partial: 21,174 embedded-carrier candidates remain unmanaged, with unknown-carrier hosts uncounted; OpenCode in-session and native Windows checks remain NOT RUN. See [agent integration](features/agent-integration.md) for host boundaries and [by the numbers](by-the-numbers.md) for metadata's effect on physical line counts.
+
+**Universal discovery repair and continued rollout, 2026-11-02 UTC.** Commit `6cfc132` follows that checkpoint with a behavior change, not another metadata-only adoption. `Store.scan` in `src/somnus/db/store.py` had skipped unknown-carrier hosts without sidecars, so the supposedly full inventory omitted JSON, plain text, and binary files. It now counts those hosts and appends their paths without reading payload bytes. Existing sidecar routing, carriers, exclusions, and reconciliation remain in place; no subsystem or authored carrier algorithm is replaced. This repair matters to the universal-file rollout even though the incremental delta is only 560 changed lines: the earlier 21,174-candidate figure was incomplete, not a valid all-file baseline.
+
+Three real-file regressions in `tests/test_store.py` cover unknown hosts and exclusions, a 64 MiB sparse binary with traced allocation below 8 MiB, and real CLI stamping followed by sidecar removal and reconciliation. The installed harness in `tests/acceptance/installed_package_acceptance.py` adds unknown-host discovery and reads expected versions from `pyproject.toml` instead of hard-coding 2.1.0. The package advances to **2.1.1** in `pyproject.toml` and `src/somnus/__init__.py`; core stays 2.0.0 and registry schema stays 2.
+
+The latest `PLAN.md` and `HANDOFF.md` checkpoint records public 2.1.1 publication, matching public/local artifact digests, a no-cache plain-pip installation, **537 source tests**, **67 installed acceptance checks**, exact-wheel acceptance, and mypy clean across **49 source files**. Plugin **1.1.0** is unchanged: its prior **21-test** result is retained, while all four hosts have fresh **16-tool / 2.1.1** handshakes. These are recorded operator results, not executions or public-index checks performed by this wiki refresh.
+
+The same dated checkpoint records **1,064 managed / 27,245 unmanaged / 0 invalid / 0 missing / 0 conflicts** across five roots. Managed/unmanaged counts are Repositories **161/3,418**, LAB **0/23,194**, Somnus-MCP **0/633**, Documents **899/0**, and Projects **4/0**. Documents and Projects are fully adopted under the recorded exclusions; the other three roots remain unfinished. Prior Droid/Codex search and complete-TSV proof must be repeated against the final corpus. OpenCode in-session, native Windows, and host-write validation remain NOT RUN. The older rollout paragraph above is preserved as the `e82e8bc` checkpoint, not the current inventory, and this paragraph is in turn superseded by the final checkpoint below. See [adoption](features/adopting-files.md) and [agent integration](features/agent-integration.md).
+
+**Release/install commission closed, 2026-11-02 UTC.** Commit `3e09b64` records an operator correction dated 2026-11-01: "finished" means the software is released and installed, not that every file on the machine carries Somnus metadata. `AGENTS.md`, `HANDOFF.md`, `PLAN.md`, and `docs/USAGE_GUIDE.md` record the commission as complete: somnus-metadata 2.1.1 is the latest PyPI release with a verified global pip installation; both the backend and plugin repositories pushed main with upstream tracking; plugin/skill 1.1.1 at commit 3000082 was clean-reinstalled for Codex and Factory Droid (removal verified, config backups preserved, both skill trees matching the package, fresh 16-tool / backend-2.1.1 handshakes, and the installed skill read at both requested paths); and fresh Codex and Factory MCP lifecycle queries returned the same two real full paths (Factory session 039db1c1-ba79-4868-919b-9c9c6f8fd137). The same record reports 537 source tests, semantic 0/0, mypy clean across 49 files, 21/21 plugin tests, 67/67 exact-wheel acceptance, and passing hosted CI for backend 07a6039 and plugin 3000082.
+
+The cross-root bulk-adoption objective and its zero-unmanaged acceptance criterion are explicitly superseded history, not an open frontier. `docs/USAGE_GUIDE.md` §9 now classifies adoption as optional usage, not a completion gate, and its last scan stands as the final recorded inventory: **2,659 managed / 21,554 unmanaged / 0 invalid / 0 missing / 0 conflicts** across five roots. The two rollout paragraphs above remain as dated historical checkpoints of that stopped effort; the 1.1.0-plugin and 1,064-managed figures describe earlier states, not the current record. These are operator records, not executions performed by this wiki refresh. See [adoption](features/adopting-files.md) and [by the numbers](by-the-numbers.md).
+
+**Native plugin verification correction, 2026-11-02 UTC.** Commit `605c5a8` records a second operator correction on the same day: the operator caught a verification error in the closure record above, where a direct skill/MCP adapter surface had been reported as a native installed plugin. The corrected record reports plugin **1.2.0** at commit **4deee50**, with **25 passing tests** and hosted CI 41399524229, supplying portable, Codex, and Factory manifests and catalogs plus the same shared skill. Its native identity somnus-metadata-plugin@somnus-metadata-plugin is verified installed and enabled in both hosts' native plugin lists (Codex installed=true/enabled=true at 1.2.0; Factory Enabled/user/4deee507dc7a), with both caches refreshed through native remove/install. Both native cached skill trees and the custom skill copies match the canonical skill; duplicate direct MCP entries were removed; and fresh Codex and Factory sessions queried the lifecycle through the native plugin, both returning the same lifecycle.py path (Factory session 52dcef09-320e-4d43-851c-e60b1025cf83). The backend is unchanged at 2.1.1, and no hooks were declared or copied. The earlier 1.1.1/3000082 paragraph above is preserved as the direct-adapter record it described, superseded by this entry. These are operator records, not executions performed by this wiki refresh. See [agent integration](features/agent-integration.md).
+
+**Production payload correction, 2026-11-02 UTC.** Commit `fe19ce3` records plugin **1.2.1**, pushed as **35c228a**: the plugin no longer ships the development checkout as the runtime. Both catalogs target `native/somnus-metadata-plugin`, a checked-in reproducible export of exactly **8 runtime files**. Both installed caches were inspected after a clean native remove/install: **0 .somnus.yaml files**, no package.json/.gitignore, and no Node development adapter code, while SKILL.md retains its embedded YAML frontmatter. The build's `--check` and a new packaging regression reject stale or unexpected export files; **26 tests pass** and hosted CI **41402125903** is green. The globally installed backend remains 2.1.1, no hooks were added or copied, and no other repositories or registry adoption changed. The 1.2.0 entry above remains the native installed/enabled verification; this correction changes what the catalogs install, not the MCP surface. These are operator records, not executions performed by this wiki refresh. See [agent integration](features/agent-integration.md) and [deployment](deployment.md).
+
 ## Longest-standing pieces
 
 | File | First commit | Later changes |
@@ -144,7 +135,7 @@ The implementation was unchanged between the agent-usability pass and the Octobe
 | JSON Schema files in `archive/v0.1/schemas/v1/` | Python field model in `src/somnus/model/schema.py`, exported on demand by `somnus schema --json-schema` | D4, D5 | JSON Schema is now generated output, not a source file |
 | Two-tier ledger with `provenance/*.json` files | One global SQLite database at `$SOMNUS_HOME/somnus.db` | D4 | Tables `revisions` and `events`, append-only by trigger, no JSON columns |
 | Bare UUIDv7 identifiers | `urn:somnus:artifact:<uuidv7>`, with old UUIDs wrapped rather than reminted | D3 | |
-| `archive/v0.1/tools/validate.py` (1,115 lines) and `archive/v0.1/tools/operator_docs_audit.py` | `somnus check`, backed by `src/somnus/model/validate.py` (844 lines at the current snapshot) | D14, D15 | Historical paths were `tools/validate.py` and `tools/operator_docs_audit.py`; neither is active implementation |
+| `archive/v0.1/tools/validate.py` (1,115 lines) and `archive/v0.1/tools/operator_docs_audit.py` | `somnus check`, backed by `src/somnus/model/validate.py` (875 physical lines at the current snapshot, including metadata) | D14, D15 | Historical paths were `tools/validate.py` and `tools/operator_docs_audit.py`; neither is active implementation |
 
 D4 is the one decision the operator replaced directly instead of picking from the draft's options. Its context section quotes an override written into the draft: "THIS SHOULD BE A GLOBAL .DB WITH A COMPLEX DETAILED YET HUMAN READABLE SCHEMA, WHILE ALSO REMAINING AVAILABLE TO THE MODEL. JSON IS FORBIDDEN, IT IS SLOW ON INFERENCE. ITS TOO MUCH". That override never appears as its own commit. The committed draft in `5f1df5d` does not contain it, and the quote first shows up in `df72af4`. It was probably added to the working copy between those commits and folded into the ratified text.
 

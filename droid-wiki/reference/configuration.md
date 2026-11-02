@@ -1,35 +1,3 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-7b41-75a1-bf3e-fa8f4e83ec5e"
-  revision: 1
-  title: "Configuration"
-  classification:
-    category: "engineering"
-    type: "report"
-    role: "informative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-7b41-75a1-bf3e-fa8f4e83ec5e"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "configuration"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-7b41-75a1-bf3e-fa8f4e83ec5e"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Configuration
 
 Configuration is TOML, read with the stdlib `tomllib`, and resolved in layers by `src/somnus/config.py`. It supplies the actor name recorded in registry events, the default header values that `somnus new`, `stamp`, `fork`, and `migrate` write, and the roots and exclusions used by indexing.
@@ -99,6 +67,18 @@ Layers merge per key: a local file that sets only `role` keeps every other defau
 Roots start as the starting directory (or its parent if `start` is a file), not as the `"."` in `BUILTIN`. A config file with `roots = []`, which is what `CONFIG_TEMPLATE` writes, leaves that default in place. Roots registered with `somnus init --root DIR` are stored in the registry's `roots` table separately from this setting.
 
 Exclude patterns are POSIX-style globs matched against paths relative to a root by `glob_regex` in `src/somnus/db/store.py`: `**/` matches zero or more directories, `**` matches anything, `*` and `?` do not cross `/`. `.git`, `.hg`, and `.svn` directories are always pruned during walks regardless of configuration.
+
+### Rollout safeguards
+
+The latest top sections of `PLAN.md` and `HANDOFF.md` record the release/install commission complete and mark the bulk-adoption frontier superseded (operator correction, 2026-11-01). Five roots are registered; the last recorded scan in `docs/USAGE_GUIDE.md` section 9 reports 2,659 managed hosts, 21,554 unmanaged hosts, and no invalid/missing hosts or conflicts, superseding the earlier 1,064 / 23,148 checkpoint and older `CONTEXT.md` snapshots. This is recorded operator state, not a fresh inspection of this runner. Earlier nested-registration consolidation is complete; do not create duplicate observations by registering nested repositories again.
+
+Configured roots and registered roots are different: `src/somnus/commands/init.py` registers directories in SQLite, and `src/somnus/commands/index.py` prefers those registrations when no explicit roots are passed. The template's `roots = []` is not evidence that the registry has no roots. Inspect both surfaces before changes; do not re-register already completed parents or nested repositories without checking overlap and reconciliation ownership. Back up the registry before authorized consolidation.
+
+Before an authorized bulk adoption, configure excludes for generated/dependency directories and deliberate file exclusions. An `exclude` override replaces the list, so retain required defaults and use root-relative globs that cover nested directories. The handoff also preserves frozen research and `archive/`. Configuration does not adopt a file: `somnus stamp` takes explicit file paths, and `somnus index` reconciles managed files. See [Adopting files](../features/adopting-files.md) and [Querying](../features/querying.md).
+
+Toolkit 2.1.1 repairs the earlier embedded-carrier-only count: `Store.scan` in `src/somnus/db/store.py` reports hosts requiring a new sidecar without reading their payloads. Exclusions still apply before discovery. Its complete `ScanReport.unmanaged_paths` list includes all discovered unmanaged host types; the CLI prints only ten examples. The 23,148 unmanaged checkpoint replaced earlier inventories and is in turn superseded by the last recorded 21,554. Generated dependencies, including the operator's pnpm store, credentials, archives, frozen research, and live Somnus-MCP data remain deliberately excluded (`PLAN.md`). Historical `mash_merge_archive` and `old-non-applicable` trees remain untouched. The preservation pass also excludes generated hosting state, private account-derived exports, runtime objects, test-run output, and machine-owned run records. The 4,054-host reduction from 27,202 did not establish adoption: the managed count remained 1,064 at that checkpoint. Bulk adoption was later stopped by the operator (2026-11-01); the remaining unmanaged hosts are preserved, not unfinished work.
+
+`PLAN.md` records an isolated protected-source fixture whose native-generated standard sidecar passed semantic validation, registry observation, and literal host-byte preservation. It does not record completed bulk protected-host adoption or a new configuration option. Keep that fixture proof separate from corpus completion. Prior known-topic Droid/Codex hits did not establish complete adoption; skill/plugin alignment and both installed-skill reads are recorded complete for Codex and Factory Droid after the clean reinstall, and expanded-corpus searches apply only if the operator resumes adoption.
 
 ## Validation errors
 

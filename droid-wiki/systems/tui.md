@@ -1,40 +1,8 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-7bf8-7503-88d1-df4433107c28"
-  revision: 1
-  title: "Terminal UI"
-  classification:
-    category: "engineering"
-    type: "report"
-    role: "informative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-7bf8-7503-88d1-df4433107c28"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "terminal-ui"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-7bf8-7503-88d1-df4433107c28"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Terminal UI
 
 Active contributors: calisweetleaf, Christian
 
-`somnus edit` opens a full-screen, stdlib-only terminal UI. Without a path it shows a filterable browser over the registry; with a path, or after choosing a row, it shows a header editor for a fixed set of fields that validates on every change and saves as a new revision. Registry notes are routed into the active frame instead of stderr. Coverage includes headless checks, real POSIX PTY tests, and an explicit installed-wheel acceptance harness; native Windows console paths remain unexercised.
+`somnus edit` opens a full-screen, stdlib-only terminal UI. Without a path it shows a filterable browser over the registry; with a path, or after choosing a row, it shows a header editor for a fixed set of fields that validates on every change and saves as a new revision. Registry notes are routed into the active frame instead of stderr. Coverage includes headless checks, real POSIX PTY tests, faked Windows console/input tests, and an explicit installed-wheel acceptance harness; live Windows console behavior remains unexercised.
 
 ## Purpose
 
@@ -186,7 +154,7 @@ See [Patterns and conventions](../how-to-contribute/patterns-and-conventions.md)
 ## Integration points
 
 - `Ctx` from `src/somnus/commands/_common.py` supplies `registry_exists()`, `readonly()`, and `record()`; that module also owns `load_valid()`, `commit()`, `note()`, and `capture_notes()`.
-- `Store.list_docs()` in `src/somnus/db/store.py` provides browser rows `(id, title, type, status, standing, revision, path)`. See [Registry](registry.md).
+- `Store.list_docs()` in `src/somnus/db/store.py` provides browser rows `(id, title, type, status, standing, revision, path)`. `detail_lines()` in `src/somnus/tui/app.py` pairs those seven values with `ROW_LABELS` using `zip(..., strict=True)`, so short or extra-column rows raise `ValueError` rather than silently dropping labels or values. `tests/test_tui.py` checks both drift cases and all seven labels, including a blank title. See [Registry](registry.md).
 - `validate_payload()` in `src/somnus/model/validate.py` drives live form validation; `bump_revision()` in `src/somnus/model/lifecycle.py` creates the new revision. See [Validation](validation.md) and [Lifecycle and revisions](../features/lifecycle-and-revisions.md).
 - Rendering and host-byte preservation come from `Document.render()` in `src/somnus/document.py`. See [Document model](document-model.md) and [Carriers](carriers.md).
 - CLI registration of `edit [PATH]` is described in [CLI commands](../features/cli-commands.md).
@@ -198,7 +166,7 @@ See [Patterns and conventions](../how-to-contribute/patterns-and-conventions.md)
 - Add a key binding: extend the `actions` mapping in `EditorScreen.handle()` or the branches in `BrowserScreen.handle()` in `src/somnus/tui/app.py`, and update the matching `_help()` or footer text.
 - Add a key name: extend `_WINDOWS_SPECIAL`, `_CSI_LETTERS`, `_CSI_TILDE`, or `_PLAIN` in `src/somnus/tui/term.py`.
 - Note routing: keep the sink in `src/somnus/commands/_common.py` and pass the shared `NoteBuffer` through `src/somnus/tui/app.py`; redirecting just one imported caller misses other notes.
-- Tests: extend the relevant headless, registry, or POSIX PTY checks in `tests/test_tui.py`, and the installed-browser/editor checks in `tests/acceptance/installed_package_acceptance.py` when changing the consumed boundary. Native Windows behavior still needs a Windows host.
+- Tests: extend the relevant headless, registry, or POSIX PTY checks in `tests/test_tui.py`, the fake-console checks in `tests/test_term_windows.py`, and the installed-browser/editor checks in `tests/acceptance/installed_package_acceptance.py` when changing the consumed boundary. Native Windows behavior still needs a Windows host.
 
 ## Evidence and limits
 
@@ -209,11 +177,11 @@ See [Patterns and conventions](../how-to-contribute/patterns-and-conventions.md)
 | POSIX terminal | `PosixTerminalTest` exercises real PTY raw-mode entry and attribute restoration with kernel-owned `PENDIN` masked, suspend/re-entry, key reads, redraw, EOF, and entry failure. Some output assertions use an in-memory stream. |
 | Save chain | `TuiSaveChainPtyTest` drives `main()` through real PTY input and a real registry cycle, asserting revision 2, no registry note on stderr, and a width-bounded, cursor-positioned frame row containing `registry: E_GRAPH`. |
 | Installed consumers | `tests/acceptance/installed_package_acceptance.py` explicitly builds and installs an isolated wheel outside the checkout; its PTY phases cover browser enter/leave, an editor round trip, and editor save-note routing. This harness is not collected by ordinary unittest discovery. |
-| Windows | `WindowsConsoleGuardTest` checks refusal off Windows only. It does not exercise native `msvcrt` input or `ctypes` console modes. POSIX PTY coverage does not establish Windows Terminal or legacy-console behavior. |
+| Windows code paths through fakes | `tests/test_term_windows.py` adds 12 tests with patched `sys.platform`, `FakeKernel32`, and `FakeMsvcrt`: mode save/VT-enable/restore, piped stdin, non-console stdout, missing VT support, entry-failure screen cleanup and stdin restoration, suspension/re-entry, and prefixed/plain key reads. `WindowsConsoleGuardTest` in `tests/test_tui.py` separately checks refusal off Windows. Neither fakes nor POSIX PTYs establish live Windows Terminal or legacy-console behavior. |
 
 In `tests/test_tui.py`, `PosixTerminalTest.attrs()` masks only `getattr(termios, "PENDIN", 0)` from the local-mode flags before comparison. The test comment explains that macOS sets this status bit when canonical mode toggles and `tcsetattr()` cannot restore it. Commit `b0cc64e` changes this comparison helper, not the terminal implementation in `src/somnus/tui/term.py`.
 
-This refresh passed all 59 existing TUI tests on Linux with Python 3.12.3. It did not run on macOS or Windows. `PLAN.md` records a prior 60/60 installed-harness result, not a new result from this documentation refresh. See [Testing](../how-to-contribute/testing.md) for invocation and acceptance boundaries.
+The `0881ad7` refresh passed the existing 537-test suite on Linux, including all 60 tests in `tests/test_tui.py` and 12 faked-Windows tests in `tests/test_term_windows.py`. It also passed 67/67 installed-harness checks, including real POSIX browser/editor/save-chain PTYs using a locally built 2.1.1 wheel. The later `3e09b64` docs-only refresh repeated the 537 checkout tests but not the installed harness. The 88.76% branch-plus-statement coverage result in `PLAN.md` is historical, not remeasured here. External-host integrations and live Windows consoles remain NOT RUN. See [Testing](../how-to-contribute/testing.md) for invocation and acceptance boundaries.
 
 ## Key source files
 
@@ -226,6 +194,7 @@ This refresh passed all 59 existing TUI tests on Linux with Python 3.12.3. It di
 | `src/somnus/tui/widgets.py` | Width-exact rendering and widgets |
 | `src/somnus/tui/term.py` | Platform modes, key decoding, differential redraw |
 | `tests/test_tui.py` | Headless, real registry note-routing, POSIX PTY, and Windows guard tests |
+| `tests/test_term_windows.py` | Twelve faked Windows mode, lifecycle/restoration, and key-input tests; not native OS evidence |
 | `tests/acceptance/installed_package_acceptance.py` | Explicit installed-wheel browser/editor PTY checks |
 
 Related: [Architecture](../overview/architecture.md), [Glossary](../overview/glossary.md).

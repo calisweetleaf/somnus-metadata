@@ -1,16 +1,23 @@
 {
-  "generatedAt": "2026-10-31T23:09:53Z",
-  "commitHash": "a5c507ce1b8d925065bd2de2244ec13fb6660f94",
+  "generatedAt": "2026-11-02T07:00:57Z",
+  "commitHash": "fe19ce3278ccdd610483ee73262e309be2bf3131",
   "branch": "main",
   "pageCount": 37,
   "warnings": [
-    "Phase 3.5 skipped: no .factory/skills/qa/config.yaml. Run /install-qa to enable screenshots.",
-    "Incremental refresh at a5c507c from 89f1843: one workflow file changes (5 additions, 1 deletion), enabling no-diff rolling-branch cleanup and correcting the fallback log. Refreshed deployment.md, how-to-contribute/tooling.md, by-the-numbers.md and metadata; preserved the other 34 pages, existing staged content and sidebar order. Source and tests are unchanged; no new or removed subsystem pages are needed. Custom documentation checks passed for 37 pages, 265 relative links, 808 concrete source references, headings, directory indexes, page sizes, metadata/sidebar order and source-directory coverage; git diff --check and git diff --cached --check passed. An initial link-check false positive inside a timestamp code span was corrected in the ad hoc checker without changing the page. Product tests, semantic validation, mypy, installed acceptance, external MCP hosts, native macOS/Windows console paths, hosted workflows and Doctor were not rerun for this documentation-only change. Existing execution evidence remains historical; PLAN.md describes operator-laptop observations, not validation on this runner."
+    "Incremental refresh from 605c5a8 to fe19ce3: one docs-only commit (HANDOFF.md, PLAN.md, docs/USAGE_GUIDE.md), 35 insertions and 9 deletions (44 changed lines). Updated 14 pages and preserved 23 verbatim. Retained all 37 pages and sidebar order. No new or removed subsystems; source, tests, package 2.1.1, core 2.0.0, registry schema 2, workflows and dependencies are unchanged.",
+    "The commit records the 2026-11-02 production payload correction: native plugin 1.2.1 (commit 35c228a, 26 tests, hosted CI 41402125903) ships a checked-in reproducible export of exactly 8 runtime files selected by both catalogs instead of the development checkout; both installed caches were inspected after a clean native remove/install and contain 0 .somnus.yaml files, no package.json/.gitignore, and no Node development adapter code. The 1.2.0/4deee50 native installed/enabled verification is retained on pages as dated evidence; the 1.1.1/3000082 report remains superseded direct-adapter history. The backend remains globally installed 2.1.1. Cross-root bulk adoption remains stopped; the last recorded scan stands at 2,659 managed / 21,554 unmanaged / 0 invalid / 0 missing / 0 conflicts.",
+    "This run repeated the repository gates for the docs-only delta: the 537 unittest suite passes and the SPEC.md/DECISIONS.md semantic check reports 0 errors / 0 warnings. mypy was not rerun (absent from system Python); the isolated mypy 2.4.1 pass over 49 source files keeps its recorded boundary.",
+    "Installed 67-check acceptance, coverage, product Doctor, external MCP hosts, host writes, public install, and remote tunnels were not exercised by this refresh. CI runs 41390991791/41390991803 (backend) and 41402125903 (plugin) are operator records, not runs inspected here.",
+    "Fresh committed-file statistics updated by one commit: full reachable history is now 43 commits and 40,259 changed lines (37,923 additions, 2,336 deletions, net 35,587). One bot-attributed commit of 43 is 2.33%, a lower bound, with no contributor rankings. Scoped-file counts are unchanged at 86 files and 18,386 physical lines because fe19ce3 touches only unscoped operator documents. The doc-path churn comparison rows (docs/USAGE_GUIDE.md, HANDOFF.md, AGENTS.md) now count every window commit; the previous snapshot omitted the 3e09b64 contribution to those three rows and is corrected here.",
+    "Phase 3.5 skipped: .factory/skills/qa/config.yaml is absent. Run /install-qa to enable screenshots. No screenshots were captured.",
+    "Generated wiki pages were edited with the host's dedicated editor because Surgeon is not exposed. The managed .wiki-meta.json sidecar is advanced through somnus bump with an isolated SOMNUS_HOME, not a hand-edited revision."
   ],
   "videoOverview": {
     "status": "failed",
     "warnings": [
-      "HyperFrames 0.4.44 doctor reported FFmpeg and FFprobe missing despite exit code 0. Rendering was skipped at the non-interactive prerequisite gate; no video was generated. None of the nine prior wiki runs exposed a playable video."
+      "No prior wiki run exposes a playable video (all 21 runs inspected this run have videoOverview null), so no video was reused.",
+      "HyperFrames 0.4.44 doctor ran in the isolated Node 22 workspace (.factory/video/wiki/somnus-metadata) and reports FFmpeg and FFprobe not found; Node 22, Chrome, Docker, CPU, memory, and disk checks passed.",
+      "No local TTS engine is available (no Kokoro module or CLI, no espeak/espeak-ng/flite/festival/pico2wave binaries, no torch), Kokoro's English pipeline requires the espeak-ng system binary, which is absent and cannot be installed without a prohibited global change, and no remote TTS fallback (edge-tts) is approved or pre-provisioned in this non-interactive run. No narration track can be produced, so no MP4, captions, or poster were generated. The upload preflight reported no wiki-video: disabled line, so this is an environment limitation, not a CMEK restriction."
     ]
   },
   "topLevelSections": [

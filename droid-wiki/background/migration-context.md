@@ -1,35 +1,3 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-795d-7785-8fcd-198b1013bd45"
-  revision: 1
-  title: "Migration context"
-  classification:
-    category: "context"
-    type: "state"
-    role: "informative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-795d-7785-8fcd-198b1013bd45"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "migration-context"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-795d-7785-8fcd-198b1013bd45"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Migration context
 
 Core 2.0.0 replaced the v0.1 "Somnus Markdown Metadata Standard" rather than extending it. This page explains what v0.1 looked like, what changed, where the old material lives, and how `somnus migrate` (SPEC section 22) carries a v0.1 document forward without losing anything.

@@ -1,35 +1,3 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-7b5b-70b5-bd19-cde832554241"
-  revision: 1
-  title: "Data models"
-  classification:
-    category: "engineering"
-    type: "report"
-    role: "informative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-7b5b-70b5-bd19-cde832554241"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "data-models"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-7b5b-70b5-bd19-cde832554241"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Data models
 
 There are two data models: the `somnus:` header carried in each file, declared as a schema tree in `src/somnus/model/schema.py`, and the registry database, declared in `src/somnus/db/schema.sql` and `src/somnus/db/search.sql`. Both follow `SPEC.md`: the header contract is in sections 4 to 17, and the registry in section 18.

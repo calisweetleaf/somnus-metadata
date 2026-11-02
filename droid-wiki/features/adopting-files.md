@@ -1,36 +1,6 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-79bf-748d-80a3-d913890de3f4"
-  revision: 1
-  title: "Adopting files"
-  classification:
-    category: "engineering"
-    type: "report"
-    role: "informative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-79bf-748d-80a3-d913890de3f4"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "adopting-files"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-79bf-748d-80a3-d913890de3f4"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Adopting files
+
+Active contributors: calisweetleaf, Christian
 
 `somnus new` creates a brand-new Markdown artifact, and `somnus stamp` adds a header to a file that already exists. Both build the header from configuration defaults plus heuristic inference, mint a fresh artifact ID, and validate the result before writing.
 
@@ -92,6 +62,35 @@ Carrier choice follows the file extension through `carriers.for_path()`:
 - **No embedded carrier** (JSON, CSV, `.txt`, `.ini`, `.cfg`, `.ipynb`, raster images, PDFs, and anything unrecognized): `stamp` writes a new `<file>.somnus.yaml` sidecar whose `bindings` lists the host as `{target: <name>, role: primary, required: true}`. The diff is shown against `/dev/null`. An existing sidecar counts as already managed.
 
 `stamp` passes no `created_at`, so the header gets `time: {}`. The tool cannot know when an existing file was authored, so it records nothing.
+
+### Bulk adoption
+
+`HANDOFF.md` records the release/install commission as complete and marks the earlier bulk rollout superseded (operator correction, 2026-11-01), not a new recursive stamp command. `src/somnus/commands/stamp.py` accepts explicit file paths, including several paths per call; register directories separately with `somnus init --root DIR` in `src/somnus/commands/init.py`. Set `[index].exclude` before scanning, then use `somnus index` to identify unmanaged hosts. Registering or scanning a root does not stamp its files.
+
+Toolkit 2.1.1 repairs discovery in `Store.scan()` in `src/somnus/db/store.py`: after exclusions and sidecar preference, hosts with no embedded carrier or sidecar increment both `scanned` and `unmanaged` and enter `ScanReport.unmanaged_paths` as absolute POSIX-form paths without loading their payloads. This includes JSON, text, extensionless files, and binaries. Hosts with sidecars are skipped in favor of observing each sidecar once. Use the full native report for batch planning; `src/somnus/commands/index.py` prints only ten examples. This replaces the separate embedded-only inventory, not authorization to adopt excluded files or a guarantee that loading/validation succeeded for every other file.
+
+Before an authorized batch, test Markdown with existing frontmatter, a Python preamble, TOML/YAML, JSON, HTML, and a binary. Inspect the result and the consuming format: foreign frontmatter keys must survive, mandatory preambles must remain valid, and sidecar hosts must remain untouched. Existing [carrier](../systems/carriers.md) and [document](../systems/document-model.md) safeguards still apply. Record any `E_HOST` refusal rather than bypassing preservation.
+
+The current top sections of `PLAN.md` and `HANDOFF.md` record the release/install commission as complete and mark the bulk-adoption frontier superseded (operator correction, 2026-11-01); they supersede the five-artifact starting snapshot and the earlier 160-path checkpoint. Five non-overlapping parent roots are registered. The latest recorded scan, cited in `docs/USAGE_GUIDE.md` section 9 as optional usage rather than a completion gate, reports **2,659 managed / 21,554 unmanaged** across the five roots, with **0 invalid / 0 missing / 0 conflicts**. The guide gives no per-root breakdown for that scan; the prior dated checkpoint, which included all carrier types, was:
+
+| Root | Managed present hosts | Remaining unmanaged hosts |
+| --- | ---: | ---: |
+| Repositories | 161 | 2,780 |
+| LAB | 0 | 19,736 |
+| Somnus-MCP | 0 | 632 |
+| Documents | 899 | 0 |
+| Projects | 4 | 0 |
+| **Total (prior checkpoint)** | **1,064** | **23,148** |
+
+These are live-root operator checkpoints, not measurements made by this wiki refresh. The operator stopped bulk adoption on 2026-11-01: the remaining unmanaged hosts in Repositories, LAB, and Somnus-MCP are preserved, not unfinished work, and adoption is optional usage, not an open gate. The previous **21,174 embedded-only candidates** count is obsolete. `PLAN.md` records native body-digest checks before and after adopting the 903 Documents/Projects hosts, with no `E_HOST` refusals. Body preservation follows SPEC normalization: a leading BOM is accepted but not re-emitted, so this is not a whole-file byte-identity claim. Preflight also checked foreign frontmatter, preambles, native formats, and binary host bytes. Two pre-existing malformed Sentari Markdown files remain explicitly excluded after `E_ENVELOPE`, not repaired or counted as host-preservation failures.
+
+Preserve exclusions for credentials, archives/frozen research, dependencies/caches, model weights, generated state, and the live Somnus-MCP data plane; see [Configuration](../reference/configuration.md). The 54,826 pnpm-store files excluded during full discovery are generated dependency state, not authored source removed to hide unfinished work. `PLAN.md` also excludes the historical `mash_merge_archive` and `old-non-applicable` trees. The latest preservation pass excludes generated hosting/runtime/test-run objects, private account-derived exports, and machine-owned `SOTA_RUN.md` artifacts. The reduction from 27,202 to 23,148 unmanaged hosts reflects these preservation exclusions, not new adoption.
+
+Protected originals are planned for native-generated standard sidecars through Surgeon. An isolated supported-source fixture passed literal host-byte preservation, semantic validation, and native registry observation; no bulk protected-host rollout or Repositories sidecar adoption has occurred. This fixture proof does not change the existing native scan mechanism or authorize a bulk write.
+
+Changes to already managed documents still use the owning commands, including `bump` for indexed content edits. Reconcile the existing five roots after authorized batches rather than registering nested roots again; account for remaining files, exclusions, refusals, and conflicts. Zero unmanaged is meaningful only within the scanned roots and exclusions, alongside diagnostics and reconciliation, and the operator explicitly retired zero-unmanaged as a completion criterion on 2026-11-01. The recorded Droid/Codex searches and the shared skill/plugin alignment are recorded complete for Codex and Factory Droid under the native plugin installation record (1.2.1 current, installed in both hosts from the clean 8-file production payload at commit 35c228a; the 1.2.0 record established the native installed/enabled identity and the fresh native-plugin MCP lifecycle queries); see [Agent integration](agent-integration.md) and [Querying](querying.md). No operator files were adopted by this wiki refresh.
+
+`TestUnmanagedSidecarHosts` in `tests/test_store.py` covers JSON/text/binary discovery, exclusions, unchanged host bytes, a 64 MB sparse binary with less than 8 MB traced allocation, and real CLI stamping followed by sidecar deletion and missing-location reconciliation. `tests/acceptance/installed_package_acceptance.py` adds installed JSON/binary discovery without metadata creation. Current operator records report 537 source tests and 67/67 installed and exact-release wheel acceptance checks. The earlier refresh repeated the source suite and the three discovery methods under a real symlinked temporary root, not installed or exact-release acceptance. This incremental documentation update repeated the 537-test source suite and the semantic check (both passing) but not the installed, exact-release, or symlink-root checks. See [Testing](../how-to-contribute/testing.md).
 
 ### Inference
 
@@ -162,4 +161,8 @@ A configured `defaults.standing = "accepted"` is refused with exit 2, because an
 | `src/somnus/infer.py` | Type, title, and classification heuristics |
 | `src/somnus/commands/_common.py` | `new_payload()`, `inferred_payload()`, `check_text()` |
 | `src/somnus/config.py` | Built-in defaults and `config.toml` template |
-| `src/somnus/db/store.py` | `Store.similar_titles()` |
+| `src/somnus/db/store.py` | `Store.similar_titles()` and all-carrier unmanaged discovery |
+| `tests/test_store.py` | `TestUnmanagedSidecarHosts` discovery, preservation, allocation, and reconciliation regressions |
+| `tests/acceptance/installed_package_acceptance.py` | Installed CLI discovery of unmanaged JSON and binary hosts |
+| `HANDOFF.md` | Release/install completion record and superseded bulk-adoption history |
+| `PLAN.md`, `docs/USAGE_GUIDE.md` | Current operator adoption counts, exclusions, preflight, and partial-corpus search evidence |

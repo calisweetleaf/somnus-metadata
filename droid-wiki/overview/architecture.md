@@ -1,38 +1,8 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-7ad7-7084-a2aa-695ff4174bb2"
-  revision: 1
-  title: "Architecture"
-  classification:
-    category: "engineering"
-    type: "architecture-record"
-    role: "normative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-7ad7-7084-a2aa-695ff4174bb2"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "architecture"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-7ad7-7084-a2aa-695ff4174bb2"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Architecture
 
 The toolkit is a layered, stdlib-only Python package. Text parsing sits at the bottom, a `Document` object wraps a file plus its header, validation and the registry consume documents, and the CLI and TUI sit on top. The MCP server sits above the CLI and runs it as a child process.
+
+`pyproject.toml` installs both `somnus` and `somnus-metadata` as console scripts targeting `somnus.cli:main` in `src/somnus/cli.py`. The alias adds no runtime or parser: help and version output still use the name `somnus`. The Python import stays `somnus`.
 
 ## Layers
 
@@ -93,23 +63,25 @@ Every write goes through `Document.render`, which re-extracts the result and ref
 
 `somnus index` calls `Store.scan` in `src/somnus/db/store.py`. For each configured root it walks files, loads each managed document, validates it, and reconciles it against the registry: new revisions are inserted, locations are updated, and duplicate IDs, revision mismatches, overlapping accepted authorities, and identity reuse open rows in the `conflicts` table. Cycles in acyclic relations (`supersedes`, `derived_from`, `part_of`) are reported as `E_GRAPH` diagnostics. Files that vanish are marked `present = 0`, never deleted. See [Registry](../systems/registry.md).
 
+Toolkit 2.1.1 also counts unmanaged hosts without an embedded carrier or existing sidecar. `Store.scan` adds their paths to `ScanReport.unmanaged_paths` without opening their payloads; it does not stamp them or add them to search. Existing sidecars still drive a single host observation, and exclusions apply before discovery. `tests/test_store.py` verifies JSON/text/binary discovery, bounded allocation for a 64 MB sparse binary, and real CLI adoption followed by sidecar removal. This repairs the earlier incomplete unmanaged count without changing the carrier or registry schemas.
+
 The same scan refreshes one FTS5 row per present location using `src/somnus/db/search.sql`. `searchable_body()` in `src/somnus/db/store.py` extracts host text outside the envelope, or decodes a sidecar host as UTF-8, and limits body text to 1,000,000 characters. `src/somnus/commands/query.py` searches those rows with BM25 ranking and text/TSV excerpts. Search is derived state, not revision history or authority evidence (D19 in `DECISIONS.md`). SQLite without FTS5 can still run the registry; content search is unavailable. See [Querying](../features/querying.md).
 
 ## Size by area
 
-The runtime in `src/somnus/` contains 8,138 physical lines of Python and 187 of SQL. There are no third-party runtime dependencies in `pyproject.toml`; build and CI tools are separate. See [By the numbers](../by-the-numbers.md) for the measurement scope.
+The runtime in `src/somnus/` contains 9,732 physical lines of Python and 251 of SQL, including metadata envelopes. Excluding the envelopes gives 8,162 Python and 187 SQL lines. Commit `e82e8bc` was metadata-only for runtime code; `6cfc132` changes discovery in `src/somnus/db/store.py`. There are no third-party runtime dependencies in `pyproject.toml`; build and CI tools are separate. See [By the numbers](../by-the-numbers.md) for the measurement scope.
 
 ```mermaid
 xychart-beta horizontal
-    title "Lines of Python/SQL by area"
+    title "Host-content lines by area, excluding adopted metadata"
     x-axis ["model", "commands", "tui", "db", "yamlsub", "carriers", "document", "mcp", "regions", "config", "cli", "infer", "ids", "output"]
     y-axis "lines" 0 --> 1800
-    bar [1757, 1493, 1221, 940, 759, 560, 334, 320, 210, 176, 171, 145, 130, 92]
+    bar [1756, 1494, 1221, 964, 759, 560, 334, 320, 210, 176, 171, 145, 130, 92]
 ```
 
 ## Repository automation
 
-`.github/workflows/ci.yml` checks the runtime across an eight-entry OS/Python matrix, enforces dependency and archive-import policies, and builds and tests an installed wheel on Ubuntu. `.github/workflows/codeql.yml` adds static security analysis; `.github/workflows/release.yml` configures tagged package releases. `.github/workflows/droid-wiki-refresh.yml` generates documentation with read-only repository permissions, then passes the pages and metadata to a separate write-enabled publish job. That job updates a rolling wiki pull request, not the runtime package. These are configured checks, not a report of hosted execution. See [Automation](../deployment.md).
+`.github/workflows/ci.yml` checks the runtime across an eight-entry OS/Python matrix, enforces dependency and archive-import policies, and builds and tests an installed wheel on Ubuntu. Its Python 3.11 install job also runs `tests/acceptance/installed_package_acceptance.py`, which builds a separate isolated wheel and exercises CLI, registry, stdio MCP, and POSIX PTY consumers. `.github/workflows/codeql.yml` adds static security analysis; `.github/workflows/release.yml` configures tagged package releases. `.github/workflows/droid-wiki-refresh.yml` generates documentation with read-only repository permissions, then passes the pages and metadata to a separate write-enabled publish job. That job updates a rolling wiki pull request, not the runtime package. These are configured checks, not a report of hosted execution. See [Automation](../deployment.md).
 
 ## Related pages
 

@@ -1,36 +1,6 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-7ba0-7655-a21f-a9cd3066981c"
-  revision: 1
-  title: "Carriers"
-  classification:
-    category: "engineering"
-    type: "report"
-    role: "informative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-7ba0-7655-a21f-a9cd3066981c"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "carriers"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-7ba0-7655-a21f-a9cd3066981c"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Carriers
+
+Active contributors: calisweetleaf, Christian
 
 A carrier knows how one family of file types stores the `somnus:` envelope: where it may appear, how its lines are delimited and prefixed, and how to write it back without touching any other line. The carriers live in `src/somnus/carriers/` and implement SPEC section 17.
 

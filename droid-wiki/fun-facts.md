@@ -1,46 +1,14 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-7a35-751f-91c4-c79fab14c861"
-  revision: 1
-  title: "Fun facts"
-  classification:
-    category: "engineering"
-    type: "report"
-    role: "informative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-7a35-751f-91c4-c79fab14c861"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "fun-facts"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-7a35-751f-91c4-c79fab14c861"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Fun facts
 
-A few things about somnus-metadata that stood out while measuring it. Current measurements use committed HEAD `27408fa` on 2026-10-31 UTC; historical observations retain their original commit references. For the full figures, see [by the numbers](by-the-numbers.md) and [lore](lore.md). For what the project is, start at [the overview](overview/index.md).
+A few things about somnus-metadata that stood out while measuring it. Current measurements use committed HEAD `07a6039` on 2026-11-02 UTC; historical observations retain their original commit references. Its test-path portability fix leaves runtime source and physical line counts unchanged from `6cfc132`. Physical counts include metadata envelopes. For the full figures, see [by the numbers](by-the-numbers.md) and [lore](lore.md). For what the project is, start at [the overview](overview/index.md).
 
 ## The retired specification is still longer
 
-The retired `archive/v0.1/SOMNUS-METADATA-SPEC-v0.1.md` has 1,287 physical lines. The normative spec that replaced it, `SPEC.md`, is 961 lines. The same pattern holds for the validator: the archived `archive/v0.1/tools/validate.py` is 1,115 lines, while its replacement `src/somnus/model/validate.py` is 844. Both replacements remain shorter than the retired versions, even after the current spec added content-search requirements.
+The retired `archive/v0.1/SOMNUS-METADATA-SPEC-v0.1.md` has 1,287 physical lines. The normative spec that replaced it, `SPEC.md`, is 962 lines. The same pattern holds for the validator: the archived `archive/v0.1/tools/validate.py` is 1,115 lines, while its replacement `src/somnus/model/validate.py` is 875, the largest live runtime source file. The separate acceptance harness, `tests/acceptance/installed_package_acceptance.py`, is now 1,018 lines. Both replacements remain shorter than the retired versions, even after the current spec added content-search requirements.
 
 ## Zero TODOs in live code
 
-Running `rg -n -i "TODO|FIXME|XXX|HACK" src tests` returns exactly one hit, and it isn't a TODO. It is line 15 of `src/somnus/infer.py`, the regex `(r"task|todo", "task")`, which infers the `task` role from a filename. The v0.1 draft of `DECISIONS.md` was the opposite: every one of its five decisions carried a `TODO(needs-owner)` marker until the 2.0.0 ratification.
+Searching committed `src/` and `tests/` text case-insensitively for `TODO|FIXME|XXX|HACK` returns exactly one hit, and it isn't a TODO. It is line 47 of `src/somnus/infer.py`, the regex `(r"task|todo", "task")`, which infers the `task` role from a filename. The v0.1 draft of `DECISIONS.md` was the opposite: every one of its five decisions carried a `TODO(needs-owner)` marker until the 2.0.0 ratification.
 
 ## The registry forbids JSON, but two commands have to speak it
 
@@ -48,7 +16,9 @@ Decision D4 in `DECISIONS.md` says "JSON IS FORBIDDEN, IT IS SLOW ON INFERENCE" 
 
 ## Search fits in twelve lines of SQL
 
-The new `src/somnus/db/search.sql` is just 12 physical lines, including comments and blanks. It delegates tokenization to SQLite FTS5 with `porter unicode61 remove_diacritics 2`; `src/somnus/commands/query.py` asks SQLite for BM25 ranking and excerpts. No Python runtime dependency was added to `pyproject.toml`. The size of the DDL is not the size of the feature: `src/somnus/db/store.py` owns extraction, backfill, and removal of derived rows. D19 in `DECISIONS.md` explicitly keeps this searchable copy from becoming a source of truth. See [querying](features/querying.md).
+The host content of `src/somnus/db/search.sql` is just 12 lines, including comments and blanks. Its complete physical size is now 44 lines: commit `e82e8bc` added a 32-line native Somnus envelope without changing the SQL. The same adoption added 32 metadata lines to each of the 64 source/test Python files without changing their ASTs. It is a small example of why metadata growth is not feature growth.
+
+The SQL delegates tokenization to SQLite FTS5 with `porter unicode61 remove_diacritics 2`; `src/somnus/commands/query.py` asks SQLite for BM25 ranking and excerpts. No Python runtime dependency was added to `pyproject.toml`. The size of the DDL is not the size of the feature: `src/somnus/db/store.py` owns extraction, backfill, and removal of derived rows. D19 in `DECISIONS.md` explicitly keeps this searchable copy from becoming a source of truth. See [querying](features/querying.md).
 
 ## The mojibake was there from the first spec commit
 

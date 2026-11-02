@@ -1,35 +1,3 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-794d-74fa-8d12-bf1b97686f16"
-  revision: 1
-  title: "Background"
-  classification:
-    category: "context"
-    type: "index"
-    role: "informative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-794d-74fa-8d12-bf1b97686f16"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "background"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-794d-74fa-8d12-bf1b97686f16"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Background
 
 This section explains why the Somnus standard and toolkit look the way they do, where they came from, and which mistakes are easy to make while working on them. It draws on `DECISIONS.md`, `archive/`, `SPEC.md` section 22, and the git history.
@@ -50,6 +18,6 @@ This section explains why the Somnus standard and toolkit look the way they do, 
 
 See [lore](../lore.md) for a fuller account of the project's history.
 
-The current managed documents are `SPEC.md` revision 6 and `DECISIONS.md` revision 5. D18 removes the undefined `W_DUPLICATE_TITLE` listing as a non-breaking documentation correction; core stays `somnus://metadata/core/2.0.0`. The closed warning registry contains `W_PREDICATE`, `W_REGION_SPACING`, `W_REGION_UNREGISTERED`, and `W_UNMANAGED`. Near-duplicate titles remain registry advisories, not validation warning codes.
+The current managed documents are `SPEC.md` revision 7 and `DECISIONS.md` revision 5. D18 removes the undefined `W_DUPLICATE_TITLE` listing as a non-breaking documentation correction; core stays `somnus://metadata/core/2.0.0`. The closed warning registry contains `W_PREDICATE`, `W_REGION_SPACING`, `W_REGION_UNREGISTERED`, and `W_UNMANAGED`. Near-duplicate titles remain registry advisories, not validation warning codes.
 
-D19, ratified 2026-10-31 in `DECISIONS.md`, adds [full-text search](../features/querying.md) as derived registry state. `src/somnus/__init__.py` advances the package to 2.1.0 and registry schema to 2 without changing core metadata 2.0.0. `PLAN.md` records that package version as unpublished.
+D19, ratified 2026-10-31 in `DECISIONS.md`, introduced [full-text search](../features/querying.md), toolkit 2.1.0, and registry schema 2 without changing core metadata 2.0.0. Toolkit 2.1.1 now repairs unmanaged sidecar-host discovery in `src/somnus/db/store.py`; it changes no schema or ratified decision. `PLAN.md` and `runbooks/package-release.md` record its publication and installation. See [Getting started](../overview/getting-started.md) for pip-first setup and [Lore](../lore.md) for dated milestones.

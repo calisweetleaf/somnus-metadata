@@ -1,35 +1,3 @@
----
-somnus:
-  schema: "somnus://metadata/core/2.0.0"
-  id: "urn:somnus:artifact:01a19a67-7a8f-7474-9732-21e346ee9369"
-  revision: 1
-  title: "Patterns and conventions"
-  classification:
-    category: "engineering"
-    type: "report"
-    role: "informative"
-    scope: "component"
-    tags: []
-  lifecycle:
-    status: "draft"
-  authority:
-    standing: "candidate"
-    scopes:
-      - target_ref: "urn:somnus:artifact:01a19a67-7a8f-7474-9732-21e346ee9369"
-        aspects: ["content"]
-  time: {}
-  names:
-    slug: "patterns-and-conventions"
-  knowledge:
-    coverage: "artifact"
-    subjects: ["urn:somnus:artifact:01a19a67-7a8f-7474-9732-21e346ee9369"]
-  access:
-    visibility: "internal"
-    allowed_uses: ["archive", "search", "reason"]
-  ingestion:
-    disposition: "candidate"
-    body_role: "narrative"
----
 # Patterns and conventions
 
 The code follows a small set of rules that keep writes safe and output predictable. Most of them come straight from `SPEC.md` and `DECISIONS.md`.
@@ -62,6 +30,10 @@ Informational notes use `note()` in `src/somnus/commands/_common.py`, normally o
 
 Every write calls `Document.render` in `src/somnus/document.py`, which splices the new envelope in, re-extracts the result, and raises `E_HOST` unless every byte outside the envelope is identical. Line endings are tracked per line, so CRLF files stay CRLF. A leading BOM is accepted and dropped on save (SPEC section 16.3). Files are written through `atomic_write`, which writes a temp file in the same directory and swaps it in with `os.replace`.
 
+Line/endings reconstruction uses `zip(..., strict=True)` in `src/somnus/document.py` and the stamp, migrate, and regions command modules (`src/somnus/commands/stamp.py`, `src/somnus/commands/migrate.py`, `src/somnus/commands/regions.py`). A mismatched internal shape fails rather than silently dropping lines. Document carrier, decoding, and read errors retain their cause through exception chaining; the normal diagnostic surface is unchanged.
+
+SQLite connections have an explicit owner in `src/somnus/db/store.py`. `Store.open()` closes a connection if setup or migration fails, and transfers ownership only after successful migration. `connect_readonly()` also closes on failed SQLite setup. A SQLite transaction context alone does not close a connection; callers must close connections they own. See [Registry](../systems/registry.md).
+
 ## Never invent facts
 
 Tools fill headers from configuration and inference, but never fabricate dates, actors, licenses, evidence, measurements, or acceptance records (D6). `somnus stamp` writes `time: {}` because it does not know when a file was authored. A configured default standing of `accepted` is refused.
@@ -76,11 +48,13 @@ Tables are aligned plain text, or TSV with `--tsv`. Registry data has no JSON ou
 
 ## Closed schemas
 
-Package version 2.1.0, registry schema 2, and core metadata 2.0.0 are independent (`src/somnus/__init__.py`). D19 in `DECISIONS.md` adds only a derived full-text index, with DDL in `src/somnus/db/search.sql`; it does not add artifact fields or change validation. Search rows reflect disk observations and never resolve conflicts or establish authority. Preserve that boundary when extending [the registry](../systems/registry.md).
+Package version 2.1.1, registry schema 2, and core metadata 2.0.0 are independent (`src/somnus/__init__.py`). D19 in `DECISIONS.md` adds only a derived full-text index, with DDL in `src/somnus/db/search.sql`; it does not add artifact fields or change validation. Search rows reflect disk observations and never resolve conflicts or establish authority. The 2.1.1 discovery fix changes no schema. Preserve that boundary when extending [the registry](../systems/registry.md).
 
 Every standardized object rejects unknown keys (`E_SCHEMA`), and `null` is refused at parse time. Tool-specific data goes under `extensions.<owner>.data`. When adding a field, add it to `src/somnus/model/schema.py` (which also controls serialization order) and to the validator, and cite the SPEC section.
 
 ## Code style
+
+Console-script names are packaging aliases, not separate implementations. `pyproject.toml` maps both `somnus` and `somnus-metadata` to `somnus.cli:main`; `src/somnus/cli.py` keeps `prog="somnus"` and the `somnus` version prefix. Update the shared parser rather than adding alias-specific behavior. The installed-wheel alias check belongs in `tests/acceptance/installed_package_acceptance.py`, not source-only import tests.
 
 - `from __future__ import annotations` at the top of every module; full type hints on public functions.
 - One-line docstrings on public functions and classes. Comments only where the reason is not obvious.
@@ -89,7 +63,11 @@ Every standardized object rejects unknown keys (`E_SCHEMA`), and `null` is refus
 
 ## Paths
 
-Registry paths are stored as POSIX strings (`Path.as_posix()`) so the same root reads the same on every platform.
+Registered roots and directly observed paths are resolved before their POSIX strings are stored (`src/somnus/db/store.py`). When a test builds expected paths from a temporary directory, use `Path.resolve().as_posix()`, not only `Path.as_posix()`: macOS temporary-directory symlinks and Windows short-name aliases can differ from the scanner's canonical root. Commit `07a6039` corrects three expectations in `tests/test_store.py` without changing the scanner or weakening the assertions. This does not promise portable filesystem identity across machines.
+
+Keep filesystem discovery in its owning `Store.scan` implementation (`src/somnus/db/store.py`), not a parallel crawler. Exclusions and sidecar deduplication run before unmanaged-host reporting. Hosts needing a new sidecar enter `ScanReport.unmanaged_paths` without a payload read or a write. The CLI limits examples to ten; the native report retains the full list. `tests/test_store.py` covers this boundary with real files, sparse-binary allocation measurement, and an isolated CLI subprocess.
+
+For machine-consumed query and listing output, use `--tsv` (MCP: `tsv: true`). The human table renderer in `src/somnus/output.py` truncates long cells, while TSV preserves complete paths. The latest operator search evidence in `PLAN.md` explicitly verifies this boundary in Droid and Codex.
 
 The MCP adapter runs each command in a child process from the server's working directory (`src/somnus/mcp.py`). Use absolute file paths in MCP calls when the client needs stable path resolution. A failed child command with relative path arguments adds a note naming those paths and the server directory before `[exit N]`; successful calls and argument-conversion failures do not add it. The adapter keeps no application state between calls; writes persist through the files and registry.
 
