@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
-  revision: 5
+  revision: 8
   title: "Somnus Metadata — Completion and Operator Integration Plan"
   classification:
     category: "operations"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T04:53:05+00:00"
+    updated_at: "2026-11-02T05:40:00+00:00"
   names:
     slug: "somnus-metadata-completion-and-operator-integration-plan"
   knowledge:
@@ -67,9 +67,13 @@ real CLI stamping and subsequent sidecar removal are reconciled correctly.
   release wheel matched the accepted wheel byte-for-byte; the sdist excluded
   private operator/research surfaces. PyPI upload succeeded. After an initial
   cached upgrade still saw 2.1.0, a no-cache plain-pip install fetched **2.1.1**.
-- Plugin **1.1.0** still passes all four fresh live **16-tool / 2.1.1** handshakes
-  and skill fidelity checks. Its prior **21/21** test run remains applicable:
-  no plugin code was changed in this patch.
+- Plugin **1.1.1** now carries the host-agnostic operating contract, complete
+  discovery caveat, lossless TSV examples, revision handling and protected-host
+  guidance. Fresh **21/21** plugin tests passed. All four installed skill trees
+  match the package and all four live **16-tool / 2.1.1** handshakes passed.
+  Plugin source is committed and pushed as **3000082**; hosted CI **41395258614**
+  passed. This changes shared
+  instructions, not metadata algorithms or host-adapter runtime code.
 - First hosted patch CI (`41390329231`, commit `6cfc132`) failed the three new
   tests on macOS/Windows: their expected temp paths retained `/var` symlink or
   Windows 8.3 aliases, while the scanner correctly returned canonical paths.
@@ -92,14 +96,14 @@ real CLI stamping and subsequent sidecar removal are reconciled correctly.
 
 | Registered root | Managed present hosts | Remaining unmanaged hosts, all carrier types |
 | --- | ---: | ---: |
-| `/home/daeron/Repositories` | 161 | 3,375 |
-| `/home/daeron/LAB` | 0 | 23,194 |
-| `/home/daeron/Somnus-MCP` | 0 | 633 |
+| `/home/daeron/Repositories` | 161 | 2,780 |
+| `/home/daeron/LAB` | 0 | 19,736 |
+| `/home/daeron/Somnus-MCP` | 0 | 632 |
 | `/home/daeron/Documents` | **899** | **0** |
 | `/home/daeron/Projects` | **4** | **0** |
 
 These are the latest complete five-root scan results: **1,064 managed hosts**,
-**27,202 unmanaged**, **0 invalid / 0 missing / 0 conflicts**. Counts are a
+**23,148 unmanaged**, **0 invalid / 0 missing / 0 conflicts**. Counts are a
 checkpoint in live roots, not a promise that other sessions cannot add files.
 Unlike the earlier 21,174 count, this inventory includes sidecar-only hosts.
 The 899 Documents and 4 Projects hosts were adopted in this pass, with every
@@ -116,6 +120,18 @@ The two Git repositories inside Documents were committed **locally only**:
   untracked authored hosts, plus their metadata). Existing bodies were preserved.
   Git diff-check flagged their pre-existing trailing whitespace; it was not
   stripped merely to make that diagnostic green. The normal commit succeeded.
+
+### Skill and plugin finalization contract — operator correction
+
+The plugin is host-agnostic, not a Codex-owned integration. Factory Droid, Codex,
+Antigravity and OpenCode are peer adapters to the separately globally pip-installed
+backend. The canonical shared skill is in somnus-metadata-plugin/skills/somnus-metadata;
+installed host copies are projections, not independent authoring sources.
+Final completion includes updating that skill and its references for the finished
+backend, reinstalling the plugin to supported local hosts, verifying fidelity and
+live use from Droid and Codex, and committing/pushing only the two authorized repos.
+Do not substitute a backend release or a handshake for usable agent instructions.
+No measured tenfold performance claim is established.
 
 ### Exclusions, recovery and next action
 
@@ -136,6 +152,14 @@ are also excluded as historical archives, leaving their original corpora untouch
 Two pre-existing malformed Sentari Markdown files remain
 explicitly excluded with their E_ENVELOPE disposition from the previous segment.
 No E_HOST refusal occurred in the completed Documents/Projects batches.
+The preservation pass additionally excluded generated .openai hosting state,
+private account-derived chatgpt_plugins exports, .grave runtime objects,
+test-runs, test(s)/*/runs and machine-owned SOTA_RUN.md artifacts. The resulting
+native scan is 1,064 managed / 23,148 unmanaged / 0 invalid / 0 missing / 0 conflicts.
+Protected originals will use native-generated standard sidecars through Surgeon;
+a real isolated supported-source fixture passed semantic validation, native
+registry observation and literal host-byte preservation. No bulk Repositories
+sidecar adoption has yet occurred; do not report the prepared partition as done.
 
 Actual Droid/Codex MCP search proof from the preceding segment is retained:
 Droid `0ee0b5e4-c137-42da-a406-7ab1048f4013` and Codex
@@ -144,6 +168,15 @@ specification listing, stale and conflict queries; searches had real hits.
 Droid `e32d9c76-5b71-4058-8c69-eea72ce98a47` separately proved full TSV paths.
 The installed plugin skill directs agents to use TSV rather than truncated human
 tables. Repeat these proofs against the final expanded corpus.
+After the 1.1.1 skill update, Droid session ee3affde-093e-4597-ac2f-e91bcb977d46
+read its installed skill and called MCP q(text="host agnostic", limit=3, tsv=true),
+returning three full paths, including the updated setup reference. Codex session
+01a19ac4-044a-71b1-b9ea-ae0242e8624c independently made the same successful MCP call.
+These are actual client queries, not merely doctor handshake evidence.
+The Codex child could not discover Surgeon on PATH, so its requested skill read
+was NOT RUN; it did not read that file via a substitute. The parent verified
+installed skill fidelity and knows the absolute cached Surgeon CLI path. The
+Droid skill-read proof succeeded. Do not claim both clients read their skill.
 
 **Next:** finish the local instruction/preservation boundaries and adoption for
 the remaining Repositories, LAB and Somnus-MCP hosts, using the now-exhaustive
