@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
-  revision: 10
+  revision: 11
   title: "Somnus Metadata — Completion and Operator Integration Plan"
   classification:
     category: "operations"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T06:00:42+00:00"
+    updated_at: "2026-11-02T06:26:30+00:00"
   names:
     slug: "somnus-metadata-completion-and-operator-integration-plan"
   knowledge:
@@ -37,7 +37,46 @@ Updated 2026-11-01 (America/Chicago). Operational handoff, not normative source.
 SPEC.md owns the contract; DECISIONS.md records ratified rationale. Source and
 execution establish implementation and exercised behavior respectively.
 
-## Current release/install completion — operator correction, 2026-11-01
+## Current native-plugin completion — 2026-11-02
+
+The operator caught a real verification error: a direct skill/MCP adapter was
+reported as a native installed plugin. Those are different surfaces. Version
+**1.2.0** of somnus-metadata-plugin now supplies the portable plugin.json/mcp.json,
+Codex compatibility manifest and catalog, Factory manifest and catalog, and the
+same shared skill. Plugin source is pushed as **4deee50**; **25 tests pass** and
+hosted CI **41399524229** passed. The Python backend remains published/globally
+pip-installed **2.1.1**; no backend code or PyPI release was changed in this fix.
+
+Verified native identity: **somnus-metadata-plugin@somnus-metadata-plugin**.
+- Codex plugin list reports installed=true, enabled=true, version **1.2.0**.
+  Cache: /home/daeron/.codex/plugins/cache/somnus-metadata-plugin/somnus-metadata-plugin/1.2.0.
+- Factory plugin list reports **Enabled**, **user**, commit **4deee507dc7a**.
+  Cache: /home/daeron/.factory/plugins/cache/somnus-metadata-plugin-7b5df6c61269/somnus-metadata-plugin-7b5df6c61269/4deee507dc7a.
+- Native remove/uninstall then install refreshed both caches. Factory's first
+  reinstallation returned a settings-resolution error without changes; the next
+  native install succeeded. No speculative settings repair was performed.
+- Both native cached skill trees AND the requested Codex/Factory custom skill
+  copies match the canonical shared source. Custom skill copies are compatibility
+  projections; they are not evidence of native installation on their own.
+- Duplicate direct user MCP entries were removed through Surgeon, retaining the
+  custom skill copies. With those entries absent, fresh Codex and Factory sessions
+  successfully called native-plugin MCP q(text="lifecycle", limit=1, tsv=true).
+  Factory session **52dcef09-320e-4d43-851c-e60b1025cf83** returned the lifecycle.py
+  source path. Codex returned the identical path through mcp__somnus_metadata__q.
+  An earlier test that explicitly disabled that server name also disabled the
+  plugin's same-named server; its empty-tool result was not counted as success.
+- The Factory Superintelligence skill, its harness-customization guide and
+  plugins/hooks references were used. Codex and Factory hook event/payload
+  contracts remain distinct. This plugin declares no hooks; global hooks were
+  not copied or changed. Native MCP uses actor somnus-metadata-plugin; legacy
+  direct adapters retain their per-host actors.
+
+Use native plugin lists plus native MCP execution to validate native installation.
+The Node installer/doctor is explicitly labeled as a direct compatibility-adapter
+surface; its success does not imply a native plugin record. Bulk file adoption
+is not this task and must not resume without a new request.
+
+## Superseded direct-adapter completion report — 2026-11-01
 
 The operator explicitly clarified: finish means publish the package, install the
 latest global backend, push main with upstream tracking, and clean-install the

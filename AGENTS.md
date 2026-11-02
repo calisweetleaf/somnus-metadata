@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-7882-770a-9fc8-811ac57f407d"
-  revision: 2
+  revision: 3
   title: "AGENTS.md — somnus-metadata (mission-first entry)"
   classification:
     category: "engineering"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-7882-770a-9fc8-811ac57f407d"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T06:00:11+00:00"
+    updated_at: "2026-11-02T06:26:29+00:00"
   names:
     slug: "agents-md-somnus-metadata-mission-first-entry"
   knowledge:
@@ -42,8 +42,9 @@ somnus:
 **Current completion scope, corrected by the operator on 2026-11-01:** release
 and installation, not bulk use of the system. Verify the newest PyPI package is
 installed globally through pip, push main with upstream tracking in the backend
-and plugin repos, clean-reinstall the current plugin/skill for Codex and Factory,
-and prove installed skill fidelity and live MCP operation. HANDOFF.md and the top
+and plugin repos, clean-reinstall the current native plugin/skill for Codex and
+Factory, and prove native installed/enabled records, skill fidelity and live MCP
+operation. Direct skill/MCP adapter health is not native plugin registration. HANDOFF.md and the top
 of PLAN.md record that state. Earlier cross-root adoption instructions are
 superseded history; do not resume adoption or make zero unmanaged files a gate.
 
