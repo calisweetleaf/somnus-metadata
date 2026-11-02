@@ -1,0 +1,34 @@
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-792c-730b-8e5b-d79f1092e31e"
+  revision: 1
+  title: ".wiki Meta"
+  classification:
+    category: "research"
+    type: "dataset"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-792c-730b-8e5b-d79f1092e31e"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "wiki-meta"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-792c-730b-8e5b-d79f1092e31e"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "dataset"
+  bindings:
+    - target: ".wiki-meta.json"
+      role: "primary"
+      required: true

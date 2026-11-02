@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-8364-7613-9450-d29867a3d4bf"
+#   revision: 1
+#   title: "Terminal UI: pure widget logic, key decoding, frame diffing, the header form model,"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-8364-7613-9450-d29867a3d4bf"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "terminal-ui-pure-widget-logic-key-decoding-frame-diffing-the-header-form-model"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-8364-7613-9450-d29867a3d4bf"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Terminal UI: pure widget logic, key decoding, frame diffing, the header form model,
 and the real-terminal paths exercised through a POSIX PTY (issues #3 and #4)."""
 

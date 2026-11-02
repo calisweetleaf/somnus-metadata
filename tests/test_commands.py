@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-8245-7195-8ec8-57ff67ba793d"
+#   revision: 1
+#   title: "End-to-end CLI workflows through somnus.cli.main in isolated temp homes"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-8245-7195-8ec8-57ff67ba793d"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "end-to-end-cli-workflows-through-somnus-cli-main-in-isolated-temp-homes"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-8245-7195-8ec8-57ff67ba793d"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """End-to-end CLI workflows through ``somnus.cli.main`` in isolated temp homes."""
 
 from __future__ import annotations

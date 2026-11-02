@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7fad-76ed-b062-033be77e50ce"
+#   revision: 1
+#   title: "Global SQLite registry: open/migrate, indexing, conflicts, and read-only queries (SPEC §18)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7fad-76ed-b062-033be77e50ce"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "global-sqlite-registry-open-migrate-indexing-conflicts-and-read-only-queries-spe"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7fad-76ed-b062-033be77e50ce"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Global SQLite registry: open/migrate, indexing, conflicts, and read-only queries (SPEC §18)."""
 
 from __future__ import annotations

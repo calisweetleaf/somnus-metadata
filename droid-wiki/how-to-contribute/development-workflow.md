@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7a67-77f0-8d9b-a9f2b0dedeac"
+  revision: 1
+  title: "Development workflow"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7a67-77f0-8d9b-a9f2b0dedeac"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "development-workflow"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7a67-77f0-8d9b-a9f2b0dedeac"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Development workflow
 
 Changes follow a short loop: read the governing contract, make a scoped edit, run relevant tests, and review the diff. `AGENTS.md` defines the safety rules; `.github/workflows/ci.yml` adds checks on pull requests and pushes to `main`. Changes to the standard carry extra obligations because `SPEC.md` and `DECISIONS.md` are Somnus-managed artifacts with their own revisions.

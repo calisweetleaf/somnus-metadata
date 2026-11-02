@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7a8f-7474-9732-21e346ee9369"
+  revision: 1
+  title: "Patterns and conventions"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7a8f-7474-9732-21e346ee9369"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "patterns-and-conventions"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7a8f-7474-9732-21e346ee9369"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Patterns and conventions
 
 The code follows a small set of rules that keep writes safe and output predictable. Most of them come straight from `SPEC.md` and `DECISIONS.md`.

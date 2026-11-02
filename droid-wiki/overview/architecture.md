@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7ad7-7084-a2aa-695ff4174bb2"
+  revision: 1
+  title: "Architecture"
+  classification:
+    category: "engineering"
+    type: "architecture-record"
+    role: "normative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7ad7-7084-a2aa-695ff4174bb2"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "architecture"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7ad7-7084-a2aa-695ff4174bb2"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Architecture
 
 The toolkit is a layered, stdlib-only Python package. Text parsing sits at the bottom, a `Document` object wraps a file plus its header, validation and the registry consume documents, and the CLI and TUI sit on top. The MCP server sits above the CLI and runs it as a child process.

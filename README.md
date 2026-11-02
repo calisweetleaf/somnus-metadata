@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-78f9-7428-ad42-b95c245a14e5"
+  revision: 1
+  title: "somnus-metadata"
+  classification:
+    category: "context"
+    type: "index"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-78f9-7428-ad42-b95c245a14e5"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "somnus-metadata"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-78f9-7428-ad42-b95c245a14e5"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # somnus-metadata
 
 The Somnus metadata standard (core `somnus://metadata/core/2.0.0`) and its stdlib-only toolkit.

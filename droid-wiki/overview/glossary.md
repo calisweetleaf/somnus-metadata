@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7b1b-7359-b8a5-6b5f189966c8"
+  revision: 1
+  title: "Glossary"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7b1b-7359-b8a5-6b5f189966c8"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "glossary"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7b1b-7359-b8a5-6b5f189966c8"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Glossary
 
 Terms used across `SPEC.md`, the code, and this wiki. Controlled vocabularies are defined in `src/somnus/model/vocab.py`.

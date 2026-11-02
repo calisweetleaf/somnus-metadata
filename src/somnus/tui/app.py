@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-8156-75ee-b790-6ee44e372f93"
+#   revision: 1
+#   title: "Full-screen document browser and header editor behind somnus edit"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-8156-75ee-b790-6ee44e372f93"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "full-screen-document-browser-and-header-editor-behind-somnus-edit"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-8156-75ee-b790-6ee44e372f93"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Full-screen document browser and header editor behind ``somnus edit``."""
 
 from __future__ import annotations

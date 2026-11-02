@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-826b-759e-83fb-748adaaa844c"
+#   revision: 1
+#   title: "Configuration precedence and validation (SPEC section 18.1, section 20)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-826b-759e-83fb-748adaaa844c"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "configuration-precedence-and-validation-spec-section-18-1-section-20"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-826b-759e-83fb-748adaaa844c"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Configuration precedence and validation (SPEC section 18.1, section 20)."""
 
 from __future__ import annotations

@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7f3d-71cd-bef4-805c42c9501a"
+#   revision: 1
+#   title: "somnus stamp: infer and inject a header into unmanaged files"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7f3d-71cd-bef4-805c42c9501a"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "somnus-stamp-infer-and-inject-a-header-into-unmanaged-files"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7f3d-71cd-bef4-805c42c9501a"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """``somnus stamp``: infer and inject a header into unmanaged files."""
 
 from __future__ import annotations

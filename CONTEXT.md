@@ -1,24 +1,70 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-789d-75a7-a213-997b444b6530"
+  revision: 2
+  title: "Somnus Metadata — Architectural and Operator Context"
+  classification:
+    category: "context"
+    type: "state"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-789d-75a7-a213-997b444b6530"
+        aspects: ["content"]
+  time:
+    updated_at: "2026-11-02T04:08:11+00:00"
+  names:
+    slug: "somnus-metadata-architectural-and-operator-context"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-789d-75a7-a213-997b444b6530"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Somnus Metadata — Architectural and Operator Context
 
 Established 2026-10-23 (America/Chicago). This is relational context, not a new
 normative authority. Read PLAN.md for current evidence, work and acceptance gaps.
 
-## Current distribution state (2026-10-24 UTC)
+## Current distribution and rollout state (2026-11-01)
 
-The current toolkit release is **somnus-metadata 2.0.0** on PyPI.
-The earlier 0.1.0 publication was a stale-metadata versioning error, not v1 canon. The command and
-Python package stay **somnus**; the schema stays core 2.0.0. The unrelated PyPI
-distribution somnus already owns that index name and must not share an
-environment with this toolkit. Fresh isolated public-index installation was
-verified. See runbooks/package-release.md for exact artifacts and acceptance.
-GitHub remains private; no open-source license grant, commit/tag/push or plugin
-publication was made. The plugin is required but deferred for official materials.
-Older environment observations below describe the setup session, not release state.
+The toolkit release is **somnus-metadata 2.1.0**; core schema remains **2.0.0**.
+The plain-pip installation in `~/.venvs/global` and its `~/.local/bin` links
+were checked against the current package index. A fresh installed-wheel acceptance
+run passed 66/66; the source suite passed 534/534 and mypy checked 49 files clean.
+
+The separate private plugin is **1.1.0**, installed for Droid, Codex, Antigravity
+and OpenCode. Its 21 tests and all four live 16-tool doctor handshakes pass.
+Actual Droid/Codex MCP searches are proven, including full TSV paths; the packaged
+skill now explicitly requests TSV for agent path consumption. OpenCode in-session
+invocation and live Windows console execution remain NOT RUN.
+
+The global rollout is **not complete**. All five requested roots are registered.
+Native stamping adopted 141 core-repository and 14 plugin files; the registry has
+160 unique present paths after redundant nested registrations were consolidated
+with a verified online backup. At the last reconciliation, 21,174 other
+embedded-carrier candidates remained, plus unknown-carrier files absent from that
+scanner's unmanaged count. PLAN.md's top section and HANDOFF.md own the exact
+frontier, exclusions and host-session evidence.
+
+No new backend behavior, public release, remote tunnel, or shared Somnus-MCP
+data/model mutation was introduced by this adoption pass. Older environmental
+observations below are historical, not current capability claims.
 
 ## The system and its boundaries
 
 Somnus Metadata core 2.0.0 is a standard; the somnus Python distribution is its
-stdlib-only toolkit. Its current package version is 2.0.0. This repository
+stdlib-only toolkit. Its current package version is 2.1.0. This repository
 contains the standard and implementation; it is not the universe of files the
 tool can manage. Somnus envelopes in arbitrary host files are product data, not
 permission to rewrite the reference implementation mechanically.

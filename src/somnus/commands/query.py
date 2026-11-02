@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7ec3-7315-a029-82575143fea1"
+#   revision: 1
+#   title: "somnus q: read-only registry queries and full-text search"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7ec3-7315-a029-82575143fea1"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "somnus-q-read-only-registry-queries-and-full-text-search"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7ec3-7315-a029-82575143fea1"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """``somnus q``: read-only registry queries and full-text search."""
 
 from __future__ import annotations

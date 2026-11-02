@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-80d7-7591-90c7-6436e6c5e580"
+#   revision: 1
+#   title: "Multi-stage validation pipeline: carrier, core, semantic, canon (SPEC §19)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-80d7-7591-90c7-6436e6c5e580"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "multi-stage-validation-pipeline-carrier-core-semantic-canon-spec-19"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-80d7-7591-90c7-6436e6c5e580"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Multi-stage validation pipeline: carrier, core, semantic, canon (SPEC §19)."""
 
 from __future__ import annotations

@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7e54-765f-b5e0-a1ba6fb972cd"
+#   revision: 1
+#   title: "somnus init: create $SOMNUSHOME, config.toml, and the registry; register roots"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7e54-765f-b5e0-a1ba6fb972cd"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "somnus-init-create-somnushome-config-toml-and-the-registry-register-roots"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7e54-765f-b5e0-a1ba6fb972cd"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """``somnus init``: create $SOMNUS_HOME, config.toml, and the registry; register roots."""
 
 from __future__ import annotations

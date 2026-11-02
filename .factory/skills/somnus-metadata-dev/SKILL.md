@@ -1,6 +1,36 @@
 ---
 name: somnus-metadata-dev
 description: Develop, validate, and operate inside the somnus-metadata repository (core 2.0.0 normative specification and stdlib-only Python toolkit). Use when editing src/somnus/, running tests or semantic checks, handling E_HOST or registry conflicts, or navigating SPEC.md and DECISIONS.md.
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-77b2-726f-b4ea-47bde93d5f9d"
+  revision: 1
+  title: "somnus-metadata-dev — Repository Operating Skill"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-77b2-726f-b4ea-47bde93d5f9d"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "somnus-metadata-dev-repository-operating-skill"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-77b2-726f-b4ea-47bde93d5f9d"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
 ---
 
 # `somnus-metadata-dev` — Repository Operating Skill

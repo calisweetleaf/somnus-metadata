@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-8311-76d9-b07c-eaf87c78e0c7"
+#   revision: 1
+#   title: "Region markers: pairing, inert contexts, spacing, headings, TeX labels, registry sync (SPEC section 13)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-8311-76d9-b07c-eaf87c78e0c7"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "region-markers-pairing-inert-contexts-spacing-headings-tex-labels-registry-sync"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-8311-76d9-b07c-eaf87c78e0c7"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Region markers: pairing, inert contexts, spacing, headings, TeX labels, registry sync (SPEC section 13)."""
 
 from __future__ import annotations

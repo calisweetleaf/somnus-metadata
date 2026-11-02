@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-82b7-777c-bbf5-4ebdb5ba2af1"
+#   revision: 1
+#   title: "Identifiers: UUIDv7 minting, Somnus URNs, legacy references, slugs (SPEC section 3.1)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-82b7-777c-bbf5-4ebdb5ba2af1"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "identifiers-uuidv7-minting-somnus-urns-legacy-references-slugs-spec-section-3-1"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-82b7-777c-bbf5-4ebdb5ba2af1"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Identifiers: UUIDv7 minting, Somnus URNs, legacy references, slugs (SPEC section 3.1)."""
 
 from __future__ import annotations

@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7a04-7539-b1de-ef7c0e7a828c"
+  revision: 1
+  title: "Lifecycle and revisions"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7a04-7539-b1de-ef7c0e7a828c"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "lifecycle-and-revisions"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7a04-7539-b1de-ef7c0e7a828c"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Lifecycle and revisions
 
 `somnus status` moves an artifact through the SPEC §7 lifecycle state machine, `somnus bump` records a new revision without a status change, and `somnus fork` creates a separate artifact that keeps a `derived_from` link to its parent. All three write a new header revision and validate it before it reaches disk.

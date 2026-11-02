@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-83b4-778a-8b07-135060e4f851"
+#   revision: 1
+#   title: "Restricted YAML subset: strict parser, lenient mode, spans, canonical serializer (SPEC section 16)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-83b4-778a-8b07-135060e4f851"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "restricted-yaml-subset-strict-parser-lenient-mode-spans-canonical-serializer-spe"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-83b4-778a-8b07-135060e4f851"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Restricted YAML subset: strict parser, lenient mode, spans, canonical serializer (SPEC section 16)."""
 
 from __future__ import annotations

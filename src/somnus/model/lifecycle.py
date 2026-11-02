@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-8087-7008-94f5-39be2a2284be"
+#   revision: 1
+#   title: "Lifecycle transition state machine (SPEC §7)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-8087-7008-94f5-39be2a2284be"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "lifecycle-transition-state-machine-spec-7"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-8087-7008-94f5-39be2a2284be"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Lifecycle transition state machine (SPEC §7)."""
 
 from __future__ import annotations

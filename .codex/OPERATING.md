@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7789-7332-857b-7b6e0edb4188"
+  revision: 1
+  title: "Somnus Metadata operator composition"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7789-7332-857b-7b6e0edb4188"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "somnus-metadata-operator-composition"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7789-7332-857b-7b6e0edb4188"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Somnus Metadata operator composition
 
 Repository-local operating route, established 2026-10-23 (America/Chicago).

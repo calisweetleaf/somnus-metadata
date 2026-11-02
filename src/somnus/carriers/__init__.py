@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7ce9-703e-abd4-42f16c7c1680"
+#   revision: 1
+#   title: "Carrier protocol, registry, and extension-based auto-detection (SPEC §17)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7ce9-703e-abd4-42f16c7c1680"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "carrier-protocol-registry-and-extension-based-auto-detection-spec-17"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7ce9-703e-abd4-42f16c7c1680"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Carrier protocol, registry, and extension-based auto-detection (SPEC §17).
 
 A carrier works on a file's lines (without line endings). ``extract`` finds

@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7bcd-714e-8e41-89299469375c"
+  revision: 1
+  title: "Systems"
+  classification:
+    category: "context"
+    type: "index"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7bcd-714e-8e41-89299469375c"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "systems"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7bcd-714e-8e41-89299469375c"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Systems
 
 The internal building blocks of `src/somnus/`, from the text layer up. Each page covers one layer from the [architecture](../overview/architecture.md).

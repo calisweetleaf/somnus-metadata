@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-794d-74fa-8d12-bf1b97686f16"
+  revision: 1
+  title: "Background"
+  classification:
+    category: "context"
+    type: "index"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-794d-74fa-8d12-bf1b97686f16"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "background"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-794d-74fa-8d12-bf1b97686f16"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Background
 
 This section explains why the Somnus standard and toolkit look the way they do, where they came from, and which mistakes are easy to make while working on them. It draws on `DECISIONS.md`, `archive/`, `SPEC.md` section 22, and the git history.

@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-79f7-720f-b44d-3a507a8d3970"
+  revision: 1
+  title: "Features"
+  classification:
+    category: "context"
+    type: "index"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-79f7-720f-b44d-3a507a8d3970"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "features"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-79f7-720f-b44d-3a507a8d3970"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Features
 
 These pages describe what the `somnus` CLI does for a user or an agent, one workflow per page. Each page explains the behavior, the commands involved, and the source files to change. For the subsystems underneath (carriers, validation, the registry), see the systems pages linked from each feature page.

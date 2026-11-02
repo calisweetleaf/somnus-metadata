@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7907-71e6-a510-f7373ce06ffc"
+  revision: 1
+  title: "Global AGENTS.md Appendix for Somnus Metadata"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7907-71e6-a510-f7373ce06ffc"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "global-agents-md-appendix-for-somnus-metadata"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7907-71e6-a510-f7373ce06ffc"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Global `AGENTS.md` Appendix for Somnus Metadata
 
 Copy the single fenced Markdown block below and paste it into your global agent instruction file (`~/.factory/AGENTS.md` for Factory Droid, `~/.codex/AGENTS.md` for Codex CLI, `~/.config/opencode/AGENTS.md` for OpenCode, or your global Google Antigravity rules).

@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7f12-771c-8fd6-59a7f77a9c25"
+#   revision: 1
+#   title: "somnus set: non-interactive header edit; the CLI twin of the somnus edit form"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7f12-771c-8fd6-59a7f77a9c25"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "somnus-set-non-interactive-header-edit-the-cli-twin-of-the-somnus-edit-form"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7f12-771c-8fd6-59a7f77a9c25"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """``somnus set``: non-interactive header edit; the CLI twin of the ``somnus edit`` form."""
 
 from __future__ import annotations

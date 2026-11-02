@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-83cb-7039-9a07-265c5f65e2c2"
+  revision: 1
+  title: "Somnus-MCP — Suggested Workflows for Models (bb7)"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-83cb-7039-9a07-265c5f65e2c2"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "somnus-mcp-suggested-workflows-for-models-bb7"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-83cb-7039-9a07-265c5f65e2c2"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Somnus-MCP — Suggested Workflows for Models (bb7_*)
 
 > **Audience:** Models operating via Codex / Claude Code / Gemini / custom agents through the single shared gateway. bb7_* are callable by humans too, but this doc is tuned for model token-budget and routing signal.

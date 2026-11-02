@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7d0a-7459-a9ee-3d5d07118038"
+#   revision: 1
+#   title: "Block-comment carriers: CSS / / and XML/HTML/SVG <!-- --> (SPEC §17.4–§17.5)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7d0a-7459-a9ee-3d5d07118038"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "block-comment-carriers-css-and-xml-html-svg-spec-17-4-17-5"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7d0a-7459-a9ee-3d5d07118038"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Block-comment carriers: CSS ``/* */`` and XML/HTML/SVG ``<!-- -->`` (SPEC §17.4–§17.5)."""
 
 from __future__ import annotations

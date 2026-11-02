@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-8191-7600-a8a1-cca84de72214"
+#   revision: 1
+#   title: "Terminal abstraction: raw key input, alternate screen, and differential redraw"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-8191-7600-a8a1-cca84de72214"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "terminal-abstraction-raw-key-input-alternate-screen-and-differential-redraw"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-8191-7600-a8a1-cca84de72214"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Terminal abstraction: raw key input, alternate screen, and differential redraw.
 
 Windows uses ``msvcrt`` for keys and ``kernel32`` console modes for VT output; POSIX uses

@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-80b0-77bc-a4e4-2363ce21acbf"
+#   revision: 1
+#   title: "Declarative schema tree for core 2.0.0 and its profiles (SPEC §4–§17)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-80b0-77bc-a4e4-2363ce21acbf"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "declarative-schema-tree-for-core-2-0-0-and-its-profiles-spec-4-17"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-80b0-77bc-a4e4-2363ce21acbf"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Declarative schema tree for core 2.0.0 and its profiles (SPEC §4–§17).
 
 Nodes describe types, required members, vocabularies, and formats. The

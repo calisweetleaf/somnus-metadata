@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7aac-7060-a365-c3a978381b0c"
+  revision: 1
+  title: "Tooling"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7aac-7060-a365-c3a978381b0c"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "tooling"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7aac-7060-a365-c3a978381b0c"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Tooling
 
 The runtime needs Python 3.11 or later and no third-party packages (`pyproject.toml`). Development tooling includes optional uv installation, the somnus-debug configs, and GitHub Actions for testing and wiki refresh. `AGENTS.md` also records a OneDrive-specific constraint on multi-file Surgeon edits.

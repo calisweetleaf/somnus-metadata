@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7eb3-732d-9c10-07627557c98f"
+#   revision: 1
+#   title: "somnus new: scaffold a conformant Markdown artifact"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7eb3-732d-9c10-07627557c98f"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "somnus-new-scaffold-a-conformant-markdown-artifact"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7eb3-732d-9c10-07627557c98f"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """``somnus new``: scaffold a conformant Markdown artifact."""
 
 from __future__ import annotations

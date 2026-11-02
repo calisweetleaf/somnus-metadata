@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7f68-7721-b807-1f454021e4af"
+#   revision: 1
+#   title: "Hierarchical configuration: CLI flag > nearest .somnus.toml > $SOMNUSHOME/config.toml > defaults"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7f68-7721-b807-1f454021e4af"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "hierarchical-configuration-cli-flag-nearest-somnus-toml-somnushome-config-toml-d"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7f68-7721-b807-1f454021e4af"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Hierarchical configuration: CLI flag > nearest .somnus.toml > $SOMNUS_HOME/config.toml > defaults."""
 
 from __future__ import annotations

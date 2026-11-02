@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7c0c-7418-9678-86d97b799c21"
+  revision: 1
+  title: "Validation"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7c0c-7418-9678-86d97b799c21"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "validation"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7c0c-7418-9678-86d97b799c21"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Validation
 
 The validator checks one loaded `Document` in four cumulative levels (`carrier`, `core`, `semantic`, `canon`) and returns a list of `Diagnostic` records. It is driven by a declarative schema tree, a set of controlled vocabularies, and a `Resolver` that supplies registry facts for cross-document checks. The same package holds the lifecycle state machine and the JSON Schema exporter.

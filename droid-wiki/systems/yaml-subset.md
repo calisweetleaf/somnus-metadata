@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7c25-72bb-8524-914639034265"
+  revision: 1
+  title: "YAML subset"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7c25-72bb-8524-914639034265"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "yaml-subset"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7c25-72bb-8524-914639034265"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # YAML subset
 
 `src/somnus/yamlsub.py` is a self-contained parser and canonical serializer for the restricted YAML 1.2.2 subset that every Somnus payload uses (SPEC section 16). It has no dependencies, records source positions for diagnostics, and guarantees that `dumps(loads(s)) == s` for canonical input.

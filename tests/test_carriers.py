@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-8226-7442-8702-51eb9762b2b5"
+#   revision: 1
+#   title: "Carriers: envelope extraction, insertion, preambles, host preservation (SPEC section 17)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-8226-7442-8702-51eb9762b2b5"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "carriers-envelope-extraction-insertion-preambles-host-preservation-spec-section"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-8226-7442-8702-51eb9762b2b5"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Carriers: envelope extraction, insertion, preambles, host preservation (SPEC section 17)."""
 
 from __future__ import annotations

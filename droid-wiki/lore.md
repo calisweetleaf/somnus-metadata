@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7ac7-7666-8085-a04ad1e6aa8f"
+  revision: 1
+  title: "Lore"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7ac7-7666-8085-a04ad1e6aa8f"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "lore"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7ac7-7666-8085-a04ad1e6aa8f"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Lore
 
 This page tells the history of somnus-metadata through `22117e9` on 2026-10-31 UTC, using dates recorded in git and inside the documents. Where a commit or document does not say why something happened, the reasons given here are inferences and are marked as such. For the decisions themselves, see [design decisions](background/design-decisions.md). For how old material maps to new, see [migration context](background/migration-context.md). The current system is described in [the overview](overview/index.md) and [architecture](overview/architecture.md); workflow operation belongs in [Automation](deployment.md).

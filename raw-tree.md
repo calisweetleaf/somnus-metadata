@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7c79-720a-969f-6e86da54abc9"
+  revision: 1
+  title: "File Tree: somnus-metadata"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7c79-720a-969f-6e86da54abc9"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "file-tree-somnus-metadata"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7c79-720a-969f-6e86da54abc9"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # File Tree: somnus-metadata
 
 **Generated:** 10/11/2026, 10:20:26 PM

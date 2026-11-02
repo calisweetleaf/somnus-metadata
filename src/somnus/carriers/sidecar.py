@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7d66-7400-885c-29aef80484ed"
+#   revision: 1
+#   title: "Detached sidecar bindings: <file>.somnus.yaml (SPEC §17.6)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7d66-7400-885c-29aef80484ed"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "detached-sidecar-bindings-file-somnus-yaml-spec-17-6"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7d66-7400-885c-29aef80484ed"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Detached sidecar bindings: ``<file>.somnus.yaml`` (SPEC §17.6)."""
 
 from __future__ import annotations

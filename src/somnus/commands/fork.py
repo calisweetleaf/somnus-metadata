@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7e23-7304-a0a0-df9d71961d7e"
+#   revision: 1
+#   title: "somnus fork: new artifact (UUIDv7, revision 1) derived from an existing revision"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7e23-7304-a0a0-df9d71961d7e"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "somnus-fork-new-artifact-uuidv7-revision-1-derived-from-an-existing-revision"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7e23-7304-a0a0-df9d71961d7e"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """``somnus fork``: new artifact (UUIDv7, revision 1) derived from an existing revision."""
 
 from __future__ import annotations

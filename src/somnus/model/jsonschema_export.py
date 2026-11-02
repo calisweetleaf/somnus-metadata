@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-8055-7704-8f5c-27d352cc8c87"
+#   revision: 1
+#   title: "Export the declarative schema tree as JSON Schema Draft 2020-12 (interchange only; never stored)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-8055-7704-8f5c-27d352cc8c87"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "export-the-declarative-schema-tree-as-json-schema-draft-2020-12-interchange-only"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-8055-7704-8f5c-27d352cc8c87"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Export the declarative schema tree as JSON Schema Draft 2020-12 (interchange only; never stored)."""
 
 from __future__ import annotations

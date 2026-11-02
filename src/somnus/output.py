@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-8107-76da-adb3-06da3d2cffee"
+#   revision: 1
+#   title: "Diagnostics, compiler-style rendering, tables, and process exit codes"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-8107-76da-adb3-06da3d2cffee"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "diagnostics-compiler-style-rendering-tables-and-process-exit-codes"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-8107-76da-adb3-06da3d2cffee"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Diagnostics, compiler-style rendering, tables, and process exit codes."""
 
 from __future__ import annotations

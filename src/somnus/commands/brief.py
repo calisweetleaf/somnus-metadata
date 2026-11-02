@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7dd0-7013-8d7c-5fdf050b0118"
+#   revision: 1
+#   title: "somnus brief: a Markdown cheat sheet for agent instruction files"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7dd0-7013-8d7c-5fdf050b0118"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "somnus-brief-a-markdown-cheat-sheet-for-agent-instruction-files"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7dd0-7013-8d7c-5fdf050b0118"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """``somnus brief``: a Markdown cheat sheet for agent instruction files."""
 
 from __future__ import annotations

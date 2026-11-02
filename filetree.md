@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7c45-73e3-9028-7b15dc65cdd4"
+  revision: 1
+  title: "filetree.md — somnus-metadata"
+  classification:
+    category: "context"
+    type: "index"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7c45-73e3-9028-7b15dc65cdd4"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "filetree-md-somnus-metadata"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7c45-73e3-9028-7b15dc65cdd4"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # filetree.md — somnus-metadata
 
 Spatial/dependency map for the current checkout. For task routing and authority,

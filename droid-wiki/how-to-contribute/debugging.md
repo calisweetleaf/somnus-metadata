@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7a4f-74e1-9a4f-10f7bf9bd84c"
+  revision: 1
+  title: "Debugging"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7a4f-74e1-9a4f-10f7bf9bd84c"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "debugging"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7a4f-74e1-9a4f-10f7bf9bd84c"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Debugging
 
 Most problems surface as a diagnostic line with a stable code, so debugging usually starts by reading the code and the dotted field path. This page lists the codes the toolkit actually emits, how to get a traceback for internal errors, and how to inspect the registry without changing it.

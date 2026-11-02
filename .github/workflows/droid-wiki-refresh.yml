@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7825-73c9-8512-bcde4a23df59"
+#   revision: 1
+#   title: "Droid Wiki Refresh"
+#   classification:
+#     category: "engineering"
+#     type: "configuration"
+#     role: "normative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7825-73c9-8512-bcde4a23df59"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "droid-wiki-refresh"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7825-73c9-8512-bcde4a23df59"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "configuration"
+# somnus:end
 name: Droid Wiki Refresh
 
 on:

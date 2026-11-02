@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-8023-7769-994d-434e7633f970"
+#   revision: 1
+#   title: "Model Context Protocol server: every non-interactive somnus command as a stdio tool (D17)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-8023-7769-994d-434e7633f970"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "model-context-protocol-server-every-non-interactive-somnus-command-as-a-stdio-to"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-8023-7769-994d-434e7633f970"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Model Context Protocol server: every non-interactive ``somnus`` command as a stdio tool (D17).
 
 Tools are generated from the CLI's argparse definitions, so the two surfaces cannot drift. Each

@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-82ce-7102-a1c7-ae443e045b17"
+#   revision: 1
+#   title: "Lifecycle state machine (SPEC section 7)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-82ce-7102-a1c7-ae443e045b17"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "lifecycle-state-machine-spec-section-7"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-82ce-7102-a1c7-ae443e045b17"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Lifecycle state machine (SPEC section 7)."""
 
 from __future__ import annotations

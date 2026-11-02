@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7e36-7527-b32e-ce40310d1278"
+#   revision: 1
+#   title: "somnus index: reconcile roots into the registry"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7e36-7527-b32e-ce40310d1278"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "somnus-index-reconcile-roots-into-the-registry"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7e36-7527-b32e-ce40310d1278"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """``somnus index``: reconcile roots into the registry."""
 
 from __future__ import annotations

@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-8330-7373-8e5d-067e70b5f474"
+#   revision: 1
+#   title: "Registry store: indexing semantics of SPEC §18.3"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-8330-7373-8e5d-067e70b5f474"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "registry-store-indexing-semantics-of-spec-18-3"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-8330-7373-8e5d-067e70b5f474"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Registry store: indexing semantics of SPEC §18.3."""
 
 from __future__ import annotations

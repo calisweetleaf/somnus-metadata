@@ -1,3 +1,35 @@
+-- somnus:metadata:v2
+-- somnus:
+--   schema: "somnus://metadata/core/2.0.0"
+--   id: "urn:somnus:artifact:01a19a67-7f8a-72ec-a139-13f974ed217f"
+--   revision: 1
+--   title: "Schema"
+--   classification:
+--     category: "engineering"
+--     type: "source-code"
+--     role: "informative"
+--     scope: "component"
+--     tags: []
+--   lifecycle:
+--     status: "draft"
+--   authority:
+--     standing: "candidate"
+--     scopes:
+--       - target_ref: "urn:somnus:artifact:01a19a67-7f8a-72ec-a139-13f974ed217f"
+--         aspects: ["content"]
+--   time: {}
+--   names:
+--     slug: "schema"
+--   knowledge:
+--     coverage: "artifact"
+--     subjects: ["urn:somnus:artifact:01a19a67-7f8a-72ec-a139-13f974ed217f"]
+--   access:
+--     visibility: "internal"
+--     allowed_uses: ["archive", "search", "reason"]
+--   ingestion:
+--     disposition: "candidate"
+--     body_role: "source"
+-- somnus:end
 -- Somnus global registry, schema version 2 (SPEC §18). The full-text index ships in search.sql (D19).
 -- Zero JSON: headers are canonical restricted YAML text; every column is a plain value.
 

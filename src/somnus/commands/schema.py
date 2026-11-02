@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7efe-71eb-8a13-fcf768da877d"
+#   revision: 1
+#   title: "somnus schema: field documentation, or JSON Schema Draft 2020-12 export"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7efe-71eb-8a13-fcf768da877d"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "somnus-schema-field-documentation-or-json-schema-draft-2020-12-export"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7efe-71eb-8a13-fcf768da877d"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """``somnus schema``: field documentation, or JSON Schema Draft 2020-12 export."""
 
 from __future__ import annotations

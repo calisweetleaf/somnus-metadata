@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-799f-74a2-bfa7-ae03a1677142"
+  revision: 1
+  title: "Cleanup opportunities"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-799f-74a2-bfa7-ae03a1677142"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "cleanup-opportunities"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-799f-74a2-bfa7-ae03a1677142"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Cleanup opportunities
 
 This page separates resolved drift from remaining verification boundaries and optional maintenance candidates. Size and diagnostic counts are not evidence of a correctness defect.

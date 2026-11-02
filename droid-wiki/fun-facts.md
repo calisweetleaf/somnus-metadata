@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7a35-751f-91c4-c79fab14c861"
+  revision: 1
+  title: "Fun facts"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7a35-751f-91c4-c79fab14c861"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "fun-facts"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7a35-751f-91c4-c79fab14c861"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Fun facts
 
 A few things about somnus-metadata that stood out while measuring it. Current measurements use committed HEAD `27408fa` on 2026-10-31 UTC; historical observations retain their original commit references. For the full figures, see [by the numbers](by-the-numbers.md) and [lore](lore.md). For what the project is, start at [the overview](overview/index.md).

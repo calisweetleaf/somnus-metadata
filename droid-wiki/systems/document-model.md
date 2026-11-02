@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7bb7-73a6-8a10-548403c2790e"
+  revision: 1
+  title: "Document model"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7bb7-73a6-8a10-548403c2790e"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "document-model"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7bb7-73a6-8a10-548403c2790e"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Document model
 
 `src/somnus/document.py` turns a file on disk into a `Document`: its lines and line endings, its carrier, the located envelope, and the parsed payload. It also owns the write path that refuses any change outside the envelope. `src/somnus/regions.py` adds the body-side view: in-body region markers, headings, and TeX labels.

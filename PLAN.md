@@ -1,8 +1,137 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
+  revision: 2
+  title: "Somnus Metadata — Completion and Operator Integration Plan"
+  classification:
+    category: "operations"
+    type: "plan"
+    role: "working"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
+        aspects: ["content"]
+  time:
+    updated_at: "2026-11-02T04:06:59+00:00"
+  names:
+    slug: "somnus-metadata-completion-and-operator-integration-plan"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Somnus Metadata — Completion and Operator Integration Plan
 
-Updated 2026-10-31 (America/Chicago). Operational handoff, not normative source.
+Updated 2026-11-01 (America/Chicago). Operational handoff, not normative source.
 SPEC.md owns the contract; DECISIONS.md records ratified rationale. Source and
 execution establish implementation and exercised behavior respectively.
+
+## Active rollout frontier — 2026-11-01
+
+This section supersedes the older release/install next actions below. The backend
+is feature-complete on the exercised Linux boundary; the remaining commission is
+the full cross-root adoption in HANDOFF.md, not a backend redesign.
+
+### Landed and re-verified
+
+- Public/index and installed backend: **2.1.0**. Plain
+  `~/.venvs/global/bin/pip install -U somnus-metadata` reports already satisfied.
+- Native source suite **534/534**, SPEC/DECISIONS semantic check **0 errors /
+  0 warnings**, installed `mypy` **49 source files clean**, and fresh-wheel
+  installed acceptance **66/66, 0 failed / 0 not run** after native adoption.
+- Plugin **1.1.0**: **21/21 tests**; reinstalled from its working checkout into
+  Droid, Codex, Antigravity and OpenCode; doctor passes all four live 16-tool
+  handshakes and skill-drift checks. The packaged skill now directs agents to
+  request `tsv: true` when they need complete paths; human tables truncate.
+- Native `stamp --write` adopted **141 files** in this repository and **14
+  files** in the plugin repository. Host algorithms were not rewritten.
+  Both Git inventories included unsupported-carrier hosts (JSON, dotfiles,
+  extensionless files); those received sidecars. Preserved research, historical
+  entry files, archive trees and pre-existing operator changes were not stamped.
+- Carrier preflight used real isolated files at
+  `/tmp/somnus-metadata-rollout-preflight-20261101`: existing skill frontmatter,
+  Python shebang/encoding, TOML, YAML, JSON, HTML and a NUL-containing binary.
+  Every original host byte survived; foreign skill keys and parsed TOML/YAML/JSON
+  values survived; the Python consumer ran. The first validation probe used the
+  restricted YAML parser without lenient mode for foreign YAML; the corrected
+  probe passed. No backend change was required.
+- All five requested roots are configured and registered. Redundant nested
+  registrations were consolidated only after verifying equivalent parent-root
+  observations, with an online SQLite backup at
+  `/home/daeron/.somnus/somnus.db.bak.root-consolidation.20261102T040037Z`.
+  Registry integrity and foreign keys passed; **160 present paths / 160 rows**
+  remain, rather than duplicate search hits from overlapping roots.
+
+### Root reconciliation and remaining adoption
+
+| Registered root | Unmanaged embedded-carrier candidates in the latest full root pass |
+| --- | ---: |
+| `/home/daeron/Repositories` | 2,476 before the plugin's 12 embedded-carrier files were adopted; **2,464 remain** |
+| `/home/daeron/LAB` | **17,433** |
+| `/home/daeron/Somnus-MCP` | **582** |
+| `/home/daeron/Documents` | **691** |
+| `/home/daeron/Projects` | **4** |
+
+This is **21,174 remaining embedded-carrier candidates**, not a claim that all
+other file types have been inventoried. `Store.scan(...).unmanaged_paths`
+supplies the full list; the CLI prints only ten examples. Unknown-carrier hosts
+without a sidecar are not included in that scan count, so complete adoption also
+requires an every-file inventory, as done through Git for the two adopted repos.
+Surgeon's workspace view alone is not exhaustive: it omits binaries and files
+over 1.5 MB.
+
+The global exclusion configuration is `/home/daeron/.somnus/config.toml`.
+It covers nested VCS/dependencies/environments (including `mcp.venv`), caches,
+builds, lock files, model weights, archives, credentials, generated diagnostics,
+the frozen research file, preserved historical entry documents and the
+operator-owned `SYMBOL-CRASH.md`. Top-level `data/**` protects the running
+Somnus-MCP data plane; it is not permission to mutate or copy that plane.
+
+The initial broad scan found two pre-existing unclosed-frontmatter files:
+`/home/daeron/LAB/Experiments/projects/sentari/01_Grammar_Structure/Reverse Dictionary.md`
+and
+`/home/daeron/LAB/Experiments/projects/sentari/real-current/Reverse Dictionary.md.md`.
+They returned `E_ENVELOPE`, not `E_HOST`, and were left untouched and explicitly
+excluded. A non-UTF-8 dependency fixture was under `mcp.venv`; excluding that
+environment removed it. The five-root pass after these exclusions had **0 invalid
+files / 0 conflicts**. **No E_HOST adoption refusal has occurred in the two
+adopted repositories.**
+
+### Agent search proof
+
+Both hosts actually invoked metadata MCP tools, not shell substitutes:
+- Droid session `0ee0b5e4-c137-42da-a406-7ab1048f4013`: three text searches
+  (`host byte preservation`, `lifecycle`, `carrier`) returned **3 hits each**;
+  specification listing returned **1**; stale returned **7 near-title
+  advisories**; conflicts returned **0**.
+- Codex session `01a19a6c-48c9-7291-8457-d72dee1d3e6c`: the same six calls
+  succeeded with TSV, including complete paths.
+- Droid session `e32d9c76-5b71-4058-8c69-eea72ce98a47`: all three searches
+  returned complete TSV paths. Example:
+  `/home/daeron/Repositories/somnus-metadata/runbooks/host-write-incident.md`.
+- A separate attempt launched directly from the Node tool process failed Droid
+  authentication before any MCP call. Re-running through the established login
+  shell succeeded; no credentials or authentication configuration were changed.
+- OpenCode in-session invocation and real Windows console execution remain
+  **NOT RUN**; the four-host doctor is not a substitute for those claims.
+
+**Next executable work:** finish the local instruction/dirty-tree boundaries for
+the remaining roots, adopt native batches including sidecar hosts, preserve
+pre-existing edits in per-repository commits, reconcile all five roots, and repeat
+the host searches against the expanded corpus. Do not call the global adoption
+complete from the two-repository zero-unmanaged result. Commit and push only the
+metadata and plugin repos as authorized in HANDOFF; other repo commits stay local.
 
 ## Colony foray — failing components (2026-10-31)
 

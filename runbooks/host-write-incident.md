@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7c89-70d8-920f-fcb7a2a797ff"
+  revision: 1
+  title: "Runbook: Host-Byte Preservation and EHOST Incident Response"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7c89-70d8-920f-fcb7a2a797ff"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "runbook-host-byte-preservation-and-ehost-incident-response"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7c89-70d8-920f-fcb7a2a797ff"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Runbook: Host-Byte Preservation and `E_HOST` Incident Response
 
 ```

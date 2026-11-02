@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7e96-7062-bdf7-68595563304f"
+#   revision: 1
+#   title: "somnus migrate: upgrade v0.1 hybrid documents to core 2.0.0 (SPEC §22)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7e96-7062-bdf7-68595563304f"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "somnus-migrate-upgrade-v0-1-hybrid-documents-to-core-2-0-0-spec-22"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7e96-7062-bdf7-68595563304f"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """``somnus migrate``: upgrade v0.1 hybrid documents to core 2.0.0 (SPEC §22)."""
 
 from __future__ import annotations

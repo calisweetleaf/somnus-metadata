@@ -1,3 +1,36 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-791b-7090-ab7e-0d4da8974aa0"
+  revision: 2
+  title: "Somnus Metadata — Operator and Agent Usage Guide"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-791b-7090-ab7e-0d4da8974aa0"
+        aspects: ["content"]
+  time:
+    updated_at: "2026-11-02T04:06:59+00:00"
+  names:
+    slug: "somnus-metadata-operator-and-agent-usage-guide"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-791b-7090-ab7e-0d4da8974aa0"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Somnus Metadata — Operator and Agent Usage Guide
 
 ```
@@ -666,14 +699,22 @@ Raw public HTTPS tunnels (`cloudflared`, Tailscale Funnel, `ngrok`) were evaluat
 
 ## 9. Current System State and Verification Matrix
 
-Every item below reflects verified state as of **2026-10-31**:
+The table distinguishes the local checks rerun on **2026-11-01** from historical
+hosted or platform evidence. PLAN.md owns the detailed rollout frontier.
 
 | Surface / Capability | Current Status | Verification Evidence |
 | --- | --- | --- |
-| **Core Specification & Decisions** | **OPERATIONAL** (`somnus://metadata/core/2.0.0`, `SPEC.md` r7, `DECISIONS.md` r5 D1–D19) | `somnus check SPEC.md DECISIONS.md --level semantic` -> `0 error(s), 0 warning(s)` (exit `0`). |
-| **Python Backend & CLI (`2.1.0`)** | **OPERATIONAL** (`pip` install in `~/.venvs/global`, linked into `~/.local/bin`; registry schema 2 with FTS5 `q --text`) | Unit suite: **534/534 tests pass** (`0 ResourceWarning`, **88.76%** branch+statement coverage); `mypy` clean across **49 source files**; `ruff` clean under the `.pre-commit-config.yaml` rule selection (enforced in CI `hooks and coverage`, not repo-wide default `ruff`); `import-linter` **6/6 architecture contracts kept**; installed-package acceptance harness: **66/66 checks pass** (including `somnus-metadata` alias, PTY TUI, MCP stdio, FTS5 search, conflict recovery). |
-| **GitHub CI & CodeQL (`calisweetleaf/somnus-metadata`)** | **OPERATIONAL** | GitHub Actions `CI` (including `installed_package_acceptance.py`), `CodeQL`, and `Droid Wiki Refresh` workflows all passing on `main`. |
-| **Multi-Host Agent Plugin (`calisweetleaf/somnus-metadata-plugin`)** | **OPERATIONAL** (v1.1.0 installed on this laptop for Droid, Codex, Antigravity, and OpenCode) | `npm test` **21/21 tests pass**; `somnus-plugin doctor` passes all checks on this laptop (`16 tools` handshake per host, SHA-256 skill-drift check clean). In-host MCP calls were verified live in Factory Droid, Codex CLI, and Google Antigravity with plugin 1.0.0. OpenCode: `opencode debug config` loads the `somnus-metadata` entry; an in-session OpenCode tool call is **NOT RUN**. |
-| **Public PyPI Distribution (`pypi.org/project/somnus-metadata/`)** | **AT VERSION 2.1.0** | `somnus_metadata-2.1.0-py3-none-any.whl` and the sdist were uploaded on 2026-10-31 after the same files passed a clean-venv smoke test (`somnus` and `somnus-metadata --version`, init/stamp/index/`q --text`, MCP `tools/list` = 16). This laptop runs that release from `~/.venvs/global` via `pip`. |
-| **Live Windows OS Console TUI (`kernel32`/`msvcrt`)** | **UNIT-TESTED VIA FAKES ONLY** | `tests/test_term_windows.py` (12 tests, 96% coverage of `src/somnus/tui/term.py`) and plugin `win32` `spawnForm()` unit tests pass on Linux; live execution on a physical Windows console is **NOT RUN**. |
-| **Remote Access Setup (Droid Remote Control / ChatGPT Tunnel)** | **ARCHITECTURE DECIDED; LIVE TUNNEL NOT YET STARTED** | Decision recorded in Section 7: use `droid daemon --remote-control` for Droid web/phone; ChatGPT Plus custom MCP tunnel eligibility requires a 1-step UI check in ChatGPT web (`[UNVERIFIED — CONFIRM BEFORE OPERATIONAL USE]`). |
+| **Core Specification & Decisions** | **OPERATIONAL** (core 2.0.0, SPEC r7, DECISIONS r5 D1–D19) | Semantic check rerun: 0 errors / 0 warnings. No normative changes made during adoption. |
+| **Python Backend & CLI (2.1.0)** | **PASS on the exercised Linux boundary** | 534/534 source tests; mypy clean in 49 files; fresh-wheel installed acceptance 66/66, including real SQLite/files, MCP and PTY TUI. Previous 88.76% coverage and Ruff/import-linter results are historical, not rerun by this adoption pass. |
+| **Public PyPI distribution** | **Installed version matches latest reported version: 2.1.0** | Plain pip upgrade reports already satisfied in `~/.venvs/global`; command links resolve to that install. No new release was needed for metadata-only source adoption. |
+| **Multi-host plugin (1.1.0)** | **PASS** for installed skill fidelity and live handshake in all four hosts | 21/21 plugin tests; reinstalled from the plugin checkout; doctor passes Droid, Codex, Antigravity and OpenCode, 16 tools each. The skill now directs agents to request TSV for complete paths. |
+| **Droid and Codex in-host search** | **PASS** | Both called MCP `q` for three known topics, `ls` for specifications, `stale`, and `q --conflicts`; every text search returned real hits. Complete TSV paths were separately proven in both hosts. At this checkpoint: 1 specification, 7 near-title advisories, 0 open conflicts. Session evidence is in PLAN.md. |
+| **Global registry adoption** | **IN PROGRESS — not complete** | Five roots registered; 160 unique present paths after consolidating redundant nested-root registrations. 141 files adopted in the core repo and 14 in the plugin repo. 21,174 other embedded-carrier candidates remain; unknown-carrier files need a separate exhaustive inventory. |
+| **Preservation and exclusions** | **APPLIED; explicit exceptions retained** | Real carrier preflight preserved skill frontmatter, Python preambles, TOML/YAML, JSON, HTML and binary host bytes. Archives, frozen research, credentials, model weights, environments, generated state and the live Somnus-MCP data plane are excluded. Two pre-existing malformed Sentari Markdown files are explicitly excluded, not silently repaired. |
+| **GitHub CI & CodeQL** | **Historical green evidence; current post-adoption run pending** | This pass has not yet pushed the metadata adoption changes. Do not project earlier green workflow runs onto new commits. |
+| **OpenCode in-session invocation** | **NOT RUN** | Its installed configuration and live 16-tool handshake pass; this is not an OpenCode agent-session invocation. |
+| **Live Windows console TUI** | **NOT RUN** | Existing Windows branch/fake tests run on Linux; no physical Windows console was exercised. |
+| **Remote access / ChatGPT tunnel** | **Deferred boundary, unchanged** | Architecture remains in section 7. No remote-control daemon or tunnel was started by the adoption work. |
+
+For agent automation, use `tsv: true` on MCP queries/listings (CLI: `--tsv`).
+The default human-readable tables shorten long cells; TSV retains complete paths.

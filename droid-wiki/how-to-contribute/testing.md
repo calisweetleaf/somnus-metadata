@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7a9d-7514-bd82-eb2f9702c5da"
+  revision: 1
+  title: "Testing"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7a9d-7514-bd82-eb2f9702c5da"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "testing"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7a9d-7514-bd82-eb2f9702c5da"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Testing
 
 The discovered suite is 13 stdlib `unittest` modules under `tests/` with 486 test methods. `tests/test_conformance.py` implements the 21 SPEC section 21 fixtures. A separate, explicitly invoked installed-package harness is not collected by discovery.

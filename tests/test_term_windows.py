@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-834c-74b2-a6ea-e826923f2510"
+#   revision: 1
+#   title: "Windows console code paths of somnus.tui.term driven through fakes"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-834c-74b2-a6ea-e826923f2510"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "windows-console-code-paths-of-somnus-tui-term-driven-through-fakes"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-834c-74b2-a6ea-e826923f2510"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Windows console code paths of ``somnus.tui.term`` driven through fakes.
 
 ``sys.platform`` is patched to ``win32`` and ``ctypes.WinDLL``/``msvcrt`` are replaced with

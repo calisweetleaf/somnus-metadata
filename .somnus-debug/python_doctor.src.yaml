@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-786a-7735-a1ce-f2aa5217446f"
+#   revision: 1
+#   title: "Python Doctor"
+#   classification:
+#     category: "engineering"
+#     type: "configuration"
+#     role: "normative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-786a-7735-a1ce-f2aa5217446f"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "python-doctor"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-786a-7735-a1ce-f2aa5217446f"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "configuration"
+# somnus:end
 # Package-rooted scan: run as `somnus-debug doctor scan src -c .somnus-debug/python_doctor.src.yaml`.
 # The doctor names modules relative to the scan root, so scanning `src` resolves `somnus.*` imports.
 schema_version: "3.0"

@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7831-73b9-9fca-321c726845a5"
+#   revision: 1
+#   title: "Release"
+#   classification:
+#     category: "engineering"
+#     type: "configuration"
+#     role: "normative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7831-73b9-9fca-321c726845a5"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "release"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7831-73b9-9fca-321c726845a5"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "configuration"
+# somnus:end
 # Tag-triggered release: test, build, verify the tag matches the package
 # version, then publish a GitHub Release with auto-generated notes.
 

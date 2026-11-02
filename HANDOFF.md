@@ -1,4 +1,54 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-78be-745c-b7a2-ded39bc0328a"
+  revision: 2
+  title: "HANDOFF — finish Somnus Metadata end to end (2026-11-01)"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-78be-745c-b7a2-ded39bc0328a"
+        aspects: ["content"]
+  time:
+    updated_at: "2026-11-02T04:06:59+00:00"
+  names:
+    slug: "handoff-finish-somnus-metadata-end-to-end-2026-11-01"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-78be-745c-b7a2-ded39bc0328a"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # HANDOFF — finish Somnus Metadata end to end (2026-11-01)
+
+## Resume from the live frontier (2026-11-01, later session)
+
+The original baseline below is retained, but it is no longer the current registry
+state. Read the top section of PLAN.md first. All five requested roots are now
+registered with safe exclusions; 141 core-repository files and 14 plugin files
+were adopted through native stamping. The registry has 160 unique present paths,
+with no duplicate physical paths or open conflicts. Core tests (534), installed
+acceptance (66), mypy (49 files), plugin tests (21) and four-host doctor passed.
+Droid and Codex both returned real MCP search hits; TSV complete paths were proven.
+
+**Still open:** the rest of the roots have 21,174 unmanaged embedded-carrier
+candidates at the latest pass, plus unknown-carrier files not counted by the
+scanner. Finish every-file adoption and repository finalization; do not re-run
+the first two repos as if they were still unmanaged. Use `somnus index` across
+the five registered roots rather than registering nested roots again. Preserve
+the original exceptions and cross-repository commit/push limits below.
 
 Paste everything below the line into a fresh agent session (Droid or Codex) started in
 `/home/daeron/Repositories/somnus-metadata`. It is self-contained.

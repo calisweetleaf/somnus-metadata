@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7df0-739f-bb07-fa3bc8d74855"
+#   revision: 1
+#   title: "somnus check: run the validation pipeline and print diagnostics"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7df0-739f-bb07-fa3bc8d74855"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "somnus-check-run-the-validation-pipeline-and-print-diagnostics"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7df0-739f-bb07-fa3bc8d74855"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """``somnus check``: run the validation pipeline and print diagnostics."""
 
 from __future__ import annotations

@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7a13-76f0-87f0-0de974158ab9"
+  revision: 1
+  title: "Migration from v0.1"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7a13-76f0-87f0-0de974158ab9"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "migration-from-v0-1"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7a13-76f0-87f0-0de974158ab9"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Migration from v0.1
 
 `somnus migrate` upgrades v0.1 hybrid Markdown documents to core `somnus://metadata/core/2.0.0`. It keeps the legacy UUID, turns relation buckets into qualified relations, replaces `:::submatter` directives with region markers, and preserves every value it cannot map under `extensions.somnus-migration`.

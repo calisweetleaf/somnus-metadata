@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7af2-7773-b6ce-80194bf27855"
+  revision: 1
+  title: "Getting started"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7af2-7773-b6ce-80194bf27855"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "getting-started"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7af2-7773-b6ce-80194bf27855"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Getting started
 
 This page takes you from a fresh clone to a validated, indexed document. It assumes Python 3.11 or later and, for the global install, `uv`.

@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7f4d-7483-94d9-b71109a1690d"
+#   revision: 1
+#   title: "somnus status: validated lifecycle transition (new revision)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7f4d-7483-94d9-b71109a1690d"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "somnus-status-validated-lifecycle-transition-new-revision"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7f4d-7483-94d9-b71109a1690d"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """``somnus status``: validated lifecycle transition (new revision)."""
 
 from __future__ import annotations

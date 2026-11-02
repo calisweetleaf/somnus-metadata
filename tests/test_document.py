@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-8299-7331-a0dc-76a5a8332a2f"
+#   revision: 1
+#   title: "Document loading, byte-preserving atomic saves, digests, positions (SPEC section 16.3, section 17, section 18.3)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-8299-7331-a0dc-76a5a8332a2f"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "document-loading-byte-preserving-atomic-saves-digests-positions-spec-section-16"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-8299-7331-a0dc-76a5a8332a2f"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Document loading, byte-preserving atomic saves, digests, positions (SPEC section 16.3, section 17, section 18.3)."""
 
 from __future__ import annotations

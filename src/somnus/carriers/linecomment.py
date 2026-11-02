@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7d39-7300-a172-9e6fba2a9f4a"
+#   revision: 1
+#   title: "Comment-prefixed carriers: # , % , // , --  (SPEC §17.3, §17.5)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7d39-7300-a172-9e6fba2a9f4a"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "comment-prefixed-carriers-spec-17-3-17-5"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7d39-7300-a172-9e6fba2a9f4a"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Comment-prefixed carriers: ``# ``, ``% ``, ``// ``, ``-- `` (SPEC §17.3, §17.5)."""
 
 from __future__ import annotations

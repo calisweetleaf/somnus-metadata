@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-8282-77d7-bc34-3ec2242ae29b"
+#   revision: 1
+#   title: "SPEC §21 conformance fixtures: one test per row, numbered to match the table"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-8282-77d7-bc34-3ec2242ae29b"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "spec-21-conformance-fixtures-one-test-per-row-numbered-to-match-the-table"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-8282-77d7-bc34-3ec2242ae29b"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """SPEC §21 conformance fixtures: one test per row, numbered to match the table."""
 
 from __future__ import annotations

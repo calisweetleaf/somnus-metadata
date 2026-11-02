@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-81d5-773f-9cba-949eacfb25f0"
+#   revision: 1
+#   title: "Restricted YAML 1.2.2 subset: strict parser and canonical serializer (SPEC §16)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-81d5-773f-9cba-949eacfb25f0"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "restricted-yaml-1-2-2-subset-strict-parser-and-canonical-serializer-spec-16"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-81d5-773f-9cba-949eacfb25f0"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Restricted YAML 1.2.2 subset: strict parser and canonical serializer (SPEC §16).
 
 The parser accepts block mappings and sequences with space indentation,

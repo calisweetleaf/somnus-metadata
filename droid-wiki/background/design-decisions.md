@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-793d-7400-9a5c-3b38c37692e2"
+  revision: 1
+  title: "Design decisions"
+  classification:
+    category: "governance"
+    type: "decision-record"
+    role: "normative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-793d-7400-9a5c-3b38c37692e2"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "design-decisions"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-793d-7400-9a5c-3b38c37692e2"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Design decisions
 
 `DECISIONS.md` records nineteen ratified decisions, D1 to D19, that shape `SPEC.md` and the toolkit. The operator ratified D1 to D15 on 2026-10-11 by approving the implementation plan in `PLAN.md`; they replace five PROPOSED recommendations from an earlier draft, which survives in commit `5f1df5d`. D16 and D17 were ratified the same day during the agent-usability review that followed the build. They add `somnus set` and `somnus mcp` without changing the metadata schema, so the release stays `somnus://metadata/core/2.0.0` and `SPEC.md` moved to revision 2.

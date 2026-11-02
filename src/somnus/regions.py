@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-8128-728a-9973-47ceb2744b3e"
+#   revision: 1
+#   title: "In-body region markers: lexical scanning, pairing, and registry sync (SPEC §13)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-8128-728a-9973-47ceb2744b3e"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "in-body-region-markers-lexical-scanning-pairing-and-registry-sync-spec-13"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-8128-728a-9973-47ceb2744b3e"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """In-body region markers: lexical scanning, pairing, and registry sync (SPEC §13)."""
 
 from __future__ import annotations

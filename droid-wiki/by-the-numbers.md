@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-798e-75f1-aa45-3b69364dc818"
+  revision: 1
+  title: "By the numbers"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-798e-75f1-aa45-3b69364dc818"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "by-the-numbers"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-798e-75f1-aa45-3b69364dc818"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # By the numbers
 
 Data collected on **2026-10-31 UTC** (clock checked at **23:08:47 UTC**), committed HEAD `a5c507ce1b8d925065bd2de2244ec13fb6660f94` on `main` in [the repository](https://github.com/calisweetleaf/somnus-metadata). Physical size and history figures are refreshed from committed HEAD; runtime AST figures are retained because product source and tests are unchanged from the incremental base `89f1843da570d503a302e014fd6027dc51b4737b`. The committed delta changes only `.github/workflows/droid-wiki-refresh.yml`. All figures exclude staged or working-tree wiki changes. Physical lines use Python `str.splitlines()`; blanks count and CRLF counts once.

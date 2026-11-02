@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7d50-729e-9d04-f1d987a0a3ca"
+#   revision: 1
+#   title: "Markdown carriers: YAML frontmatter and the hidden HTML comment envelope (SPEC §17.1–§17.2)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7d50-729e-9d04-f1d987a0a3ca"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "markdown-carriers-yaml-frontmatter-and-the-hidden-html-comment-envelope-spec-17"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7d50-729e-9d04-f1d987a0a3ca"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Markdown carriers: YAML frontmatter and the hidden HTML comment envelope (SPEC §17.1–§17.2)."""
 
 from __future__ import annotations

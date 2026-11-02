@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-7d80-716b-9aec-7612ca19c965"
+#   revision: 1
+#   title: "Argument parsing and lazy command dispatch for the somnus CLI (SPEC §20)"
+#   classification:
+#     category: "engineering"
+#     type: "source-code"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7d80-716b-9aec-7612ca19c965"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "argument-parsing-and-lazy-command-dispatch-for-the-somnus-cli-spec-20"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7d80-716b-9aec-7612ca19c965"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "source"
+# somnus:end
 """Argument parsing and lazy command dispatch for the ``somnus`` CLI (SPEC §20)."""
 
 from __future__ import annotations

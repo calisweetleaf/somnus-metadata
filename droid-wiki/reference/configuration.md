@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7b41-75a1-bf3e-fa8f4e83ec5e"
+  revision: 1
+  title: "Configuration"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7b41-75a1-bf3e-fa8f4e83ec5e"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "configuration"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7b41-75a1-bf3e-fa8f4e83ec5e"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Configuration
 
 Configuration is TOML, read with the stdlib `tomllib`, and resolved in layers by `src/somnus/config.py`. It supplies the actor name recorded in registry events, the default header values that `somnus new`, `stamp`, `fork`, and `migrate` write, and the roots and exclusions used by indexing.

@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-78ae-7368-88f3-4df3f863af56"
+  revision: 1
+  title: "Contributing to somnus-metadata"
+  classification:
+    category: "engineering"
+    type: "report"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-78ae-7368-88f3-4df3f863af56"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "contributing-to-somnus-metadata"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-78ae-7368-88f3-4df3f863af56"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # Contributing to `somnus-metadata`
 
 `somnus-metadata` is the normative specification (`SPEC.md`) and stdlib-only Python reference implementation (`src/somnus/`) for `somnus://metadata/core/2.0.0`. Every contribution must preserve contract fidelity, host-byte safety, and zero runtime dependencies.

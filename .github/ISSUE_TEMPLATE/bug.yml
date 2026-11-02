@@ -1,3 +1,35 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-77d2-713b-bb42-7b3c5600d9ba"
+#   revision: 1
+#   title: "Bug"
+#   classification:
+#     category: "engineering"
+#     type: "configuration"
+#     role: "normative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-77d2-713b-bb42-7b3c5600d9ba"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "bug"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-77d2-713b-bb42-7b3c5600d9ba"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "configuration"
+# somnus:end
 name: Bug report
 description: Report behavior that contradicts SPEC.md or a documented command contract.
 title: "[bug] "

@@ -1,3 +1,35 @@
+---
+somnus:
+  schema: "somnus://metadata/core/2.0.0"
+  id: "urn:somnus:artifact:01a19a67-7a78-71e4-abfc-b1ae1434ed69"
+  revision: 1
+  title: "How to contribute"
+  classification:
+    category: "context"
+    type: "index"
+    role: "informative"
+    scope: "component"
+    tags: []
+  lifecycle:
+    status: "draft"
+  authority:
+    standing: "candidate"
+    scopes:
+      - target_ref: "urn:somnus:artifact:01a19a67-7a78-71e4-abfc-b1ae1434ed69"
+        aspects: ["content"]
+  time: {}
+  names:
+    slug: "how-to-contribute"
+  knowledge:
+    coverage: "artifact"
+    subjects: ["urn:somnus:artifact:01a19a67-7a78-71e4-abfc-b1ae1434ed69"]
+  access:
+    visibility: "internal"
+    allowed_uses: ["archive", "search", "reason"]
+  ingestion:
+    disposition: "candidate"
+    body_role: "narrative"
+---
 # How to contribute
 
 This section explains how to pick up work, test it, and review it against the Somnus contract. Follow the active `AGENTS.md`: recover the current objective and evidence from `PLAN.md`, read only the relevant section of `CONTEXT.md`, and use `filetree.md` for navigation. `.codex/OPERATING.md` is an adaptive operating route, not a compulsory sequence or proof that its tools are installed. `AGENTS.v1.md` is preserved but superseded.
