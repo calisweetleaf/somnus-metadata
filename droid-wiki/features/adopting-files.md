@@ -1,5 +1,7 @@
 # Adopting files
 
+Active contributors: calisweetleaf, Christian
+
 `somnus new` creates a brand-new Markdown artifact, and `somnus stamp` adds a header to a file that already exists. Both build the header from configuration defaults plus heuristic inference, mint a fresh artifact ID, and validate the result before writing.
 
 ## Purpose
@@ -60,6 +62,14 @@ Carrier choice follows the file extension through `carriers.for_path()`:
 - **No embedded carrier** (JSON, CSV, `.txt`, `.ini`, `.cfg`, `.ipynb`, raster images, PDFs, and anything unrecognized): `stamp` writes a new `<file>.somnus.yaml` sidecar whose `bindings` lists the host as `{target: <name>, role: primary, required: true}`. The diff is shown against `/dev/null`. An existing sidecar counts as already managed.
 
 `stamp` passes no `created_at`, so the header gets `time: {}`. The tool cannot know when an existing file was authored, so it records nothing.
+
+### Bulk adoption
+
+`HANDOFF.md` describes the unfinished operator rollout, not a new recursive stamp command. `src/somnus/commands/stamp.py` accepts explicit file paths, including several paths per call; register directories separately with `somnus init --root DIR` in `src/somnus/commands/init.py`. Set `[index].exclude` before scanning, then use `somnus index` to identify unmanaged candidates. Registering or scanning a root does not stamp its files.
+
+Before an authorized batch, test Markdown with existing frontmatter, a Python preamble, TOML/YAML, JSON, HTML, and a binary. Inspect the result and the consuming format: foreign frontmatter keys must survive, mandatory preambles must remain valid, and sidecar hosts must remain untouched. Existing [carrier](../systems/carriers.md) and [document](../systems/document-model.md) safeguards still apply. Record any `E_HOST` refusal rather than bypassing preservation.
+
+The handoff excludes frozen research and `archive/`, and requires changes to already managed documents through the owning commands, including `bump` for indexed content edits. After batching eligible files, re-index and account for remaining unmanaged files, deliberate exclusions, refusals, and conflicts. Its five-artifact starting snapshot is not a completion count. No operator files were adopted by this wiki refresh.
 
 ### Inference
 
@@ -131,3 +141,4 @@ A configured `defaults.standing = "accepted"` is refused with exit 2, because an
 | `src/somnus/commands/_common.py` | `new_payload()`, `inferred_payload()`, `check_text()` |
 | `src/somnus/config.py` | Built-in defaults and `config.toml` template |
 | `src/somnus/db/store.py` | `Store.similar_titles()` |
+| `HANDOFF.md` | Current bulk-adoption safeguards and unfinished rollout acceptance |

@@ -1,16 +1,20 @@
 {
-  "generatedAt": "2026-10-31T23:09:53Z",
-  "commitHash": "a5c507ce1b8d925065bd2de2244ec13fb6660f94",
+  "generatedAt": "2026-11-02T01:00:55Z",
+  "commitHash": "803f1e21bb69fa1078fcffeeb7b17b9a4c0fa6db",
   "branch": "main",
   "pageCount": 37,
   "warnings": [
     "Phase 3.5 skipped: no .factory/skills/qa/config.yaml. Run /install-qa to enable screenshots.",
-    "Incremental refresh at a5c507c from 89f1843: one workflow file changes (5 additions, 1 deletion), enabling no-diff rolling-branch cleanup and correcting the fallback log. Refreshed deployment.md, how-to-contribute/tooling.md, by-the-numbers.md and metadata; preserved the other 34 pages, existing staged content and sidebar order. Source and tests are unchanged; no new or removed subsystem pages are needed. Custom documentation checks passed for 37 pages, 265 relative links, 808 concrete source references, headings, directory indexes, page sizes, metadata/sidebar order and source-directory coverage; git diff --check and git diff --cached --check passed. An initial link-check false positive inside a timestamp code span was corrected in the ad hoc checker without changing the page. Product tests, semantic validation, mypy, installed acceptance, external MCP hosts, native macOS/Windows console paths, hosted workflows and Doctor were not rerun for this documentation-only change. Existing execution evidence remains historical; PLAN.md describes operator-laptop observations, not validation on this runner."
+    "Incremental refresh from 61412d8 to 803f1e2: one documentation commit, two committed files, 105 additions and no deletions. Updated 10 pages for HANDOFF.md precedence, the unfinished full-index rollout, bulk-adoption safeguards, root configuration versus registry registration, required Droid/Codex MCP search evidence, current validation and statistics. Preserved 27 pages verbatim and the 37-page sidebar order. No new or removed subsystems; lore and fun facts remain unchanged.",
+    "Fresh Linux/Python 3.12.3 runner checks: all 534 existing unittest tests passed; semantic validation of SPEC.md and DECISIONS.md passed with 0 errors and 0 warnings. System Python initially failed python -m mypy because mypy was absent; isolated mypy 1.18.2 then passed all 49 source files. Its temporary environment was removed. No product tests were written or changed. The 66-check installed-package acceptance harness was not rerun for this documentation-only delta.",
+    "HANDOFF.md is the current operator job and outranks older PLAN.md next actions. Its pip 2.1.0, plugin 1.1.0, 534-test and 66-check results, five-artifact registry snapshot, and roots = [] are recorded operator evidence, not fresh observations of this runner. Full-root adoption/indexing and fresh Droid/Codex MCP searches remain unfinished. This wiki run did not stamp operator files, alter global configuration, install the plugin, commit or push repository changes. Public PyPI, external hosts, host writes, remote tunnels, coverage, product Doctor, hosted workflows and native macOS/Windows consoles were not revalidated; the recorded product Doctor gate remains nonzero.",
+    "The statistics snapshot uses 36 reachable commits through 2026-11-02 UTC: 32,551 additions, 2,072 deletions and one bot-attributed commit (2.78%). Runtime size, dependency, import-depth, public-definition and test-definition metrics are retained because their measured source/configuration paths are unchanged. No individual contributor rankings are included.",
+    "Documentation validation covers all 37 pages, relative links, concrete repository source references, headings, page sizes, directory indexes, domain contributor bylines and key-source tables, five source-directory coverage mappings, exact metadata/sidebar inventory, and git whitespace checks. The source-reference audit distinguishes command examples and home-local configuration from repository files. Pre-existing index entries remain unchanged; product source, tests and workflows are untouched. No maintainers page was added for this solo-human-author repository."
   ],
   "videoOverview": {
     "status": "failed",
     "warnings": [
-      "HyperFrames 0.4.44 doctor reported FFmpeg and FFprobe missing despite exit code 0. Rendering was skipped at the non-interactive prerequisite gate; no video was generated. None of the nine prior wiki runs exposed a playable video."
+      "HyperFrames 0.4.44 doctor reported FFmpeg and FFprobe missing despite exit code 0. The non-interactive prerequisite gate skipped rendering; no MP4 or captions were generated. All 14 prior wiki runs were inspected and none exposed a playable video."
     ]
   },
   "topLevelSections": [

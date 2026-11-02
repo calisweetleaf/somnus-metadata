@@ -1,5 +1,7 @@
 # Migration from v0.1
 
+Active contributors: calisweetleaf, Christian
+
 `somnus migrate` upgrades v0.1 hybrid Markdown documents to core `somnus://metadata/core/2.0.0`. It keeps the legacy UUID, turns relation buckets into qualified relations, replaces `:::submatter` directives with region markers, and preserves every value it cannot map under `extensions.somnus-migration`.
 
 ## Purpose

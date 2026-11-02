@@ -32,4 +32,5 @@ Terms used across `SPEC.md`, the code, and this wiki. Controlled vocabularies ar
 | Diagnostic | One finding, printed as `path:line:col: severity CODE field: message` (`src/somnus/output.py`). |
 | Settable field | One of the ten header paths the `somnus edit` form exposes (`FIELDS` in `src/somnus/tui/form.py`): `title`, `summary`, `purpose`, `classification.category`, `.type`, `.role`, `.scope`, `.tags`, `access.visibility`, and `ingestion.disposition`. `somnus set` accepts exactly these. See [Agent integration](../features/agent-integration.md). |
 | MCP server | `somnus mcp`, a stdio Model Context Protocol server in `src/somnus/mcp.py`. Each tool is one CLI command (all except `edit` and `mcp`), and each call runs the CLI. |
+| Command alias | In toolkit 2.1.0, `somnus-metadata` and `somnus` are console scripts targeting the same `somnus.cli:main` function (`pyproject.toml`, `src/somnus/cli.py`). Both print `somnus` in help and version output; the Python import name is unchanged. |
 | Mojibake | Text corrupted by decoding UTF-8 as cp1252. Hit this repo once; see [Pitfalls](../background/pitfalls.md). |

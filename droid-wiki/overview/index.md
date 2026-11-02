@@ -26,21 +26,28 @@ The package has no third-party dependencies (`pyproject.toml` declares `dependen
 | --- | --- |
 | `SPEC.md` | Normative standard, 23 sections |
 | `DECISIONS.md` | Ratified decisions D1 to D19 |
+| `HANDOFF.md` | Current operator completion job, verified-state record, and remaining full-index/search acceptance |
 | `PLAN.md` | Current delivery state and maintenance priorities, not the original build specification |
-| `src/somnus/` | The toolkit (49 Python modules, 8,138 lines, plus 187 lines of SQL) |
-| `tests/` | 13 discovered unittest modules, 486 tests including 21 conformance fixtures; a separate installed-package acceptance harness |
+| `src/somnus/` | The toolkit (49 Python modules, 8,146 lines, plus 187 lines of SQL) |
+| `tests/` | 14 discovered unittest modules, 534 tests including 21 conformance fixtures; a separate 66-check installed-package acceptance harness |
+| `docs/USAGE_GUIDE.md`, `docs/AGENTS.appendix.md` | Operator walkthrough and a portable global-instructions snippet for agents |
 | `.github/workflows/` | Cross-platform checks, CodeQL, tagged releases, and automatic wiki refresh |
 | `archive/` | v0.1 spec, schemas, examples, tools and the v2 proposal; historical, not normative |
 | `Somnus Markdown Metadata Standard Research.md` | Original research; evidence only, read-only |
 
-`README.md` and `pyproject.toml` identify the checkout as `somnus-metadata` 2.1.0; the command and import remain `somnus`. Core metadata stays 2.0.0, while the registry advances to schema 2 (`src/somnus/__init__.py`). `PLAN.md` records 2.0.0 as the published PyPI release and 2.1.0 as unpublished. Do not install the unrelated PyPI distribution named `somnus` in the same environment.
+`README.md` and `pyproject.toml` identify the toolkit as `somnus-metadata` 2.1.0. Both `somnus` and the `somnus-metadata` command alias call `somnus.cli:main`; the Python import remains `somnus`. Core metadata stays 2.0.0, while the registry uses schema 2 (`src/somnus/__init__.py`). `docs/USAGE_GUIDE.md` records publication of 2.1.0, and the [public PyPI release metadata](https://pypi.org/pypi/somnus-metadata/2.1.0/json) confirms a wheel and sdist uploaded on 2026-11-01 UTC (October 31 in the operator's local time). Older unpublished-release statements in `PLAN.md` describe the earlier handoff. Install with pip in a virtual environment on `PATH`; do not install the unrelated PyPI distribution named `somnus` in the same environment.
 
-A separate private adapter, [somnus-metadata-plugin](https://github.com/calisweetleaf/somnus-metadata-plugin), installs an agent skill and MCP configuration for Droid, Codex, and Antigravity. It is not part of this Python distribution. The 2026-10-31 handoff in `PLAN.md` records installation on the operator's Linux laptop, live doctor handshakes, and a real Droid search call. Codex and Antigravity in-host calls remain unexercised. See [Agent integration](../features/agent-integration.md) for the evidence boundary.
+A separate private adapter, [somnus-metadata-plugin](https://github.com/calisweetleaf/somnus-metadata-plugin), installs an agent skill and MCP configuration for Droid, Codex, Antigravity, and OpenCode. It is not part of this Python distribution. `docs/USAGE_GUIDE.md` records plugin 1.1.0, four successful doctor handshakes on the operator's Linux laptop, and the revised skill locations. In-host read queries were previously exercised with plugin 1.0.0 in Droid, Codex, and Antigravity; an OpenCode in-session call and host write tools remain unexercised. These are recorded results, not integrations tested on this runner. See [Agent integration](../features/agent-integration.md) for the evidence boundary.
 
-`AGENTS.md` is the active mission-first entry: recover the current objective and evidence from `PLAN.md`, read the relevant relationships in `CONTEXT.md`, and use `.codex/OPERATING.md` as an adaptive tool route. `AGENTS.v1.md` is the preserved, superseded entry, not another active policy. `PLAN.md` and `runbooks/package-release.md` record prior installed-package acceptance and publication evidence. Checkout tests, installed acceptance, and compatibility with an external MCP host are separate boundaries. Workflow configuration is not evidence of a successful hosted run.
+`AGENTS.md` is the active mission-first entry. Its 2026-11-01 first-move note points to `HANDOFF.md`, which takes precedence over older next actions in `PLAN.md` until its completion criteria are met. Then recover supporting evidence from `PLAN.md`, read the relevant relationships in `CONTEXT.md`, and use `.codex/OPERATING.md` as an adaptive tool route. `AGENTS.v1.md` is the preserved, superseded entry, not another active policy. Checkout tests, installed acceptance, and compatibility with an external MCP host are separate boundaries. Workflow configuration is not evidence of a successful hosted run.
+
+`HANDOFF.md` records a working pip-installed 2.1.0 backend, plugin 1.1.0, 534 passing tests, and 66/66 installed-package checks on the operator's machine. The unfinished job is adoption and indexing across the intended roots, followed by real search calls through both Droid and Codex MCP. Its snapshot records only five indexed artifacts and `roots = []` in global configuration; this is historical operator state, not an inspection of this runner or evidence that bulk indexing is complete. Registration, adoption, and search are separate steps. See [Adopting files](../features/adopting-files.md) and [Agent integration](../features/agent-integration.md).
 
 ## Quick links
 
+- [Current completion handoff](../../HANDOFF.md): full-index job and required search evidence, not a completed rollout
+- [Operator and agent usage guide](../../docs/USAGE_GUIDE.md): step-by-step local workflows and recorded integration boundaries
+- [Global agent-instructions appendix](../../docs/AGENTS.appendix.md): a snippet to review and copy into your host's global instructions
 - [Architecture](architecture.md): how the layers fit together
 - [Getting started](getting-started.md): install, first document, tests
 - [Glossary](glossary.md): artifact, envelope, carrier, standing, region, and other terms

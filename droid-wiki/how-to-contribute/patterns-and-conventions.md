@@ -30,6 +30,10 @@ Informational notes use `note()` in `src/somnus/commands/_common.py`, normally o
 
 Every write calls `Document.render` in `src/somnus/document.py`, which splices the new envelope in, re-extracts the result, and raises `E_HOST` unless every byte outside the envelope is identical. Line endings are tracked per line, so CRLF files stay CRLF. A leading BOM is accepted and dropped on save (SPEC section 16.3). Files are written through `atomic_write`, which writes a temp file in the same directory and swaps it in with `os.replace`.
 
+Line/endings reconstruction uses `zip(..., strict=True)` in `src/somnus/document.py` and the stamp, migrate, and regions command modules (`src/somnus/commands/stamp.py`, `src/somnus/commands/migrate.py`, `src/somnus/commands/regions.py`). A mismatched internal shape fails rather than silently dropping lines. Document carrier, decoding, and read errors retain their cause through exception chaining; the normal diagnostic surface is unchanged.
+
+SQLite connections have an explicit owner in `src/somnus/db/store.py`. `Store.open()` closes a connection if setup or migration fails, and transfers ownership only after successful migration. `connect_readonly()` also closes on failed SQLite setup. A SQLite transaction context alone does not close a connection; callers must close connections they own. See [Registry](../systems/registry.md).
+
 ## Never invent facts
 
 Tools fill headers from configuration and inference, but never fabricate dates, actors, licenses, evidence, measurements, or acceptance records (D6). `somnus stamp` writes `time: {}` because it does not know when a file was authored. A configured default standing of `accepted` is refused.
@@ -49,6 +53,8 @@ Package version 2.1.0, registry schema 2, and core metadata 2.0.0 are independen
 Every standardized object rejects unknown keys (`E_SCHEMA`), and `null` is refused at parse time. Tool-specific data goes under `extensions.<owner>.data`. When adding a field, add it to `src/somnus/model/schema.py` (which also controls serialization order) and to the validator, and cite the SPEC section.
 
 ## Code style
+
+Console-script names are packaging aliases, not separate implementations. `pyproject.toml` maps both `somnus` and `somnus-metadata` to `somnus.cli:main`; `src/somnus/cli.py` keeps `prog="somnus"` and the `somnus` version prefix. Update the shared parser rather than adding alias-specific behavior. The installed-wheel alias check belongs in `tests/acceptance/installed_package_acceptance.py`, not source-only import tests.
 
 - `from __future__ import annotations` at the top of every module; full type hints on public functions.
 - One-line docstrings on public functions and classes. Comments only where the reason is not obvious.

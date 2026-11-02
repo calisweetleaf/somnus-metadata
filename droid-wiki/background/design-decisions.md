@@ -58,7 +58,7 @@ Every standardized object is closed. An unknown field at any depth is `E_SCHEMA`
 
 D19 chooses an FTS5 table inside the existing database rather than a second search store or external grep. `src/somnus/db/search.sql` defines plain-text `path`, `title`, `summary`, `tags`, and `body` columns. `src/somnus/db/store.py` maintains one row per present location; `src/somnus/commands/query.py` implements `somnus q --text` with required words, prefix matching, BM25 ranking, and text/TSV excerpts.
 
-The index never feeds validation, conflicts, or the event ledger. Missing rows are backfilled by an incremental scan, and `somnus index --full` refreshes content from disk. SQLite builds without FTS5 retain the registry without content search. D19 advances registry schema to 2, which older writers refuse, and package version to 2.1.0. It leaves core metadata at 2.0.0 because no artifact fields change. `PLAN.md` records that package as not yet published. See [Registry](../systems/registry.md) and [Querying](../features/querying.md).
+The index never feeds validation, conflicts, or the event ledger. Missing rows are backfilled by an incremental scan, and `somnus index --full` refreshes content from disk. SQLite builds without FTS5 retain the registry without content search. D19 advances registry schema to 2, which older writers refuse, and package version to 2.1.0. It leaves core metadata at 2.0.0 because no artifact fields change. `docs/USAGE_GUIDE.md` now records publication of 2.1.0, superseding older unpublished-release statements in `PLAN.md`. See [Registry](../systems/registry.md), [Querying](../features/querying.md), and [Getting started](../overview/getting-started.md).
 
 ## Notes on the rest
 

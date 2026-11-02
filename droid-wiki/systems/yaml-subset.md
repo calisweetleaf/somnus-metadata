@@ -1,5 +1,7 @@
 # YAML subset
 
+Active contributors: calisweetleaf, Christian
+
 `src/somnus/yamlsub.py` is a self-contained parser and canonical serializer for the restricted YAML 1.2.2 subset that every Somnus payload uses (SPEC section 16). It has no dependencies, records source positions for diagnostics, and guarantees that `dumps(loads(s)) == s` for canonical input.
 
 ## Purpose

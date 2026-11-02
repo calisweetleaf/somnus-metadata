@@ -43,6 +43,21 @@ The warning registry is closed to the four `W_*` codes above (SPEC section 19.2,
 
 ## Common errors
 
+**`somnus-metadata: command not found`, `somnus: command not found`, or an unexpected version.** The public PyPI 2.1.0 package installs both commands; 2.0.0 exposed only `somnus` (`README.md`, `docs/USAGE_GUIDE.md` section 2). Inspect the executable before diagnosing the registry:
+
+```sh
+which -a somnus somnus-metadata
+readlink -f ~/.local/bin/somnus
+readlink -f ~/.local/bin/somnus-metadata
+somnus --version
+```
+
+The guide's primary install is `~/.venvs/global/bin/pip install -U somnus-metadata` after creating that venv. Put its `bin` directory on `PATH` and link both commands into `~/.local/bin` for non-interactive agent hosts: they often do not read `~/.bashrc`. See [Getting started](../overview/getting-started.md) for the complete installation. Two listed paths can be intentional symlinks to one install; verify their resolved targets. A separate old pip, uv, or pipx installation can instead shadow the intended backend. Remove only the unwanted install with its owning installer, run `hash -r`, and confirm `somnus 2.1.0`. Both commands call `somnus.cli:main` in `src/somnus/cli.py` and print the `somnus` version prefix. Do not modify or delete the registry to accommodate a stale executable.
+
+**`externally-managed-environment`.** System pip on PEP 668 Linux refuses installs outside a virtual environment. Use the venv above (or uv/pipx isolation), not an override of the system-Python guard (`README.md`, `docs/USAGE_GUIDE.md` section 2.3).
+
+**The shell works but an agent host cannot start MCP.** Host launchers can have a different `PATH`, and plugin entries pin an absolute executable path. After relocating the backend, rerun plugin `install --somnus /abs/path/to/somnus` and restart the host; OpenCode needs `opencode service restart`. A successful doctor handshake is not an in-session host invocation. See [Agent integration](../features/agent-integration.md) for four-host paths and evidence boundaries (`docs/USAGE_GUIDE.md` section 6).
+
 **`E_IO registry ... does not exist; run 'somnus init'`.** Commands that need the registry (`index`, `q`, `ls`, `stale`, `edit`) fail with exit 2 until `$SOMNUS_HOME/somnus.db` exists. Run `somnus init --root DIR`, then `somnus index`. The message comes from `src/somnus/db/store.py`; the TUI raises a similar one from `src/somnus/tui/app.py`. For backup, restore, and reconciliation, follow [runbooks/registry-recovery.md](https://github.com/calisweetleaf/somnus-metadata/blob/main/runbooks/registry-recovery.md).
 
 **`E_HOST refusing to write: content outside the envelope would change`.** Raised by `src/somnus/document.py` when the proposed result is re-extracted and the host bytes differ. The file is not modified. Typical causes are a host with an unusual preamble or a payload containing the carrier's forbidden sequence; a sidecar (`<file>.somnus.yaml`) is the fallback. Follow [runbooks/host-write-incident.md](https://github.com/calisweetleaf/somnus-metadata/blob/main/runbooks/host-write-incident.md) rather than weakening the guard.
@@ -53,9 +68,9 @@ The warning registry is closed to the four `W_*` codes above (SPEC section 19.2,
 
 **Revision conflict after editing.** Editing a managed file without `somnus bump` and re-indexing opens a `revision` conflict. Run `somnus bump PATH`.
 
-**`the registry has no full-text index yet`.** `src/somnus/commands/query.py` returns exit 2 for `q --text` when `search` is missing. Use checkout toolkit 2.1.0 and run `somnus index`; SQLite must support FTS5. A schema-2 version number alone does not guarantee the optional table exists. For absent results, check that the file is managed, included under a scanned root, and indexed after its last change. Non-UTF-8 sidecar hosts have no body text, and only the first 1,000,000 body characters are indexed (`src/somnus/db/store.py`). See [Querying](../features/querying.md).
+**`the registry has no full-text index yet`.** `src/somnus/commands/query.py` returns exit 2 for `q --text` when `search` is missing. Use toolkit 2.1.0 and run `somnus index`; SQLite must support FTS5. A schema-2 version number alone does not guarantee the optional table exists. For absent results, check that the file is managed, included under a scanned root, and indexed after its last change. Non-UTF-8 sidecar hosts have no body text, and only the first 1,000,000 body characters are indexed (`src/somnus/db/store.py`). See [Querying](../features/querying.md).
 
-**`registry schema version 2 is newer than this tool (1)`.** An older writer opened a registry upgraded by package 2.1.0. Use the matching toolkit or a separately preserved pre-upgrade backup; do not hand-edit the schema version to bypass migration checks (`src/somnus/db/store.py`).
+**`registry schema version 2 is newer than this tool (1)`.** An older 2.0.0 executable opened a registry upgraded by package 2.1.0. Resolve the binary paths above, upgrade the intended environment, and remove the shadowing old copy; public PyPI now supplies 2.1.0. Do not hand-edit the schema version to bypass migration checks (`src/somnus/db/store.py`). Any deliberate rollback requires a separately preserved pre-upgrade backup, not a registry downgrade.
 
 **`no roots are registered and the fallback ... is too broad to scan`.** With no explicit or registered roots, `src/somnus/commands/index.py` refuses a configured fallback equal to the home directory or a filesystem root, with exit 2. Run `somnus init --root DIR` for the intended project or `somnus index DIR`. This guard does not ban broad roots that were explicitly named or registered.
 

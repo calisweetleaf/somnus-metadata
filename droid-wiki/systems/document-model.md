@@ -1,5 +1,7 @@
 # Document model
 
+Active contributors: calisweetleaf, Christian
+
 `src/somnus/document.py` turns a file on disk into a `Document`: its lines and line endings, its carrier, the located envelope, and the parsed payload. It also owns the write path that refuses any change outside the envelope. `src/somnus/regions.py` adds the body-side view: in-body region markers, headings, and TeX labels.
 
 ## Purpose
@@ -51,6 +53,8 @@ Reading and decoding:
 - `_decode` strips a UTF-8 BOM (`EF BB BF`), sets `had_bom`, and decodes strictly. Invalid UTF-8 is `E_IO` "file is not valid UTF-8 (byte N); use a sidecar".
 - `_split` uses `str.splitlines(keepends=True)` and stores each line's ending (`\r\n`, `\n`, `\r`, or `""` for a final line with no newline) in a parallel `endings` list. This is how mixed and CRLF files survive a write.
 
+The wrapped `OSError` and `UnicodeDecodeError` remain available as the raised `SomnusError.__cause__` through explicit exception chaining. The direct missing-file check in `load()` creates its own diagnostic rather than wrapping a read exception.
+
 The carrier's `extract` locates the envelope, and its `Issue`s become `E_ENVELOPE` diagnostics in `doc.issues`. `_parse_into` then runs `yamlsub.parse` on `envelope.payload`. A `YAMLError` becomes `E_YAML` at `payload_start + line`, `col + col_offset`. A payload that is not a mapping is `E_YAML` "payload must be a mapping". Envelope and YAML problems are recorded, not raised, so the validator can report them all.
 
 For sidecars, `_load_sidecar` also reads the host's bytes into `host_bytes` (or `None` when the host is missing). If the sidecar does not exist, the `Document` has no lines and no envelope, and validation reports "no metadata envelope found".
@@ -85,12 +89,14 @@ sequenceDiagram
   Cmd->>FS: atomic_write(meta_path, text)
 ```
 
-`render` picks the serializer escape mode: `"html"` when the envelope kind is `html-comment`, otherwise the carrier's own `forbid`. A `CarrierError` from the carrier becomes a `SomnusError` with the carrier's code (normally `E_HOST`).
+`render` picks the serializer escape mode: `"html"` when the envelope kind is `html-comment`, otherwise the carrier's own `forbid`. A `CarrierError` from the carrier becomes a `SomnusError` with the carrier's code (normally `E_HOST`), retaining the original exception as `__cause__`.
 
 `_apply` splices `new_lines` into `lines`. New lines get the file's dominant newline (`newline` is CRLF only when CRLF endings outnumber LF, so new files and ties use LF). Two edge cases keep the text well-formed:
 
 - When inserting after a final line that had no newline, that line gets one.
-- When the splice runs to end of file, the last new line inherits the old final ending, which preserves a missing trailing newline.
+- When the splice runs to end of file, the last new line inherits the old final ending, or the dominant newline if that ending was empty. An untouched body line after the envelope still preserves its missing trailing newline.
+
+The final join uses `zip(lines, endings, strict=True)`: a mismatched internal line/ending shape raises `ValueError` instead of silently truncating content. The preview reconstruction paths in `src/somnus/commands/stamp.py`, `src/somnus/commands/migrate.py`, and `src/somnus/commands/regions.py` enforce the same pairing.
 
 `_verify_preserved` splits the new text, runs the carrier's `extract` again, and requires exactly one envelope with no issues and `new_body == self.body_lines()`. Anything else raises `E_HOST` "refusing to write: content outside the envelope would change". Sidecars skip this check because the host file is never written. The comparison is on lines without endings. Endings outside the splice are copied unchanged, with one exception: a final line that had no newline gains one when the envelope is inserted after it.
 
@@ -139,7 +145,7 @@ Pairing uses a stack. `begin` pushes, and a repeated `begin` ID is a duplicate e
 - Encoding or newline policy: `_decode`, `_split`, `_dominant_newline`, and `_apply` in `src/somnus/document.py`. Keep `_verify_preserved` as the final gate on every embedded write.
 - New body-scan contexts (for example another inert code construct): `markdown_code_mask` or a host-specific eligibility function like `_python_comment_lines` in `src/somnus/regions.py`.
 - New marker syntax for a carrier: `_marker_pattern` in `src/somnus/regions.py` plus the carrier's `region_style`.
-- Tests: `tests/test_document.py` (CRLF preservation, BOM handling, atomic writes, body immutability) and `tests/test_regions.py`.
+- Tests: `tests/test_document.py` (CRLF preservation, BOM handling, atomic writes, body immutability, chained I/O/carrier failures, and aligned line/ending rendering) and `tests/test_regions.py`. The added rendering cases cover empty input, missing final newlines, and CRLF files. Both suites passed as part of this refresh's existing 534-test checkout run; see [Testing](../how-to-contribute/testing.md).
 
 ## Key source files
 
@@ -149,6 +155,7 @@ Pairing uses a stack. `begin` pushes, and a repeated `begin` ID is a duplicate e
 | `src/somnus/regions.py` | Code masks, marker scanning and pairing, headings, TeX labels, registry sync |
 | `src/somnus/commands/_common.py` | `load_valid`, `commit`, `check_text` |
 | `src/somnus/commands/regions.py` | `somnus regions` command |
+| `src/somnus/commands/stamp.py`, `src/somnus/commands/migrate.py` | Adoption/migration previews with strict line/ending pairing |
 | `tests/test_document.py` | Document tests |
 | `tests/test_regions.py` | Region tests |
 

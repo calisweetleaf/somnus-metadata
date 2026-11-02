@@ -68,6 +68,12 @@ Roots start as the starting directory (or its parent if `start` is a file), not 
 
 Exclude patterns are POSIX-style globs matched against paths relative to a root by `glob_regex` in `src/somnus/db/store.py`: `**/` matches zero or more directories, `**` matches anything, `*` and `?` do not cross `/`. `.git`, `.hg`, and `.svn` directories are always pruned during walks regardless of configuration.
 
+### Rollout safeguards
+
+`HANDOFF.md` is the current operator completion record. Its starting snapshot reports `roots = []` in global configuration and five indexed artifacts; neither is a fresh inspection of this runner. Configured roots and registered roots are different: `src/somnus/commands/init.py` registers directories in SQLite, and `src/somnus/commands/index.py` prefers those registrations when no explicit roots are passed. Inspect the registry as well as the config rather than inferring registration from `roots = []`.
+
+Before an authorized bulk adoption, configure excludes for generated/dependency directories and deliberate file exclusions. An `exclude` override replaces the list, so retain required defaults and use root-relative globs that cover nested directories. The handoff also preserves frozen research and `archive/`. Configuration does not adopt a file: `somnus stamp` takes explicit file paths, and `somnus index` reconciles managed files. See [Adopting files](../features/adopting-files.md) and [Querying](../features/querying.md).
+
 ## Validation errors
 
 `_check` in `src/somnus/config.py` raises `ConfigError` (a `ValueError`) with the file path prefixed. The CLI reports it as an `E_IO` diagnostic with exit code 2.
