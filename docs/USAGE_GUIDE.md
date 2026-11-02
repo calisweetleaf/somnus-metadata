@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-791b-7090-ab7e-0d4da8974aa0"
-  revision: 2
+  revision: 4
   title: "Somnus Metadata — Operator and Agent Usage Guide"
   classification:
     category: "engineering"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-791b-7090-ab7e-0d4da8974aa0"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T04:06:59+00:00"
+    updated_at: "2026-11-02T04:45:31+00:00"
   names:
     slug: "somnus-metadata-operator-and-agent-usage-guide"
   knowledge:
@@ -140,7 +140,7 @@ flowchart LR
 
 - **Distribution / package name**: `somnus-metadata` (used because an unrelated project already owned the bare name `somnus` on PyPI).
 - **Command names**: `somnus` and `somnus-metadata`. Both run the exact same CLI. The Python import name is `somnus`.
-- **Versions**: PyPI serves **2.1.0** (registry schema 2, `q --text` full-text search, agent hints, and the `somnus-metadata` alias). The older 2.0.0 release had only the `somnus` command and registry schema 1, and it cannot open a schema-2 registry.
+- **Versions**: PyPI serves **2.1.1** (registry schema 2, `q --text` full-text search, agent hints, and the `somnus-metadata` alias). The older 2.0.0 release had only the `somnus` command and registry schema 1, and it cannot open a schema-2 registry.
 
 > **Warning:** Never install the unrelated PyPI package named `somnus` (`pip install somnus`). It is a different project and collides with the `somnus` command and Python module namespace.
 
@@ -705,13 +705,13 @@ hosted or platform evidence. PLAN.md owns the detailed rollout frontier.
 | Surface / Capability | Current Status | Verification Evidence |
 | --- | --- | --- |
 | **Core Specification & Decisions** | **OPERATIONAL** (core 2.0.0, SPEC r7, DECISIONS r5 D1–D19) | Semantic check rerun: 0 errors / 0 warnings. No normative changes made during adoption. |
-| **Python Backend & CLI (2.1.0)** | **PASS on the exercised Linux boundary** | 534/534 source tests; mypy clean in 49 files; fresh-wheel installed acceptance 66/66, including real SQLite/files, MCP and PTY TUI. Previous 88.76% coverage and Ruff/import-linter results are historical, not rerun by this adoption pass. |
-| **Public PyPI distribution** | **Installed version matches latest reported version: 2.1.0** | Plain pip upgrade reports already satisfied in `~/.venvs/global`; command links resolve to that install. No new release was needed for metadata-only source adoption. |
+| **Python Backend & CLI (2.1.1)** | **PASS on the exercised Linux boundary** | 537/537 source tests; mypy clean in 49 files; installed-wheel acceptance 67/67. Patch 2.1.1 reports unmanaged sidecar-only hosts without loading their binary contents. |
+| **Public PyPI distribution** | **Released and installed: 2.1.1** | Wheel and sdist passed Twine; 51 runtime wheel files match the accepted wheel. Uploaded successfully and fetched through no-cache plain pip. |
 | **Multi-host plugin (1.1.0)** | **PASS** for installed skill fidelity and live handshake in all four hosts | 21/21 plugin tests; reinstalled from the plugin checkout; doctor passes Droid, Codex, Antigravity and OpenCode, 16 tools each. The skill now directs agents to request TSV for complete paths. |
 | **Droid and Codex in-host search** | **PASS** | Both called MCP `q` for three known topics, `ls` for specifications, `stale`, and `q --conflicts`; every text search returned real hits. Complete TSV paths were separately proven in both hosts. At this checkpoint: 1 specification, 7 near-title advisories, 0 open conflicts. Session evidence is in PLAN.md. |
-| **Global registry adoption** | **IN PROGRESS — not complete** | Five roots registered; 160 unique present paths after consolidating redundant nested-root registrations. 141 files adopted in the core repo and 14 in the plugin repo. 21,174 other embedded-carrier candidates remain; unknown-carrier files need a separate exhaustive inventory. |
+| **Global registry adoption** | **IN PROGRESS — not complete** | Five roots; 1,064 managed hosts, 27,245 unmanaged across all carrier types, 0 invalid/conflicts at the checkpoint. Documents (899) and Projects (4) are adopted; their two nested Git commits remain local. Repositories/LAB/Somnus-MCP remain open. |
 | **Preservation and exclusions** | **APPLIED; explicit exceptions retained** | Real carrier preflight preserved skill frontmatter, Python preambles, TOML/YAML, JSON, HTML and binary host bytes. Archives, frozen research, credentials, model weights, environments, generated state and the live Somnus-MCP data plane are excluded. Two pre-existing malformed Sentari Markdown files are explicitly excluded, not silently repaired. |
-| **GitHub CI & CodeQL** | **Historical green evidence; current post-adoption run pending** | This pass has not yet pushed the metadata adoption changes. Do not project earlier green workflow runs onto new commits. |
+| **GitHub CI & CodeQL** | **Earlier adoption CI passed; patch-source CI pending finalization** | Core e82e8bc and plugin f68b355 passed CI. Do not project those earlier runs onto the subsequent 2.1.1 patch commit. |
 | **OpenCode in-session invocation** | **NOT RUN** | Its installed configuration and live 16-tool handshake pass; this is not an OpenCode agent-session invocation. |
 | **Live Windows console TUI** | **NOT RUN** | Existing Windows branch/fake tests run on Linux; no physical Windows console was exercised. |
 | **Remote access / ChatGPT tunnel** | **Deferred boundary, unchanged** | Architecture remains in section 7. No remote-control daemon or tunnel was started by the adoption work. |

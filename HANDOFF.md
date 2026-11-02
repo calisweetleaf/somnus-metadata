@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78be-745c-b7a2-ded39bc0328a"
-  revision: 2
+  revision: 3
   title: "HANDOFF — finish Somnus Metadata end to end (2026-11-01)"
   classification:
     category: "engineering"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78be-745c-b7a2-ded39bc0328a"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T04:06:59+00:00"
+    updated_at: "2026-11-02T04:36:47+00:00"
   names:
     slug: "handoff-finish-somnus-metadata-end-to-end-2026-11-01"
   knowledge:
@@ -35,20 +35,26 @@ somnus:
 
 ## Resume from the live frontier (2026-11-01, later session)
 
-The original baseline below is retained, but it is no longer the current registry
-state. Read the top section of PLAN.md first. All five requested roots are now
-registered with safe exclusions; 141 core-repository files and 14 plugin files
-were adopted through native stamping. The registry has 160 unique present paths,
-with no duplicate physical paths or open conflicts. Core tests (534), installed
-acceptance (66), mypy (49 files), plugin tests (21) and four-host doctor passed.
-Droid and Codex both returned real MCP search hits; TSV complete paths were proven.
+Read the top of PLAN.md, not the original five-artifact baseline below.
+The all-file discovery defect is fixed and released as **2.1.1** on PyPI,
+installed via plain pip. Source tests **537**, installed acceptance **67**,
+mypy **49 files**, and all four plugin handshakes are green. Core schema stays
+2.0.0 and registry schema stays 2. No carrier or authored algorithm was replaced.
 
-**Still open:** the rest of the roots have 21,174 unmanaged embedded-carrier
-candidates at the latest pass, plus unknown-carrier files not counted by the
-scanner. Finish every-file adoption and repository finalization; do not re-run
-the first two repos as if they were still unmanaged. Use `somnus index` across
-the five registered roots rather than registering nested roots again. Preserve
-the original exceptions and cross-repository commit/push limits below.
+Five roots are registered with exclusions. Latest complete scan: **1,064 managed
+hosts**, **27,245 unmanaged**, **0 invalid / 0 conflicts**.
+**Documents (899 hosts) and Projects (4 hosts) are fully adopted** under those
+exclusions. Their two nested Git repos were committed locally, not pushed.
+The earlier core/plugin adoption commits are already pushed and CI passed.
+The current patch release/source finalization is tracked in PLAN.md.
+
+**Still open:** 3,418 Repositories hosts, 23,194 LAB hosts and 633 Somnus-MCP hosts.
+These counts now include sidecar-only files: do not return to the incomplete
+embedded-carrier-only inventory. Use native
+`Store.scan(...).unmanaged_paths` to get all paths; the CLI shows ten examples.
+Keep the live Somnus-MCP data plane and generated dependency stores excluded.
+Do not re-register nested roots; it creates duplicate observations. Preserve the
+original exceptions and cross-repository commit/push limits below.
 
 Paste everything below the line into a fresh agent session (Droid or Codex) started in
 `/home/daeron/Repositories/somnus-metadata`. It is self-contained.

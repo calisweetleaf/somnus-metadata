@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-7c45-73e3-9028-7b15dc65cdd4"
-  revision: 1
+  revision: 2
   title: "filetree.md — somnus-metadata"
   classification:
     category: "context"
@@ -17,7 +17,8 @@ somnus:
     scopes:
       - target_ref: "urn:somnus:artifact:01a19a67-7c45-73e3-9028-7b15dc65cdd4"
         aspects: ["content"]
-  time: {}
+  time:
+    updated_at: "2026-11-02T04:36:47+00:00"
   names:
     slug: "filetree-md-somnus-metadata"
   knowledge:
@@ -41,6 +42,7 @@ start with [`AGENTS.md`](AGENTS.md); this file is not normative.
 ├── SPEC.md                           # normative core 2.0.0 contract; §§20–23 CLI/MCP/conformance/versioning
 ├── DECISIONS.md                      # ratified rationale D1–D19
 ├── PLAN.md                           # evidence, completion frontier, operator setup/handoff
+├── SCOPE.md                          # bounded all-file discovery repair, native-layout acceptance
 ├── CONTEXT.md                        # architectural relations and observed tool boundaries
 ├── AGENTS.v1.md                       # superseded entry file (2026-10-31); not active
 ├── CONTRIBUTING.md                   # contributor setup, verification gate, naming, release-age policy
@@ -94,7 +96,7 @@ start with [`AGENTS.md`](AGENTS.md); this file is not normative.
 │   ├── test_term_windows.py          # Windows console/key unit tests via kernel32/msvcrt fakes
 │   ├── test_*.py                     # module and CLI behavior suites
 │   └── acceptance/
-│       └── installed_package_acceptance.py # explicit 66-check installed-wheel acceptance (not discovered)
+│       └── installed_package_acceptance.py # explicit 67-check installed-wheel acceptance (not discovered)
 ├── droid-wiki/                       # explanatory wiki; secondary to SPEC/DECISIONS
 │   ├── background/, features/
 │   ├── how-to-contribute/, overview/

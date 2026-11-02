@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78f9-7428-ad42-b95c245a14e5"
-  revision: 1
+  revision: 2
   title: "somnus-metadata"
   classification:
     category: "context"
@@ -17,7 +17,8 @@ somnus:
     scopes:
       - target_ref: "urn:somnus:artifact:01a19a67-78f9-7428-ad42-b95c245a14e5"
         aspects: ["content"]
-  time: {}
+  time:
+    updated_at: "2026-11-02T04:19:42+00:00"
   names:
     slug: "somnus-metadata"
   knowledge:
@@ -66,7 +67,8 @@ For editable development from a source checkout, use `pip install -e .` in a vir
 The installed tool works outside this repository; register the project roots you
 want to manage with `somnus init --root /path/to/project`.
 
-Somnus Metadata **2.1.0** implements metadata core **2.0.0** and registry schema **2** (adding `somnus q --text` full-text search and the `somnus-metadata` command alias).
+Somnus Metadata **2.1.1** implements metadata core **2.0.0** and registry schema **2** (with `somnus q --text` full-text search and the `somnus-metadata` command alias).
+`somnus index` reports unmanaged hosts of every file type, including files that need a new sidecar, without loading unmanaged binary content.
 The material under `archive/v2-proposal/` is historical, not the active release.
 The CLI, terminal UI and stdio MCP adapter share one backend. A distributable
 coding-agent plugin is not included in this release.

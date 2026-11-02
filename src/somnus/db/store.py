@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-7fad-76ed-b062-033be77e50ce"
-#   revision: 1
+#   revision: 2
 #   title: "Global SQLite registry: open/migrate, indexing, conflicts, and read-only queries (SPEC §18)"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-7fad-76ed-b062-033be77e50ce"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-02T04:18:24+00:00"
 #   names:
 #     slug: "global-sqlite-registry-open-migrate-indexing-conflicts-and-read-only-queries-spe"
 #   knowledge:
@@ -30,7 +31,17 @@
 #     disposition: "candidate"
 #     body_role: "source"
 # somnus:end
-"""Global SQLite registry: open/migrate, indexing, conflicts, and read-only queries (SPEC §18)."""
+"""Global SQLite registry: open/migrate, indexing, conflicts, and read-only queries (SPEC §18).
+
+Modified: 2026-11-01
+Modified by: Codex (Daeron)
+Justification: I repaired discovery at its owning scan rather than duplicating the
+    filesystem walk in a rollout wrapper. Unstamped sidecar hosts must be visible
+    without reading potentially large binary content.
+Provenance: SCOPE.md; Git baseline e82e8bca40917c93b4010c8c6fbe547282e991d3.
+Files: src/somnus/db/store.py, tests/test_store.py,
+    tests/acceptance/installed_package_acceptance.py.
+"""
 
 from __future__ import annotations
 
@@ -385,7 +396,13 @@ class Store:
                     file_path = here / name
                     if carriers.is_sidecar_path(file_path):
                         pass
-                    elif name + carriers.SIDECAR_SUFFIX in names or carriers.for_path(file_path) is None:
+                    elif name + carriers.SIDECAR_SUFFIX in names:
+                        continue
+                    elif carriers.for_path(file_path) is None:
+                        # Missing sidecars are discoverable without loading host bytes.
+                        report.scanned += 1
+                        report.unmanaged += 1
+                        report.unmanaged_paths.append(file_path.as_posix())
                         continue
                     host_rel = self._visit(root_id, root, file_path, full, report)
                     if host_rel is not None:

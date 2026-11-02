@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-8330-7373-8e5d-067e70b5f474"
-#   revision: 1
+#   revision: 4
 #   title: "Registry store: indexing semantics of SPEC §18.3"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-8330-7373-8e5d-067e70b5f474"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-02T04:38:12+00:00"
 #   names:
 #     slug: "registry-store-indexing-semantics-of-spec-18-3"
 #   knowledge:
@@ -37,7 +38,10 @@ from __future__ import annotations
 import os
 import shutil
 import sqlite3
+import subprocess
+import sys
 import tempfile
+import tracemalloc
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -201,6 +205,70 @@ class TestIndexing(StoreTestCase):
 
     def _aid(self) -> str:
         return self.store.conn.execute("SELECT id FROM artifacts").fetchone()[0]
+
+
+class TestUnmanagedSidecarHosts(StoreTestCase):
+    """Exercise discovery and adoption through real files, SQLite and the CLI."""
+
+    def test_unknown_hosts_are_reported_and_exclusions_still_apply(self) -> None:
+        """List all regular host types without mutating them or excluded content."""
+        hosts = {
+            "settings.json": b'{"enabled": true}\n',
+            "notes.txt": b"An authored note.\n",
+            "image.bin": b"\x00\xff\x80binary",
+        }
+        for name, content in hosts.items():
+            (self.root / name).write_bytes(content)
+        excluded = self.root / "archive"
+        excluded.mkdir()
+        (excluded / "old.json").write_bytes(b"{}")
+        report = self.store.scan([self.root], exclude=["archive/**"])
+        self.assertEqual(report.scanned, 3)
+        self.assertEqual(report.unmanaged, 3)
+        self.assertEqual(set(report.unmanaged_paths), {(self.root / n).as_posix() for n in hosts})
+        self.assertEqual(report.invalid, 0)
+        self.assertEqual(report.indexed, 0)
+        for name, content in hosts.items():
+            self.assertEqual((self.root / name).read_bytes(), content)
+            self.assertFalse((self.root / (name + ".somnus.yaml")).exists())
+
+    def test_large_unmanaged_binary_is_not_read_into_memory(self) -> None:
+        """Keep discovery allocation independent of an unmanaged binary payload."""
+        host = self.root / "large.bin"
+        with host.open("wb") as stream:
+            stream.truncate(64 * 1024 * 1024)
+        tracemalloc.start()
+        try:
+            report = self.store.scan([self.root])
+            _, peak = tracemalloc.get_traced_memory()
+        finally:
+            tracemalloc.stop()
+        self.assertEqual(report.unmanaged_paths, [host.as_posix()])
+        self.assertLess(peak, 8 * 1024 * 1024)
+        self.assertEqual(host.stat().st_size, 64 * 1024 * 1024)
+
+    def test_real_cli_adoption_and_deleted_sidecar_are_reconciled(self) -> None:
+        """Drive real CLI adoption and reconcile the removal of its sidecar."""
+        host = self.root / "settings.json"
+        original = b'{"topic": "universal discovery"}\n'
+        host.write_bytes(original)
+        self.store.scan([self.root])
+        env = dict(os.environ, SOMNUS_HOME=str(self.db.parent), PYTHONPATH=str(REPO / "src"))
+        result = subprocess.run(
+            [sys.executable, "-m", "somnus.cli", "--actor", "test", "stamp", str(host), "--write"],
+            cwd=self.root, env=env, capture_output=True, text=True, check=False, timeout=30,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        adopted = self.store.scan([self.root])
+        self.assertEqual(adopted.unmanaged, 0)
+        self.assertEqual(adopted.scanned, 1)
+        self.assertEqual(self.count("SELECT count(*) FROM docs"), 1)
+        self.assertEqual(host.read_bytes(), original)
+        host.with_name(host.name + ".somnus.yaml").unlink()
+        missing = self.store.scan([self.root])
+        self.assertEqual(missing.unmanaged_paths, [host.as_posix()])
+        self.assertEqual(missing.missing, 1)
+        self.assertEqual(self.count("SELECT count(*) FROM docs"), 0)
 
 
 class TestSearchIndex(StoreTestCase):

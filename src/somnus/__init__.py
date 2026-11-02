@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-7cc0-724c-99c0-9556e5eb871e"
-#   revision: 1
+#   revision: 2
 #   title: "Somnus metadata system: schema constants and package version"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-7cc0-724c-99c0-9556e5eb871e"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-02T04:18:25+00:00"
 #   names:
 #     slug: "somnus-metadata-system-schema-constants-and-package-version"
 #   knowledge:
@@ -32,7 +33,7 @@
 # somnus:end
 """Somnus metadata system: schema constants and package version."""
 
-__version__ = "2.1.0"
+__version__ = "2.1.1"
 
 CORE_SCHEMA = "somnus://metadata/core/2.0.0"
 SPEC_PROFILE = "somnus://metadata/profile/specification/1.0.0"

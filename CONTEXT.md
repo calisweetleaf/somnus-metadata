@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-789d-75a7-a213-997b444b6530"
-  revision: 2
+  revision: 3
   title: "Somnus Metadata — Architectural and Operator Context"
   classification:
     category: "context"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-789d-75a7-a213-997b444b6530"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T04:08:11+00:00"
+    updated_at: "2026-11-02T04:36:47+00:00"
   names:
     slug: "somnus-metadata-architectural-and-operator-context"
   knowledge:
@@ -38,33 +38,36 @@ normative authority. Read PLAN.md for current evidence, work and acceptance gaps
 
 ## Current distribution and rollout state (2026-11-01)
 
-The toolkit release is **somnus-metadata 2.1.0**; core schema remains **2.0.0**.
-The plain-pip installation in `~/.venvs/global` and its `~/.local/bin` links
-were checked against the current package index. A fresh installed-wheel acceptance
-run passed 66/66; the source suite passed 534/534 and mypy checked 49 files clean.
+The toolkit release is **somnus-metadata 2.1.1** on PyPI and installed with plain
+pip in `~/.venvs/global`; core schema stays **2.0.0**, registry schema **2**.
+The patch repairs unmanaged-host discovery for files needing a new sidecar,
+without loading their contents. Previously, a zero-unmanaged scan could omit
+JSON/PDF/image/text hosts. Actual native discovery now covers those file types.
 
-The separate private plugin is **1.1.0**, installed for Droid, Codex, Antigravity
-and OpenCode. Its 21 tests and all four live 16-tool doctor handshakes pass.
-Actual Droid/Codex MCP searches are proven, including full TSV paths; the packaged
-skill now explicitly requests TSV for agent path consumption. OpenCode in-session
-invocation and live Windows console execution remain NOT RUN.
+The source suite passed **537/537**, mypy checked **49 files**, and installed-wheel
+acceptance passed **67/67**. The released wheel's 51 runtime files matched the
+accepted wheel. Doctor deltas and the single intentional-subprocess disposition
+are recorded in PLAN.md; static scores are not runtime proof.
 
-The global rollout is **not complete**. All five requested roots are registered.
-Native stamping adopted 141 core-repository and 14 plugin files; the registry has
-160 unique present paths after redundant nested registrations were consolidated
-with a verified online backup. At the last reconciliation, 21,174 other
-embedded-carrier candidates remained, plus unknown-carrier files absent from that
-scanner's unmanaged count. PLAN.md's top section and HANDOFF.md own the exact
-frontier, exclusions and host-session evidence.
+The separate private plugin remains **1.1.0**. Its preceding 21-test result is
+unchanged; fresh doctor handshakes in Droid, Codex, Antigravity and OpenCode now
+serve 16 tools from backend 2.1.1. Real Droid/Codex searches and complete TSV paths
+were proven in the previous segment. OpenCode in-session and physical Windows
+console invocation remain NOT RUN; no tunnel or shared-data mutation was added.
 
-No new backend behavior, public release, remote tunnel, or shared Somnus-MCP
-data/model mutation was introduced by this adoption pass. Older environmental
-observations below are historical, not current capability claims.
+All five roots are registered. Current checkpoint: **1,064 managed hosts** and
+**27,245 unmanaged** across all carrier types. **Documents (899) and Projects (4)
+are adopted**, with their nested Git commits local only. Repositories, LAB and
+Somnus-MCP adoption remains open; PLAN.md/HANDOFF.md own the exact next action.
+Generated dependencies/state, archives, credentials, frozen research and the
+running Somnus-MCP data plane remain excluded. Source host content is preserved
+under SPEC's explicit encoding/body rules, including its accepted-but-never-
+emitted BOM policy. Older observations below are historical, not current claims.
 
 ## The system and its boundaries
 
 Somnus Metadata core 2.0.0 is a standard; the somnus Python distribution is its
-stdlib-only toolkit. Its current package version is 2.1.0. This repository
+stdlib-only toolkit. Its current package version is 2.1.1. This repository
 contains the standard and implementation; it is not the universe of files the
 tool can manage. Somnus envelopes in arbitrary host files are product data, not
 permission to rewrite the reference implementation mechanically.

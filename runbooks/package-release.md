@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-7c9e-74d4-9f7e-712091342607"
-  revision: 1
+  revision: 2
   title: "Package release and installation"
   classification:
     category: "engineering"
@@ -17,7 +17,8 @@ somnus:
     scopes:
       - target_ref: "urn:somnus:artifact:01a19a67-7c9e-74d4-9f7e-712091342607"
         aspects: ["content"]
-  time: {}
+  time:
+    updated_at: "2026-11-02T04:45:31+00:00"
   names:
     slug: "package-release-and-installation"
   knowledge:
@@ -86,6 +87,27 @@ The existing release.yml is a GitHub Release workflow, NOT an automatic PyPI
 publisher. Trusted Publishing is a possible later improvement requiring the
 actual PyPI/GitHub publisher binding; its existence is not implied here.
 Keep future dev/build dependency updates at least seven days old per CONTRIBUTING.
+
+## 2.1.1 all-file discovery repair (2026-11-01 America/Chicago)
+
+The patch reports unmanaged hosts that require a new sidecar, including JSON,
+text and binary files, without reading those unmanaged payloads. Core schema
+2.0.0, registry schema 2, every carrier and zero runtime dependencies are retained.
+
+- Native suite: 537 tests; semantic check 0 errors/warnings; mypy 49 files clean;
+  configured Ruff selection passed. Source/root Doctor deltas are in PLAN.md.
+- Fresh-wheel and exact-release-wheel acceptance: 67/67 each, no failures/skips.
+  Exact artifact run:
+  `/tmp/somnus-exact-release-2.1.1-koogijao/runs/20261102T043909Z/`.
+- Built with the installed `python -m build` (sdist then wheel), strict Twine
+  checks passed, runtime bytes matched the accepted wheel, and archive inspection
+  confirmed private operator/research materials were absent.
+- Both artifacts uploaded through the existing credential store. PyPI release
+  JSON digests matched the local wheel and sdist. Plain pip fetched 2.1.1 without
+  cache; `somnus --version` and all four plugin handshakes report 2.1.1.
+- Public release: https://pypi.org/project/somnus-metadata/2.1.1/
+- Physical Windows console and OpenCode in-session invocation remain NOT RUN;
+  none of these checks imply a remote tunnel or a visibility/license change.
 
 ## 2.0.0 correction (2026-10-24 UTC)
 

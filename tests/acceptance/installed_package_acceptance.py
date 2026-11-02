@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-8200-7487-b156-caa120108f9c"
-#   revision: 1
+#   revision: 3
 #   title: "Installed-package acceptance for the somnus wheel (explicit invocation only)"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-8200-7487-b156-caa120108f9c"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-02T04:19:42+00:00"
 #   names:
 #     slug: "installed-package-acceptance-for-the-somnus-wheel-explicit-invocation-only"
 #   knowledge:
@@ -102,6 +103,7 @@ import sys
 import tempfile
 import threading
 import time
+import tomllib
 from pathlib import Path
 from typing import Optional
 
@@ -326,14 +328,17 @@ class McpClient:
 
 def phase_install(inst: Installed) -> None:
     rec = inst.rec
+    expected_version = "somnus " + tomllib.loads(
+        (inst.repo / "pyproject.toml").read_text(encoding="utf-8")
+    )["project"]["version"]
     proc = subprocess.run([str(inst.somnus), "--version"], capture_output=True, text=True,
                           timeout=CHECK_TIMEOUT)
-    rec.record("install: somnus --version", "pass" if proc.returncode == 0 and proc.stdout.strip() == "somnus 2.1.0" else "fail",
+    rec.record("install: somnus --version", "pass" if proc.returncode == 0 and proc.stdout.strip() == expected_version else "fail",
                proc.stdout.strip() or proc.stderr.strip())
     alias = subprocess.run([str(inst.somnus.with_name("somnus-metadata")), "--version"], capture_output=True,
                            text=True, timeout=CHECK_TIMEOUT)
     rec.record("install: somnus-metadata alias runs the same CLI",
-               "pass" if alias.returncode == 0 and alias.stdout.strip() == "somnus 2.1.0" else "fail",
+               "pass" if alias.returncode == 0 and alias.stdout.strip() == expected_version else "fail",
                alias.stdout.strip() or alias.stderr.strip())
     probe = subprocess.run([str(inst.python), "-c", "import somnus; print(somnus.__file__)"],
                            capture_output=True, text=True, timeout=CHECK_TIMEOUT)
@@ -618,6 +623,19 @@ def phase_agent_hints(inst: Installed) -> None:
     rec.record("hints: index reports unmanaged files and how to adopt them",
                "pass" if code == 0 and "unmanaged (no Somnus header" in out and "somnus stamp" in out else "fail",
                " | ".join(ln for ln in out.splitlines() if "unmanaged" in ln or "adopt" in ln)[:200])
+
+    sidecar_host = inst.work / "unmanaged-sidecar.json"
+    sidecar_host.write_bytes(b'{"topic": "sidecar discovery"}\n')
+    binary_host = inst.work / "unmanaged-binary.bin"
+    binary_host.write_bytes(b"\x00\xff\x80binary")
+    code, out, so, se = inst.run(["index"])
+    rec.record("hints: index discovers unmanaged JSON and binary hosts without sidecars",
+               "pass" if code == 0 and sidecar_host.name in out and binary_host.name in out
+               and not sidecar_host.with_name(sidecar_host.name + ".somnus.yaml").exists()
+               and not binary_host.with_name(binary_host.name + ".somnus.yaml").exists() else "fail",
+               out.strip().replace("\n", " | ")[:200])
+    sidecar_host.unlink()
+    binary_host.unlink()
 
     broad = inst.root / "home-broad"
     broad.mkdir(parents=True, exist_ok=True)
