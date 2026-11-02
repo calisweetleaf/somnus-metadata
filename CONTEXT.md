@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-789d-75a7-a213-997b444b6530"
-  revision: 3
+  revision: 4
   title: "Somnus Metadata — Architectural and Operator Context"
   classification:
     category: "context"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-789d-75a7-a213-997b444b6530"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T04:36:47+00:00"
+    updated_at: "2026-11-02T04:53:05+00:00"
   names:
     slug: "somnus-metadata-architectural-and-operator-context"
   knowledge:
@@ -56,7 +56,7 @@ were proven in the previous segment. OpenCode in-session and physical Windows
 console invocation remain NOT RUN; no tunnel or shared-data mutation was added.
 
 All five roots are registered. Current checkpoint: **1,064 managed hosts** and
-**27,245 unmanaged** across all carrier types. **Documents (899) and Projects (4)
+**27,202 unmanaged** across all carrier types. **Documents (899) and Projects (4)
 are adopted**, with their nested Git commits local only. Repositories, LAB and
 Somnus-MCP adoption remains open; PLAN.md/HANDOFF.md own the exact next action.
 Generated dependencies/state, archives, credentials, frozen research and the

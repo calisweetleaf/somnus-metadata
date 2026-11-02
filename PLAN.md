@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
-  revision: 4
+  revision: 5
   title: "Somnus Metadata — Completion and Operator Integration Plan"
   classification:
     category: "operations"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T04:45:31+00:00"
+    updated_at: "2026-11-02T04:53:05+00:00"
   names:
     slug: "somnus-metadata-completion-and-operator-integration-plan"
   knowledge:
@@ -70,6 +70,12 @@ real CLI stamping and subsequent sidecar removal are reconciled correctly.
 - Plugin **1.1.0** still passes all four fresh live **16-tool / 2.1.1** handshakes
   and skill fidelity checks. Its prior **21/21** test run remains applicable:
   no plugin code was changed in this patch.
+- First hosted patch CI (`41390329231`, commit `6cfc132`) failed the three new
+  tests on macOS/Windows: their expected temp paths retained `/var` symlink or
+  Windows 8.3 aliases, while the scanner correctly returned canonical paths.
+  A real Linux TMPDIR symlink reproduced all three failures. Expected paths now
+  use `resolve().as_posix()`; the same real-alias probe and full local suite pass.
+  Runtime package code is unchanged; no release replacement or assertion removal.
 - Source Doctor: **49 files**, **373 findings / 71 serious**, unchanged;
   delta **CLEAN**. Root Doctor: **64 files**, **1757 -> 1758 findings**,
   **276 -> 277 serious**. Its only new serious finding is the intentional
@@ -86,14 +92,14 @@ real CLI stamping and subsequent sidecar removal are reconciled correctly.
 
 | Registered root | Managed present hosts | Remaining unmanaged hosts, all carrier types |
 | --- | ---: | ---: |
-| `/home/daeron/Repositories` | 161 | 3,418 |
+| `/home/daeron/Repositories` | 161 | 3,375 |
 | `/home/daeron/LAB` | 0 | 23,194 |
 | `/home/daeron/Somnus-MCP` | 0 | 633 |
 | `/home/daeron/Documents` | **899** | **0** |
 | `/home/daeron/Projects` | **4** | **0** |
 
 These are the latest complete five-root scan results: **1,064 managed hosts**,
-**27,245 unmanaged**, **0 invalid / 0 missing / 0 conflicts**. Counts are a
+**27,202 unmanaged**, **0 invalid / 0 missing / 0 conflicts**. Counts are a
 checkpoint in live roots, not a promise that other sessions cannot add files.
 Unlike the earlier 21,174 count, this inventory includes sidecar-only hosts.
 The 899 Documents and 4 Projects hosts were adopted in this pass, with every
@@ -125,7 +131,9 @@ plane. Full discovery also identified and excluded **54,826 generated pnpm-store
 files** under factory-superintelligence/site/.sites-runtime/pnpm-store, installed
 docsnag-deps/dist-info directories, OS metadata and generated Doctor logs. These
 are generated dependencies/state, not an exclusion of authored source to hide
-remaining work. Two pre-existing malformed Sentari Markdown files remain
+remaining work. The identified mash_merge_archive and old-non-applicable trees
+are also excluded as historical archives, leaving their original corpora untouched.
+Two pre-existing malformed Sentari Markdown files remain
 explicitly excluded with their E_ENVELOPE disposition from the previous segment.
 No E_HOST refusal occurred in the completed Documents/Projects batches.
 

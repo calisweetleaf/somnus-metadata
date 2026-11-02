@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-8330-7373-8e5d-067e70b5f474"
-#   revision: 4
+#   revision: 5
 #   title: "Registry store: indexing semantics of SPEC §18.3"
 #   classification:
 #     category: "engineering"
@@ -18,7 +18,7 @@
 #       - target_ref: "urn:somnus:artifact:01a19a67-8330-7373-8e5d-067e70b5f474"
 #         aspects: ["content"]
 #   time:
-#     updated_at: "2026-11-02T04:38:12+00:00"
+#     updated_at: "2026-11-02T04:53:04+00:00"
 #   names:
 #     slug: "registry-store-indexing-semantics-of-spec-18-3"
 #   knowledge:
@@ -225,7 +225,7 @@ class TestUnmanagedSidecarHosts(StoreTestCase):
         report = self.store.scan([self.root], exclude=["archive/**"])
         self.assertEqual(report.scanned, 3)
         self.assertEqual(report.unmanaged, 3)
-        self.assertEqual(set(report.unmanaged_paths), {(self.root / n).as_posix() for n in hosts})
+        self.assertEqual(set(report.unmanaged_paths), {(self.root / n).resolve().as_posix() for n in hosts})
         self.assertEqual(report.invalid, 0)
         self.assertEqual(report.indexed, 0)
         for name, content in hosts.items():
@@ -243,7 +243,7 @@ class TestUnmanagedSidecarHosts(StoreTestCase):
             _, peak = tracemalloc.get_traced_memory()
         finally:
             tracemalloc.stop()
-        self.assertEqual(report.unmanaged_paths, [host.as_posix()])
+        self.assertEqual(report.unmanaged_paths, [host.resolve().as_posix()])
         self.assertLess(peak, 8 * 1024 * 1024)
         self.assertEqual(host.stat().st_size, 64 * 1024 * 1024)
 
@@ -266,7 +266,7 @@ class TestUnmanagedSidecarHosts(StoreTestCase):
         self.assertEqual(host.read_bytes(), original)
         host.with_name(host.name + ".somnus.yaml").unlink()
         missing = self.store.scan([self.root])
-        self.assertEqual(missing.unmanaged_paths, [host.as_posix()])
+        self.assertEqual(missing.unmanaged_paths, [host.resolve().as_posix()])
         self.assertEqual(missing.missing, 1)
         self.assertEqual(self.count("SELECT count(*) FROM docs"), 0)
 

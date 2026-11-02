@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78be-745c-b7a2-ded39bc0328a"
-  revision: 3
+  revision: 4
   title: "HANDOFF — finish Somnus Metadata end to end (2026-11-01)"
   classification:
     category: "engineering"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78be-745c-b7a2-ded39bc0328a"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T04:36:47+00:00"
+    updated_at: "2026-11-02T04:53:05+00:00"
   names:
     slug: "handoff-finish-somnus-metadata-end-to-end-2026-11-01"
   knowledge:
@@ -42,13 +42,13 @@ mypy **49 files**, and all four plugin handshakes are green. Core schema stays
 2.0.0 and registry schema stays 2. No carrier or authored algorithm was replaced.
 
 Five roots are registered with exclusions. Latest complete scan: **1,064 managed
-hosts**, **27,245 unmanaged**, **0 invalid / 0 conflicts**.
+hosts**, **27,202 unmanaged**, **0 invalid / 0 conflicts**.
 **Documents (899 hosts) and Projects (4 hosts) are fully adopted** under those
 exclusions. Their two nested Git repos were committed locally, not pushed.
 The earlier core/plugin adoption commits are already pushed and CI passed.
 The current patch release/source finalization is tracked in PLAN.md.
 
-**Still open:** 3,418 Repositories hosts, 23,194 LAB hosts and 633 Somnus-MCP hosts.
+**Still open:** 3,375 Repositories hosts, 23,194 LAB hosts and 633 Somnus-MCP hosts.
 These counts now include sidecar-only files: do not return to the incomplete
 embedded-carrier-only inventory. Use native
 `Store.scan(...).unmanaged_paths` to get all paths; the CLI shows ten examples.
