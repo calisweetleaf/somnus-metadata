@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-791b-7090-ab7e-0d4da8974aa0"
-  revision: 8
+  revision: 9
   title: "Somnus Metadata — Operator and Agent Usage Guide"
   classification:
     category: "engineering"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-791b-7090-ab7e-0d4da8974aa0"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T06:49:21+00:00"
+    updated_at: "2026-11-06T06:11:46+00:00"
   names:
     slug: "somnus-metadata-operator-and-agent-usage-guide"
   knowledge:
@@ -71,7 +71,8 @@ Somnus Metadata is a local-first metadata standard (`somnus://metadata/core/2.0.
    - [4.1 Full-Text Search Rules (`q --text`)](#41-full-text-search-rules-q---text)
    - [4.2 Why Unmanaged Files Do Not Appear in Search](#42-why-unmanaged-files-do-not-appear-in-search)
    - [4.3 Carriers and Sidecars (`<file>.somnus.yaml`)](#43-carriers-and-sidecars-filesomnusyaml)
-   - [4.4 Direct Read-Only SQL Queries (`q`)](#44-direct-read-only-sql-queries-q)
+   - [4.4 The Always-On Watcher (`somnus watch`, `somnus daemon`)](#44-the-always-on-watcher-somnus-watch-somnus-daemon)
+   - [4.5 Direct Read-Only SQL Queries (`q`)](#45-direct-read-only-sql-queries-q)
 5. [The Terminal UI (`somnus edit`)](#5-the-terminal-ui-somnus-edit)
    - [5.1 Launching the Browser or Direct Editor](#51-launching-the-browser-or-direct-editor)
    - [5.2 Browser Screen Layout and Keys](#52-browser-screen-layout-and-keys)
@@ -418,8 +419,28 @@ Somnus Metadata can track **any** file type without corrupting host syntax:
 | File Type | Carrier Used by `somnus stamp` | How Content Is Indexed in `search` |
 | --- | --- | --- |
 | Markdown (`.md`, `.markdown`, `.mdx`) | YAML frontmatter (`---`) or hidden HTML comment (`<!-- somnus:metadata:v2 ... -->`) | Full Markdown body outside the envelope (up to 1,000,000 chars) |
-| Source code & config (`.py`, `.sh`, `.toml`, `.yaml`, `.sql`, `.js`, `.ts`, `.rs`, `.c`, `.go`, `.css`, `.html`, `.xml`, `.tex`, ...) | Native line-comment (`#`, `//`, `--`, `%`) or block-comment (`/* */`, `<!-- -->`) envelope placed after any mandatory preamble (shebang `#!`, encoding cookie, `<?xml ...?>`) | Full source/config text outside the comment envelope |
-| Any other file (`.json`, `.pdf`, `.png`, `.zip`, `.parquet`, `.sqlite`, binary weights, ...) | External sidecar file named `<filename>.somnus.yaml` in the same directory | Title, summary, tags, and path are always searchable; if the host file decodes as valid UTF-8 (e.g., `.json` or `.csv`), its text body is indexed too; binary host bodies are skipped cleanly |
+| Source code & config (`.py`, `.sh`, `.toml`, `.yaml`, `.sql`, `.js`, `.ts`, `.rs`, `.c`, `.go`, `.rb`, `.lua`, `.ini`, `.tf`, `.css`, `.html`, `.vue`, `.xml`, `.tex`, ...) | Native line-comment (`#`, `//`, `--`, `%`) or block-comment (`/* */`, `<!-- -->`) envelope placed after any mandatory preamble (shebang `#!`, encoding cookie, `<?xml ...?>`, Docker `# syntax=`) | Full source/config text outside the comment envelope |
+| Build and repo files by name (`Dockerfile`, `Makefile`, `CMakeLists.txt`, `CODEOWNERS`, `MANIFEST.in`, `requirements*.txt`, `.gitignore`, `.env*`, `Gemfile`, ...) and extensionless scripts with a shebang | `#` comment envelope (Docker parser directives and the shebang stay first) | Full text outside the envelope |
+| JSON with comments (`.jsonc`, `.json5`, `tsconfig*.json`, `devcontainer.json`) | `//` comment envelope | Full text outside the envelope |
+| Jupyter notebooks (`.ipynb`) | `metadata.somnus` JSON object; every other byte untouched | Cell sources |
+| Plain `.json` objects, opt-in (`stamp --inline` or `[carriers] json = "key"`) | Leading `"$somnus"` member; other members untouched | Canonical JSON of the tree without `$somnus` |
+| Everything else (plain `.json` by default, `.txt`, `.csv`, `.pdf`, `.png`, `.zip`, `.parquet`, `.sqlite`, binary weights, ...) | External sidecar file named `<filename>.somnus.yaml` in the same directory | Title, summary, tags, and path are always searchable; if the host file decodes as valid UTF-8 (e.g., `.json` or `.csv`), its text body is indexed too; binary host bodies are skipped cleanly |
+
+Headers that 2.1 and earlier put in sidecars for hosts that now have an embedded carrier keep working. Move them inline with `somnus migrate --inline /path` (dry run) and `--write` (add `--json-key` for plain JSON objects).
+
+### 4.4 The Always-On Watcher (`somnus watch`, `somnus daemon`)
+
+The watcher is the 24/7 half of the system; the MCP server is only how agents reach the CLI.
+
+```sh
+somnus daemon install        # systemd user unit (Linux), launchd agent (macOS), logon task (Windows)
+somnus daemon status         # running?, roots, stamped, revised, errors, last pass
+somnus daemon stop | uninstall
+somnus watch                 # same loop in the foreground; --once for one pass
+loginctl enable-linger "$USER"   # Linux: keep the user service running while logged out
+```
+
+Each pass walks every registered root and opens only files whose size or mtime changed. New files that can carry an embedded header are stamped after `settle` seconds of quiet (default 10); in-place edits are recorded as new revisions (`revise = "auto"`), so editing a managed file no longer leaves an open `revision` conflict. It never writes sidecars unless `[watch] stamp = "all"`, and adopts files that existed before it started only with `--adopt` / `adopt = true`. Virtualenvs, `site-packages`, `node_modules`, `build/`, `dist/`, and VCS directories are excluded by default.
 
 **Example: Adopting a binary archive or image via sidecar:**
 
@@ -430,7 +451,7 @@ notes-bundle.zip.somnus.yaml: stamped urn:somnus:artifact:01a194fc-81ff-7420-883
 
 `notes-bundle.zip` is never modified; `notes-bundle.zip.somnus.yaml` holds the metadata and a `bindings:` entry (`target: "notes-bundle.zip"`, `role: "primary"`). (`somnus stamp` prints the path relative to the current directory.)
 
-### 4.4 Direct Read-Only SQL Queries (`q`)
+### 4.5 Direct Read-Only SQL Queries (`q`)
 
 Because the registry is a human-readable SQLite database (D4), you can run any read-only `SELECT` statement directly with `somnus q`:
 

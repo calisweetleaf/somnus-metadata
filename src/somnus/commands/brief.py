@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-7dd0-7013-8d7c-5fdf050b0118"
-#   revision: 1
+#   revision: 2
 #   title: "somnus brief: a Markdown cheat sheet for agent instruction files"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-7dd0-7013-8d7c-5fdf050b0118"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T06:11:48+00:00"
 #   names:
 #     slug: "somnus-brief-a-markdown-cheat-sheet-for-agent-instruction-files"
 #   knowledge:
@@ -41,7 +42,10 @@ from somnus.output import EXIT_OK, emit
 BRIEF = f"""## Somnus metadata (core `{CORE_SCHEMA}`)
 
 Normative contract: `SPEC.md`. Every managed file carries exactly one `somnus:` envelope
-(Markdown frontmatter, a comment envelope in code/config files, or a `<file>.somnus.yaml` sidecar).
+inside the file wherever its format allows (Markdown frontmatter, a comment envelope in code, config,
+and build files, `metadata.somnus` in notebooks, opt-in `"$somnus"` in JSON). Only formats with no
+place for it use a `<file>.somnus.yaml` sidecar. A 24/7 watcher (`somnus daemon status`) may stamp new
+files and record in-place edits as new revisions; re-read a file before editing its envelope.
 
 **Rules for agents**
 
@@ -68,6 +72,8 @@ Normative contract: `SPEC.md`. Every managed file carries exactly one `somnus:` 
 | New revision | `somnus bump PATH [--reason …]` |
 | Derive a copy | `somnus fork PATH [--title …]` |
 | Upgrade v0.1 | `somnus migrate PATH` then `--write` |
+| Move old sidecars inline | `somnus migrate --inline PATH` then `--write` |
+| Watcher state | `somnus daemon status` (install: `somnus daemon install`) |
 | Registry | `somnus index`, `somnus ls`, `somnus q --docs\\|--conflicts\\|--history`, `somnus stale` |
 | Search content | `somnus q --text "words to find"` (every word must match; `word*` is a prefix) |
 | Field docs | `somnus schema classification.type` |

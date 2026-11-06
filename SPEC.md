@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a12a94-8657-715c-9044-852de0e3f08a"
-  revision: 7
+  revision: 8
   title: "Somnus Metadata System: Normative Specification"
   summary: "The single normative contract for Somnus artifact metadata, carriers, regions, validation, and the global registry."
   classification:
@@ -20,7 +20,7 @@ somnus:
         aspects: ["content", "semantic-model", "ingestion"]
   time:
     created_at: "2026-10-11T10:48:59+00:00"
-    updated_at: "2026-10-31T22:39:26+00:00"
+    updated_at: "2026-11-06T06:11:45+00:00"
     authored_on: "2026-10-11"
   knowledge:
     coverage: "artifact"
@@ -621,16 +621,46 @@ conversion in `migrate`.
 A carrier locates and strips the envelope. The YAML payload is identical in
 every carrier.
 
+Routing is decided in this order, and the first match wins (D20):
+
+1. Files named `*.somnus.yaml` are sidecars.
+2. **Exact filenames** that have a comment syntax but no telling extension:
+   `Dockerfile`, `Containerfile`, `Makefile`, `GNUmakefile`, `CMakeLists.txt`,
+   `CODEOWNERS`, `MANIFEST.in`, `requirements.txt`, `constraints.txt`, `Gemfile`,
+   `Rakefile`, `Vagrantfile`, `Brewfile`, `Podfile`, `Justfile`, `Caddyfile`,
+   `.gitignore`, `.gitattributes`, `.gitmodules`, `.dockerignore`, `.npmignore`,
+   `.editorconfig`, `.env`, `.flake8`, `.pylintrc`, `.coveragerc`, shell rc files
+   (`hash`/`shell`); `Pipfile` (`toml`); `Snakefile`, `SConstruct`, `BUILD`,
+   `BUILD.bazel`, `WORKSPACE`, `Tiltfile` (`python`); `tsconfig.json`,
+   `jsconfig.json`, `devcontainer.json`, `.eslintrc.json`, `.babelrc` (`jsonc`).
+3. **Filename patterns**: `requirements*.txt`, `constraints*.txt`, `.env.*`
+   (`hash`); `Dockerfile.*`, `Containerfile.*` (`dockerfile`); `tsconfig.*.json`,
+   `jsconfig.*.json` (`jsonc`).
+4. **Extensions** (table below).
+5. **Plain `.json`** is embedded only when the document is an object whose first
+   member is `"$somnus"` (Section 17.8); otherwise it is a sidecar host.
+6. **Shebang**: an extensionless (or unknown-extension) text file whose first line
+   is `#!` routes by interpreter (`python*`, `sh`/`bash`/`zsh`/`dash`/`ksh`/`fish`,
+   `node`/`deno`/`bun`, `ruby`, `perl`, `Rscript`, `pwsh`, `lua`, ...), following
+   `env` and its flags.
+7. Everything else is a sidecar host.
+
 | Host extensions | Carrier | Envelope |
 | --- | --- | --- |
 | `.md .markdown .mdx` | `markdown` | Frontmatter `---` … `---` (default) or HTML comment envelope |
-| `.py .pyw .sh .bash .zsh .ps1 .psm1 .psd1 .toml .yaml .yml .r .R` | `hash` | `# ` prefixed lines |
+| `.py .pyw .pyi .pyx .mojo .sh .bash .zsh .ps1 .psm1 .psd1 .toml .yaml .yml .r .R` | `hash` family | `# ` prefixed lines |
+| `.rb .rake .gemspec .pl .pm .tf .tfvars .hcl .nix .jl .ex .exs .cr .nim .tcl .awk .sed .fish .mk .cmake .cfg .ini .conf .properties .env .graphql .gql` | `hash` | `# ` prefixed lines |
+| `.dockerfile .containerfile` | `dockerfile` | `# ` prefixed lines after BuildKit parser directives |
 | `.tex .sty .cls .ltx` | `tex` | `% ` prefixed lines |
-| `.js .mjs .cjs .jsx .ts .tsx .rs .c .h .cc .cpp .hpp .go .java .kt .swift .cs` | `slash` | `// ` prefixed lines |
+| `.js .mjs .cjs .mts .cts .jsx .ts .tsx .rs .c .h .cc .cpp .hpp .go .java .kt .swift .cs .zig .dart .scala .proto .groovy .gradle .mm .sol .hx .glsl .hlsl .wgsl .cu .cuh` | `slash` | `// ` prefixed lines |
+| `.jsonc .json5` | `jsonc` | `// ` prefixed lines |
 | `.sql` | `sql` | `-- ` prefixed lines |
+| `.lua .hs .elm .ada .adb .ads` | `lua` | `-- ` prefixed lines |
 | `.css .scss .less` | `css` | `/* … */` block |
-| `.html .htm .xhtml .xml .svg` | `xml` | `<!-- … -->` block |
-| anything else (`.json`, `.pdf`, `.png`, `.ipynb`, …) | `sidecar` | `<file>.somnus.yaml` |
+| `.html .htm .xhtml .xml .svg .vue .svelte .astro .xsd .xsl .xslt .plist .csproj .vcxproj .resx` | `xml` | `<!-- … -->` block |
+| `.ipynb` | `ipynb` | `metadata.somnus` JSON object (Section 17.7) |
+| `.json` with a leading `"$somnus"` member | `json` | `"$somnus"` JSON object (Section 17.8) |
+| anything else (plain `.json`, `.txt`, `.csv`, `.pdf`, `.png`, binaries, …) | `sidecar` | `<file>.somnus.yaml` |
 
 Files named `*.somnus.yaml` are always sidecars, never hash carriers.
 
@@ -685,7 +715,8 @@ contain `*/`. XML, HTML, and SVG use `<!-- somnus:metadata:v2` …
 | Host | Preserved before the envelope |
 | --- | --- |
 | Python | Line-1 shebang; encoding cookie (`coding[:=]`) on line 1, or on line 2 when line 1 is a comment |
-| Shell, R, JS/TS | Line-1 shebang (`#!`) |
+| Shell, R, JS/TS, generic `#` hosts, Lua | Line-1 shebang (`#!`) |
+| Dockerfile / Containerfile | Leading BuildKit parser directives (`# syntax=`, `# escape=`, `# check=`) |
 | PowerShell | Line-1 shebang and leading `#Requires` lines |
 | TeX | Leading `% !TeX …` magic comments (case-insensitive) |
 | CSS | Leading `@charset "…";` |
@@ -704,6 +735,38 @@ delimiters). The payload MUST include `bindings` with exactly one
 sidecar's directory `[E_ENVELOPE]`. Binding roles are `primary`,
 `attachment`, and `representation`. A host file that has both an embedded
 envelope and a sidecar is `[E_ENVELOPE]`.
+
+A sidecar written before its host type gained an embedded carrier remains
+valid and authoritative. `somnus migrate --inline` moves it into the host:
+same `id`, `bindings` removed, `revision` + 1, host write re-extracted before
+the sidecar is deleted. Sidecars with `attachment` or `representation`
+bindings stay sidecars.
+
+### 17.7 Jupyter notebooks
+
+The payload is the JSON object at `metadata.somnus` in the notebook (nbformat
+preserves unknown metadata keys). Its value is the same mapping the YAML
+payload's `somnus:` key holds, as JSON. The carrier splices only that value's
+text; every other byte of the notebook is unchanged. The body (for digests and
+search) is the concatenated cell sources. A notebook without a top-level
+`metadata` object cannot be stamped `[E_HOST]`.
+
+### 17.8 JSON `"$somnus"` member (opt-in)
+
+Strict JSON has no comments, and Section 1 keeps the host data tree authoritative,
+so plain `.json` defaults to a sidecar. An operator may opt in per file
+(`somnus stamp --inline`, `somnus migrate --inline --json-key`) or per
+configuration (`[carriers] json = "key"`). The payload is then the **first**
+member of a top-level object, `"$somnus": { … }`. Arrays and scalars always use
+a sidecar. Detection reads only the file head: the document's first member must
+be `"$somnus"`.
+
+For both JSON-tree carriers the host-preservation contract is the data tree,
+not the byte stream: the host parsed with the carrier key removed must be equal
+before and after every write `[E_HOST]`, and the carrier never reformats members
+it does not own. The body is the canonical serialization of that tree (sorted
+keys, one-space indent). `json-pointer` region selectors resolve against the
+host itself.
 
 ## 18. Global registry (D4)
 
@@ -788,6 +851,47 @@ tokens.
   `somnus q` SQL with `MATCH`.
 - **Availability.** When SQLite lacks FTS5, the registry works without the table
   and `q --text` fails with a usage error `[E_IO]`.
+### 18.5 The watcher (D20)
+
+`somnus watch` is the system's always-on loop; `somnus daemon install` registers
+it with the user's service manager so it runs 24/7. It is stdlib-only and polls:
+
+- Each pass walks every registered root (roots added later with `init --root`
+  are picked up) with that root's `exclude` globs, and compares
+  `(mtime_ns, size)`. Only changed files are opened. Built-in excludes cover VCS
+  directories, virtualenvs, `site-packages`, `node_modules`, `build/`, `dist/`,
+  and egg-info.
+- A changed managed file is re-observed (Section 18.3). When a location's
+  registered revision was edited in place (same `id` and `revision`, different
+  digests) and `revise = "auto"`, the watcher records a new revision exactly as
+  `somnus bump` would (actor `somnus-watch`) and resolves the revision conflict;
+  with `revise = "off"` the conflict stays open for the operator.
+- A new unmanaged file is stamped after it has been quiet for `settle` seconds.
+  `stamp = "inline"` (default) stamps only hosts with an embedded carrier and
+  never creates sidecars; `"all"` also writes sidecars; `"off"` indexes only.
+  Files that were unmanaged before the watcher started are adopted only with
+  `adopt = true` / `--adopt`.
+- A deletion, and every `rescan` seconds, triggers an incremental `index` pass so
+  missing locations and cross-file conflicts stay correct.
+- One watcher per `$SOMNUS_HOME`, enforced by an OS lock on `watch.lock`. The
+  heartbeat `$SOMNUS_HOME/watch.json` (pid, settings, roots, counters, last pass)
+  is read by `daemon status`, the TUI browser header, and MCP.
+
+Configuration (`config.toml` or `.somnus.toml`):
+
+```toml
+[carriers]
+json = "sidecar"    # or "key": embed plain .json objects as "$somnus"
+
+[watch]
+interval = 5.0      # seconds between passes (minimum 0.5)
+settle = 10.0       # quiet seconds before stamping or auto-revising
+stamp = "inline"    # off | inline | all
+revise = "auto"     # off | auto
+adopt = false       # stamp files that were unmanaged before start
+rescan = 300.0      # seconds between full reconciliation passes
+```
+
 ## 19. Validation pipeline (D5, D14)
 
 ### 19.1 Levels
@@ -853,7 +957,7 @@ operations, or conflicts. `2` means usage, I/O, or environment errors.
 | --- | --- |
 | `init [--root DIR]…` | Create `$SOMNUS_HOME`, `config.toml`, and the database; register roots |
 | `new TYPE TITLE [--dir] [--carrier frontmatter\|html-comment] [--status] [--force]` | Scaffold a conformant Markdown artifact with a UUIDv7, revision 1, and config defaults; refuses title collisions |
-| `stamp PATH… [--write] [--type] [--title]` | Infer and inject a header into an unmanaged file; dry-run diff unless `--write` |
+| `stamp PATH… [--write] [--type] [--title] [--inline]` | Infer and inject a header into an unmanaged file; dry-run diff unless `--write`; `--inline` embeds plain `.json` objects as `"$somnus"` |
 | `check [PATH…] [--all] [--level L]` | Run the pipeline and print diagnostics |
 | `index [ROOT…] [--full]` | Reconcile roots into the registry |
 | `q [SQL] [--docs\|--conflicts\|--history\|--tables\|--text WORDS] [--limit N]` | Read-only queries in aligned text or TSV; `--text` is full-text search (Section 18.4) |
@@ -863,12 +967,14 @@ operations, or conflicts. `2` means usage, I/O, or environment errors.
 | `set PATH FIELD=VALUE… [--reason]` | Change the fields the `edit` form exposes (`title`, `summary`, `purpose`, `classification.*`, `access.visibility`, `ingestion.disposition`) in one validated new revision; other fields are refused (D16) |
 | `fork PATH [--out] [--title]` | New UUIDv7, revision 1, `derived_from` the parent revision |
 | `regions PATH [--sync] [--write]` | Audit markers against the registry; register unregistered markers |
-| `migrate PATH… [--write]` | Upgrade v0.1 documents (Section 22) |
+| `migrate PATH… [--write] [--inline [--json-key]]` | Upgrade v0.1 documents (Section 22); with `--inline`, move sidecar headers into hosts that now have an embedded carrier (Section 17.6) |
 | `stale [--days N]` | Report stale drafts, unreplaced supersessions, missing files, near-duplicate titles, open conflicts |
 | `schema [FIELD] [--json-schema] [--out FILE]` | Show field docs or export JSON Schema Draft 2020-12 |
 | `brief` | Print a Markdown agent cheat sheet |
 | `edit [PATH]` | Terminal UI: document browser, or header editor |
-| `mcp` | Serve every command except `edit` as Model Context Protocol tools over stdio; results are the command's text output (D17) |
+| `watch [ROOT…] [--interval S] [--settle S] [--stamp off\|inline\|all] [--revise off\|auto] [--adopt] [--once] [--quiet]` | Run the always-on watcher in the foreground (Section 18.5) |
+| `daemon status\|install\|uninstall\|stop\|once [--dry-run] [--adopt]` | Manage the watcher as a user service (systemd user unit, launchd agent, Windows logon task) and read its heartbeat |
+| `mcp` | Serve every command except `edit` and `watch` as Model Context Protocol tools over stdio; results are the command's text output (D17) |
 
 ### MCP adapter behavior (D17)
 
@@ -876,7 +982,9 @@ operations, or conflicts. `2` means usage, I/O, or environment errors.
 JSON-RPC response per output line. It implements `initialize`, `ping`,
 `tools/list`, and `tools/call`; notifications and stray responses receive no
 reply. The tool set is generated from the CLI argument parser and contains every
-CLI command except the interactive `edit` and server command `mcp` itself.
+CLI command except the interactive `edit`, the long-running `watch`, and server
+command `mcp` itself. The watcher is not the MCP server: MCP serves the CLI to
+agents on demand; `daemon status` exposes the watcher's heartbeat to them.
 
 Each tool has a closed object input schema (`additionalProperties: false`). A
 call converts validated arguments to the corresponding CLI invocation and runs

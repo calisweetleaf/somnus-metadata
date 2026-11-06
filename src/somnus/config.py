@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-7f68-7721-b807-1f454021e4af"
-#   revision: 1
+#   revision: 2
 #   title: "Hierarchical configuration: CLI flag > nearest .somnus.toml > $SOMNUSHOME/config.toml > defaults"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-7f68-7721-b807-1f454021e4af"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T06:11:48+00:00"
 #   names:
 #     slug: "hierarchical-configuration-cli-flag-nearest-somnus-toml-somnushome-config-toml-d"
 #   knowledge:
@@ -59,9 +60,18 @@ BUILTIN: dict[str, Any] = {
     },
     "index": {
         "roots": ["."],
-        "exclude": ["archive/**", ".git/**", "node_modules/**", "**/__pycache__/**"],
+        "exclude": ["archive/**", ".git/**", "node_modules/**", "**/__pycache__/**", "**/node_modules/**",
+                    "**/.venv/**", "**/venv/**", "**/site-packages/**", "**/.tox/**", "**/.mypy_cache/**",
+                    "build/**", "dist/**", "**/*.egg-info/**"],
     },
+    "carriers": {"json": "sidecar"},
+    "watch": {"interval": 5.0, "settle": 10.0, "stamp": "inline", "rescan": 300.0, "adopt": False,
+              "revise": "auto"},
 }
+
+JSON_CARRIERS = ("sidecar", "key")
+WATCH_STAMP = ("off", "inline", "all")
+WATCH_REVISE = ("off", "auto")
 
 CONFIG_TEMPLATE = '''# Somnus global configuration (precedence: CLI flag > .somnus.toml > this file > built-ins)
 actor = "operator"
@@ -78,7 +88,25 @@ body_role = "specification"
 
 [index]
 roots = []
-exclude = ["archive/**", ".git/**", "node_modules/**", "**/__pycache__/**"]
+exclude = ["archive/**", ".git/**", "node_modules/**", "**/__pycache__/**", "**/node_modules/**",
+           "**/.venv/**", "**/venv/**", "**/site-packages/**", "**/.tox/**", "**/.mypy_cache/**",
+           "build/**", "dist/**", "**/*.egg-info/**"]
+
+[carriers]
+# Plain .json has no comments: "sidecar" writes <file>.somnus.yaml, "key" embeds a leading "$somnus" member.
+json = "sidecar"
+
+[watch]
+# somnus watch: poll interval and settle time (seconds), and what to do with unmanaged files:
+# "off" index only, "inline" stamp files with an embedded carrier, "all" also create sidecars.
+interval = 5.0
+settle = 10.0
+stamp = "inline"
+rescan = 300.0
+# adopt = true also stamps files that were unmanaged before the watcher started.
+adopt = false
+# revise = "auto" records an in-place edit (same revision, changed content) as a new revision.
+revise = "auto"
 '''
 
 _ENUMS = {
@@ -106,6 +134,8 @@ class Config:
     exclude: list[str]
     home: Path
     sources: list[Path] = field(default_factory=list)
+    json_carrier: str = "sidecar"
+    watch: dict[str, Any] = field(default_factory=lambda: dict(BUILTIN["watch"]))
 
     @property
     def db_path(self) -> Path:
@@ -144,7 +174,7 @@ def _read(path: Path) -> dict[str, Any]:
 
 
 def _check(data: dict[str, Any], path: Path) -> None:
-    unknown = set(data) - {"actor", "defaults", "index"}
+    unknown = set(data) - {"actor", "defaults", "index", "carriers", "watch"}
     if unknown:
         raise ConfigError(f"{path}: unknown keys {sorted(unknown)}")
     if "actor" in data and (not isinstance(data["actor"], str) or not data["actor"].strip()):
@@ -161,6 +191,32 @@ def _check(data: dict[str, Any], path: Path) -> None:
                 raise ConfigError(f"{path}: defaults.{key} = {value!r} is not one of {_ENUMS[key]}")
         else:
             raise ConfigError(f"{path}: unknown key defaults.{key}")
+    carriers_t = data.get("carriers", {})
+    if not isinstance(carriers_t, dict):
+        raise ConfigError(f"{path}: [carriers] must be a table")
+    for key, value in carriers_t.items():
+        if key != "json":
+            raise ConfigError(f"{path}: unknown key carriers.{key}")
+        if value not in JSON_CARRIERS:
+            raise ConfigError(f"{path}: carriers.json = {value!r} is not one of {JSON_CARRIERS}")
+    watch = data.get("watch", {})
+    if not isinstance(watch, dict):
+        raise ConfigError(f"{path}: [watch] must be a table")
+    for key, value in watch.items():
+        if key == "stamp":
+            if value not in WATCH_STAMP:
+                raise ConfigError(f"{path}: watch.stamp = {value!r} is not one of {WATCH_STAMP}")
+        elif key == "revise":
+            if value not in WATCH_REVISE:
+                raise ConfigError(f"{path}: watch.revise = {value!r} is not one of {WATCH_REVISE}")
+        elif key == "adopt":
+            if not isinstance(value, bool):
+                raise ConfigError(f"{path}: watch.adopt must be true or false")
+        elif key in ("interval", "settle", "rescan"):
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0:
+                raise ConfigError(f"{path}: watch.{key} must be a non-negative number")
+        else:
+            raise ConfigError(f"{path}: unknown key watch.{key}")
     index = data.get("index", {})
     if not isinstance(index, dict):
         raise ConfigError(f"{path}: [index] must be a table")
@@ -191,6 +247,8 @@ def load(start: Optional[Path] = None, actor: Optional[str] = None) -> Config:
         if "actor" in data:
             merged["actor"] = data["actor"]
         merged["defaults"].update(data.get("defaults", {}))
+        merged["carriers"].update(data.get("carriers", {}))
+        merged["watch"].update(data.get("watch", {}))
         index = data.get("index", {})
         if "exclude" in index:
             merged["index"]["exclude"] = list(index["exclude"])
@@ -205,4 +263,6 @@ def load(start: Optional[Path] = None, actor: Optional[str] = None) -> Config:
         exclude=list(merged["index"]["exclude"]),
         home=home,
         sources=sources,
+        json_carrier=merged["carriers"]["json"],
+        watch=dict(merged["watch"]),
     )

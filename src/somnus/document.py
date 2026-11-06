@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-7fdb-77c7-9121-0c1d07c25199"
-#   revision: 1
+#   revision: 2
 #   title: "Document loading and atomic saving with byte preservation (SPEC §16.3, §17)"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-7fdb-77c7-9121-0c1d07c25199"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T06:11:48+00:00"
 #   names:
 #     slug: "document-loading-and-atomic-saving-with-byte-preservation-spec-16-3-17"
 #   knowledge:
@@ -119,10 +120,17 @@ class Document:
             return (-1, -1)
         return (self.envelope.mask_start, self.envelope.mask_end)
 
+    @property
+    def is_tree(self) -> bool:
+        """True when the carrier stores the payload inside the host's JSON data tree."""
+        return hasattr(self.carrier, "host_view")
+
     def body_lines(self) -> list[str]:
         """Lines outside the envelope (host content)."""
         if self.is_sidecar:
             return []
+        if self.is_tree:
+            return list(self.carrier.host_view(self.lines))
         if self.envelope is None:
             return list(self.lines)
         return self.lines[: self.envelope.start] + self.lines[self.envelope.end :]
@@ -132,6 +140,8 @@ class Document:
         if self.is_sidecar:
             data = self.host_bytes if self.host_bytes is not None else b""
             return hashlib.sha256(data.replace(b"\r\n", b"\n")).hexdigest()
+        if self.is_tree:
+            return hashlib.sha256(("\n".join(self.body_lines()) + "\n").encode("utf-8")).hexdigest()
         keep: list[int] = list(range(len(self.lines)))
         if self.envelope is not None:
             keep = [i for i in keep if not self.envelope.start <= i < self.envelope.end]
@@ -193,7 +203,13 @@ class Document:
         extraction = self.carrier.extract(new_lines)
         env = extraction.envelope
         ok = env is not None and not extraction.issues
-        if ok:
+        if ok and self.is_tree:
+            try:
+                ok = (self.carrier.tree_without_key("\n".join(new_lines))
+                      == self.carrier.tree_without_key("\n".join(self.lines)))
+            except ValueError:
+                ok = False
+        elif ok:
             new_body = new_lines[: env.start] + new_lines[env.end :]
             ok = new_body == self.body_lines()
         if not ok:
@@ -347,7 +363,7 @@ def _load_sidecar(host: Path, sidecar: Path, lenient: bool) -> Document:
 def from_text(path: Path | str, text: str, *, lenient: bool = False) -> Document:
     """Build a document from in-memory text (used by tests and dry runs)."""
     path = Path(path)
-    carrier = carriers.for_path(path) or SIDECAR
+    carrier = carriers.for_text(path, text) or SIDECAR
     if text.startswith("\ufeff"):
         text, bom = text[1:], True
     else:
@@ -358,6 +374,19 @@ def from_text(path: Path | str, text: str, *, lenient: bool = False) -> Document
     doc.envelope = extraction.envelope
     doc.issues.extend(_issue_diag(path, i) for i in extraction.issues)
     _parse_into(doc, lenient)
+    return doc
+
+
+def as_carrier(path: Path | str, carrier: Any) -> Document:
+    """Load a host under an explicitly chosen embedded carrier (e.g. opting a JSON file into ``$somnus``)."""
+    path = Path(path).resolve()
+    text, bom = _decode(_read(path), path)
+    lines, endings = _split(text)
+    doc = Document(path, path, carrier, lines, endings, bom)
+    extraction = carrier.extract(lines)
+    doc.envelope = extraction.envelope
+    doc.issues.extend(_issue_diag(path, i) for i in extraction.issues)
+    _parse_into(doc, False)
     return doc
 
 

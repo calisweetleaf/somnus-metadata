@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-8023-7769-994d-434e7633f970"
-#   revision: 1
+#   revision: 2
 #   title: "Model Context Protocol server: every non-interactive somnus command as a stdio tool (D17)"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-8023-7769-994d-434e7633f970"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T06:11:49+00:00"
 #   names:
 #     slug: "model-context-protocol-server-every-non-interactive-somnus-command-as-a-stdio-to"
 #   knowledge:
@@ -53,7 +54,7 @@ from somnus.commands.brief import BRIEF
 from somnus.output import EXIT_OK, EXIT_USAGE
 
 PROTOCOL_VERSIONS = ("2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05")
-EXCLUDED = frozenset({"edit", "mcp"})
+EXCLUDED = frozenset({"edit", "mcp", "watch"})
 READ_ONLY = frozenset({"brief", "check", "ls", "q", "stale"})
 SERVER_ONLY = frozenset({"actor", "no_color", "debug", "help"})
 PATH_PARAMS = frozenset({"path", "paths", "roots", "root", "dir", "out"})

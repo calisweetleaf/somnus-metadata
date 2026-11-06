@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78be-745c-b7a2-ded39bc0328a"
-  revision: 9
+  revision: 11
   title: "HANDOFF — finish Somnus Metadata end to end (2026-11-01)"
   classification:
     category: "engineering"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78be-745c-b7a2-ded39bc0328a"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T06:49:21+00:00"
+    updated_at: "2026-11-06T12:36:37+00:00"
   names:
     slug: "handoff-finish-somnus-metadata-end-to-end-2026-11-01"
   knowledge:
@@ -32,6 +32,72 @@ somnus:
     body_role: "narrative"
 ---
 # HANDOFF — finish Somnus Metadata end to end (2026-11-01)
+
+## Canonical D20 release — 2026-11-06
+
+Operator authorized the supplied 2.2.0/D20 patch and plugin 1.3.0 as canonical,
+including D20 ratification. Applied `patch/somnus-metadata-2.2.0-D20.patch`
+directly in the backend; overlaid the supplied `somnus-metadata-plugin-1.3.0/`
+payload in the sibling plugin repository. No compatibility fork was introduced.
+The plugin's old `.gitignore.somnus.yaml` was removed because the canonical
+payload embeds that same identity in `.gitignore`. Pre-existing archive/wiki
+moves, research files, supplied folders and ZIPs remain outside release commits.
+
+- PyPI **somnus-metadata 2.2.0** is published; wheel and sdist SHA256 values
+  match the PyPI release API. Strict Twine validation passed for both.
+- Global plain pip fetched **2.2.0** without cache from public PyPI; installed
+  `somnus --version` reports 2.2.0 outside the checkout. Then `pip install
+  somnus-debug` installed **0.1.0** in `~/.venvs/global`.
+- Backend: **579 tests pass**, mypy **55 files clean**, configured Ruff selection
+  passes, SPEC/DECISIONS semantic checks **0 errors / 0 warnings**.
+- Source-built installed acceptance **77/77**; exact uploaded-wheel acceptance
+  **77/77**, **0 failed / 0 not run**, including CLI, real files/SQLite, MCP,
+  carriers/watcher and POSIX terminal consumers. Exact-wheel artifacts:
+  `/tmp/somnus-exact-release-2.2.0-oi12ape7/runs/20261106T123507Z`.
+- Plugin **1.3.0** native export check and **28 tests pass**. Only release repairs:
+  removed an unused test import and narrowed two exception assertions to the
+  actual `SomnusError`; runtime implementation remains the canonical patch.
+- Doctor baseline/rescan cover **49 -> 55 source files**, **373 -> 439 findings**,
+  **71 -> 103 serious**, **0 critical** in both. Delta exits **1**, not green.
+  New findings include defensive parser/status fallbacks, lock/cleanup and
+  watcher error handling, the argv-list/timeout service subprocess runner,
+  a broad decoration-only TUI fallback, and the short JSON carrier class.
+  These static findings are deferred for focused review, not suppressed or
+  presented as runtime failures. No thresholds or scanning scope were weakened.
+  Reports and the full delta: `/tmp/somnus-release-220/`.
+- Initial `python -m build` used a different PATH interpreter without the build
+  frontend; `uv build` successfully produced both artifacts. No source fix was
+  needed. First lint run found the three test issues above; rerun passes.
+
+**Next boundary:** install the published plugin 1.3.0 through the native host
+lifecycle, then prove installed/enabled records and live search. That installation,
+any real-root inline migration, and enabling the global watcher are NOT RUN in
+this release task. Physical Windows/macOS service execution is also NOT RUN.
+No bulk adoption, user-root migration or daemon installation was authorized here.
+
+## D20 implementation handoff — historical sandbox state (2026-11-05)
+
+The following sandbox account predates canonical integration and publication; see the current release evidence above.
+
+- Routing is now filename → pattern → extension → opt-in `"$somnus"` JSON → shebang
+  (`src/somnus/carriers/__init__.py`). `CODEOWNERS`, `MANIFEST.in`, `Dockerfile`,
+  `Makefile`, `.gitignore`, `.env*`, `requirements*.txt`, shebang scripts, `.jsonc`,
+  `tsconfig*.json`, `.ipynb`, and ~50 more extensions embed instead of writing sidecars.
+- New JSON-tree carriers (`carriers/jsonhost.py`): notebooks (`metadata.somnus`, always)
+  and plain JSON (`"$somnus"`, opt-in via `stamp --inline` or `[carriers] json = "key"`).
+- `somnus migrate --inline [--json-key]` moves old sidecars into their hosts (same id,
+  revision + 1). This repo's own `CODEOWNERS` and `MANIFEST.in` were moved.
+- `somnus watch` (foreground loop, `src/somnus/watch.py`) and `somnus daemon
+  status|install|uninstall|stop|once` (`service.py`): stdlib polling, settle-before-stamp,
+  auto-revise of in-place edits, single-instance lock, `watch.json` heartbeat shown in
+  `daemon status`, the TUI browser header, and MCP (`daemon` tool). `watch` is not an
+  MCP tool.
+- Config gains `[carriers]` and `[watch]`; built-in excludes now cover virtualenvs,
+  `site-packages`, `build/`, `dist/`, egg-info.
+- Evidence: 579 unit tests OK; mypy clean (55 files); installed-wheel acceptance
+  77/77 including the new carriers/watch phase.
+- Historical next steps are superseded: D20 is now ratified and 2.2.0 published.
+  Plugin installation is next; root migration and daemon installation require their own task scope.
 
 ## Production payload correction — 2026-11-02
 

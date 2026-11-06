@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-82f5-746c-9c46-31a9320de949"
-#   revision: 1
+#   revision: 2
 #   title: "MCP server: protocol handling, argparse-derived tools, argv construction, and a live stdio session"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-82f5-746c-9c46-31a9320de949"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T06:11:51+00:00"
 #   names:
 #     slug: "mcp-server-protocol-handling-argparse-derived-tools-argv-construction-and-a-live"
 #   knowledge:
@@ -204,7 +205,7 @@ class TestTools(unittest.TestCase):
     def test_every_noninteractive_command_is_a_tool(self) -> None:
         parsers: dict = {}
         build_parser(parsers)
-        self.assertEqual(set(self.tools), set(parsers) - {"edit", "mcp"})
+        self.assertEqual(set(self.tools), set(parsers) - {"edit", "mcp", "watch"})
         for tool in self.tools.values():
             schema = tool.spec["inputSchema"]
             self.assertFalse(schema["additionalProperties"])

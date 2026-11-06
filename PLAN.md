@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
-  revision: 12
+  revision: 13
   title: "Somnus Metadata — Completion and Operator Integration Plan"
   classification:
     category: "operations"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T06:49:21+00:00"
+    updated_at: "2026-11-06T12:36:37+00:00"
   names:
     slug: "somnus-metadata-completion-and-operator-integration-plan"
   knowledge:
@@ -32,6 +32,49 @@ somnus:
     body_role: "narrative"
 ---
 # Somnus Metadata — Completion and Operator Integration Plan
+
+## Canonical D20 release — 2026-11-06
+
+Operator authorized the supplied 2.2.0/D20 patch and plugin 1.3.0 as canonical,
+including D20 ratification. Applied `patch/somnus-metadata-2.2.0-D20.patch`
+directly in the backend; overlaid the supplied `somnus-metadata-plugin-1.3.0/`
+payload in the sibling plugin repository. No compatibility fork was introduced.
+The plugin's old `.gitignore.somnus.yaml` was removed because the canonical
+payload embeds that same identity in `.gitignore`. Pre-existing archive/wiki
+moves, research files, supplied folders and ZIPs remain outside release commits.
+
+- PyPI **somnus-metadata 2.2.0** is published; wheel and sdist SHA256 values
+  match the PyPI release API. Strict Twine validation passed for both.
+- Global plain pip fetched **2.2.0** without cache from public PyPI; installed
+  `somnus --version` reports 2.2.0 outside the checkout. Then `pip install
+  somnus-debug` installed **0.1.0** in `~/.venvs/global`.
+- Backend: **579 tests pass**, mypy **55 files clean**, configured Ruff selection
+  passes, SPEC/DECISIONS semantic checks **0 errors / 0 warnings**.
+- Source-built installed acceptance **77/77**; exact uploaded-wheel acceptance
+  **77/77**, **0 failed / 0 not run**, including CLI, real files/SQLite, MCP,
+  carriers/watcher and POSIX terminal consumers. Exact-wheel artifacts:
+  `/tmp/somnus-exact-release-2.2.0-oi12ape7/runs/20261106T123507Z`.
+- Plugin **1.3.0** native export check and **28 tests pass**. Only release repairs:
+  removed an unused test import and narrowed two exception assertions to the
+  actual `SomnusError`; runtime implementation remains the canonical patch.
+- Doctor baseline/rescan cover **49 -> 55 source files**, **373 -> 439 findings**,
+  **71 -> 103 serious**, **0 critical** in both. Delta exits **1**, not green.
+  New findings include defensive parser/status fallbacks, lock/cleanup and
+  watcher error handling, the argv-list/timeout service subprocess runner,
+  a broad decoration-only TUI fallback, and the short JSON carrier class.
+  These static findings are deferred for focused review, not suppressed or
+  presented as runtime failures. No thresholds or scanning scope were weakened.
+  Reports and the full delta: `/tmp/somnus-release-220/`.
+- Initial `python -m build` used a different PATH interpreter without the build
+  frontend; `uv build` successfully produced both artifacts. No source fix was
+  needed. First lint run found the three test issues above; rerun passes.
+
+**Next boundary:** install the published plugin 1.3.0 through the native host
+lifecycle, then prove installed/enabled records and live search. That installation,
+any real-root inline migration, and enabling the global watcher are NOT RUN in
+this release task. Physical Windows/macOS service execution is also NOT RUN.
+No bulk adoption, user-root migration or daemon installation was authorized here.
+
 
 Updated 2026-11-01 (America/Chicago). Operational handoff, not normative source.
 SPEC.md owns the contract; DECISIONS.md records ratified rationale. Source and

@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-8200-7487-b156-caa120108f9c"
-#   revision: 3
+#   revision: 4
 #   title: "Installed-package acceptance for the somnus wheel (explicit invocation only)"
 #   classification:
 #     category: "engineering"
@@ -18,7 +18,7 @@
 #       - target_ref: "urn:somnus:artifact:01a19a67-8200-7487-b156-caa120108f9c"
 #         aspects: ["content"]
 #   time:
-#     updated_at: "2026-11-02T04:19:42+00:00"
+#     updated_at: "2026-11-06T06:13:37+00:00"
 #   names:
 #     slug: "installed-package-acceptance-for-the-somnus-wheel-explicit-invocation-only"
 #   knowledge:
@@ -116,7 +116,7 @@ MCP_TIMEOUT = 120
 
 EXPECTED_TOOLS = {
     "brief", "bump", "check", "fork", "index", "init", "ls", "migrate",
-    "new", "q", "regions", "schema", "set", "stale", "stamp", "status",
+    "new", "q", "regions", "schema", "set", "stale", "stamp", "status", "daemon",
 }
 
 
@@ -563,6 +563,67 @@ def phase_migrate(inst: Installed) -> None:
                "pass" if code == 0 and "invalid 0" in se else "fail", se.strip())
 
 
+def phase_carriers_and_watch(inst: Installed) -> None:
+    """D20: embedded carriers for formerly sidecar-only hosts, and the installed watcher."""
+    rec = inst.rec
+    root = inst.work / "watched"
+    root.mkdir()
+    hosts = {
+        "CODEOWNERS": "* @owner\n",
+        "Dockerfile": "# syntax=docker/dockerfile:1\nFROM python:3.12\n",
+        "tool": "#!/usr/bin/env bash\necho hi\n",
+        "nb.ipynb": '{\n "cells": [],\n "metadata": {"kernelspec": {"name": "python3"}},\n'
+                    ' "nbformat": 4,\n "nbformat_minor": 5\n}\n',
+    }
+    for name, text in hosts.items():
+        (root / name).write_text(text, encoding="utf-8")
+    code, out, so, se = inst.run(["init", "--root", str(root)])
+    code, out, so, se = inst.run(["stamp", "--write", *[str(root / n) for n in hosts]])
+    sidecars = sorted(p.name for p in root.glob("*.somnus.yaml"))
+    rec.record("carriers: CODEOWNERS, Dockerfile, shebang script, and notebook embed (no sidecar)",
+               "pass" if code == 0 and not sidecars else "fail", f"exit {code}; sidecars {sidecars}")
+    docker = (root / "Dockerfile").read_text(encoding="utf-8").splitlines()
+    tool = (root / "tool").read_text(encoding="utf-8").splitlines()
+    rec.record("carriers: Docker parser directive and shebang stay on line 1",
+               "pass" if docker[0] == "# syntax=docker/dockerfile:1" and tool[0] == "#!/usr/bin/env bash"
+               and docker[-1] == "FROM python:3.12" else "fail", f"{docker[0]!r} {tool[0]!r}")
+    try:
+        nb = json.loads((root / "nb.ipynb").read_text(encoding="utf-8"))
+        nb_ok = "somnus" in nb["metadata"] and nb["metadata"]["kernelspec"] == {"name": "python3"}
+    except (ValueError, KeyError):
+        nb_ok = False
+    rec.record("carriers: notebook payload lives in metadata.somnus and the rest is unchanged",
+               "pass" if nb_ok else "fail")
+    code, out, so, se = inst.run(["check", str(root)])
+    rec.record("carriers: every new carrier validates at core level", "pass" if code == 0 else "fail",
+               out.strip()[-160:])
+
+    code, out, so, se = inst.run(["daemon", "status"])
+    rec.record("watch: status before any run reports never ran", "pass" if code == 1 and "never ran" in out
+               else "fail", out.strip()[:160])
+    fresh = root / "fresh.md"
+    fresh.write_text("# Fresh\n\nwatched body\n", encoding="utf-8")
+    code, out, so, se = inst.run(["watch", str(root), "--once", "--adopt", "--settle", "0"])
+    rec.record("watch: one pass stamps a new file inline",
+               "pass" if code == 0 and fresh.read_text(encoding="utf-8").startswith("---\nsomnus:") else "fail",
+               se.strip()[-200:])
+    with fresh.open("a", encoding="utf-8") as fh:
+        fh.write("edited in place\n")
+    code, out, so, se = inst.run(["watch", str(root), "--once", "--settle", "0"])
+    rec.record("watch: an in-place edit becomes revision 2 with no open conflict",
+               "pass" if code == 0 and 'revision: 2' in fresh.read_text(encoding="utf-8")
+               and fresh.read_text(encoding="utf-8").endswith("edited in place\n") else "fail", se.strip()[-200:])
+    code, out, so, se = inst.run(["q", "--conflicts"])
+    rec.record("watch: the registry has no open revision conflict after auto-revise",
+               "pass" if "revision " not in so else "fail", so.strip()[:160])
+    code, out, so, se = inst.run(["daemon", "status"])
+    rec.record("watch: status reads the heartbeat (stopped after --once)",
+               "pass" if code == 1 and "stopped" in out and "revised" in out else "fail", out.strip()[:200])
+    code, out, so, se = inst.run(["daemon", "install", "--dry-run"])
+    rec.record("watch: daemon install --dry-run prints the service and changes nothing",
+               "pass" if code == 0 and "somnus watch" in so else "fail", so.strip()[:160])
+
+
 def phase_diagnostics(inst: Installed) -> None:
     rec = inst.rec
     unstamped = inst.work / "unstamped-note.md"
@@ -989,7 +1050,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             return 2
         for phase in (phase_install, phase_lifecycle, phase_host_preservation,
                       phase_conflicts_and_recovery, phase_migrate, phase_diagnostics,
-                      phase_agent_hints, phase_mcp, phase_tui_browser, phase_tui_pty):
+                      phase_agent_hints, phase_mcp, phase_carriers_and_watch, phase_tui_browser, phase_tui_pty):
             phase(inst)
         run_dir = write_artifacts(rec, root, inst.wheel, repo)
         failed = [r for r in rec.results if r["status"] == "fail"]

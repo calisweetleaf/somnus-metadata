@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-80d7-7591-90c7-6436e6c5e580"
-#   revision: 1
+#   revision: 2
 #   title: "Multi-stage validation pipeline: carrier, core, semantic, canon (SPEC §19)"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-80d7-7591-90c7-6436e6c5e580"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T06:11:49+00:00"
 #   names:
 #     slug: "multi-stage-validation-pipeline-carrier-core-semantic-canon-spec-19"
 #   knowledge:
@@ -701,9 +702,14 @@ def selectors(run: _Run, somnus: dict) -> None:
             if count != 1:
                 run.err(sp, "E_REGION", f"expected exactly one definition of {name!r}, found {count}")
         elif kind == "json-pointer":
-            target = primary_target(somnus, doc.meta_path) if doc.is_sidecar else None
+            if doc.is_sidecar:
+                target = primary_target(somnus, doc.meta_path)
+            elif doc.carrier.name in ("json", "ipynb"):
+                target = doc.path
+            else:
+                target = None
             if target is None or not target.is_file():
-                run.err(sp, "E_REGION", "json-pointer selectors need a sidecar with a resolvable primary target")
+                run.err(sp, "E_REGION", "json-pointer selectors need a JSON host (sidecar primary target or $somnus carrier)")
                 continue
             try:
                 tree = json.loads(target.read_text(encoding="utf-8"))

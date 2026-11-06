@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a7a-db54-7732-bbce-453ddafc4c56"
-  revision: 1
+  revision: 2
   title: "Scope — complete all-file discovery for registry adoption"
   classification:
     category: "engineering"
@@ -17,7 +17,8 @@ somnus:
     scopes:
       - target_ref: "urn:somnus:artifact:01a19a7a-db54-7732-bbce-453ddafc4c56"
         aspects: ["content"]
-  time: {}
+  time:
+    updated_at: "2026-11-06T12:36:38+00:00"
   names:
     slug: "scope-complete-all-file-discovery-for-registry-adoption"
   knowledge:
@@ -31,6 +32,18 @@ somnus:
     body_role: "narrative"
 ---
 # Scope — complete all-file discovery for registry adoption
+
+## Current release engagement — 2026-11-06
+
+- Mode: EDIT (canonical integration and release, not a reimplementation).
+- Source: operator-supplied `patch/somnus-metadata-2.2.0-D20.patch`.
+- Targets: supplied backend source/tests/contract files and sibling plugin 1.3.0.
+- Justification: directly integrate the authorized canonical work into main;
+  preserve stdlib-only runtime, project layout and unrelated working-tree state.
+- Follow-up repairs: unused test import and exact SomnusError assertions only.
+- PLAN.md and HANDOFF.md own fresh release evidence and deferred diagnostics.
+
+## Previous engagement — historical
 
 ## Engagement mode
 

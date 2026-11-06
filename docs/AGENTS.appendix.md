@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-7907-71e6-a510-f7373ce06ffc"
-  revision: 1
+  revision: 2
   title: "Global AGENTS.md Appendix for Somnus Metadata"
   classification:
     category: "engineering"
@@ -17,7 +17,8 @@ somnus:
     scopes:
       - target_ref: "urn:somnus:artifact:01a19a67-7907-71e6-a510-f7373ce06ffc"
         aspects: ["content"]
-  time: {}
+  time:
+    updated_at: "2026-11-06T06:11:46+00:00"
   names:
     slug: "global-agents-md-appendix-for-somnus-metadata"
   knowledge:
@@ -41,13 +42,13 @@ Why this block is needed: installing `somnus-metadata-plugin` registers the `som
 
 A global Somnus Metadata SQLite registry (`~/.somnus/somnus.db`, core `somnus://metadata/core/2.0.0`) tracks documents, source files, configurations, and sidecar-backed artifacts across registered repositories. Two equivalent surfaces reach it:
 
-- **MCP server `somnus-metadata`**: 16 tools (`q`, `ls`, `check`, `stamp`, `new`, `set`, `status`, `bump`, `index`, `stale`, `fork`, `regions`, `migrate`, `schema`, `init`, `brief`).
+- **MCP server `somnus-metadata`**: 17 tools (`q`, `ls`, `check`, `stamp`, `new`, `set`, `status`, `bump`, `index`, `stale`, `fork`, `regions`, `migrate`, `schema`, `init`, `brief`, `daemon`).
 - **CLI `somnus`** (alias `somnus-metadata` in 2.1.0+): identical subcommands and flags (`~/.local/bin/somnus`). Activate the `somnus-metadata` skill when available, or run `somnus brief` (MCP: `brief`) for the live command table.
 
 ### Proactive use
 
 1. **Search before creating.** Before creating a new specification, plan, decision record, runbook, report, or architecture record, search the registry with `q --text "key words"` (every word must match; `word*` is a prefix) and `ls --type TYPE` or `ls --tag TAG`. If a matching artifact exists, extend or `fork` it instead of creating a duplicate.
-2. **Adopt files the operator wants tracked.** Unmanaged files are invisible to `ls` and `q --text`. Preview adoption with `stamp /abs/file`, then apply with `stamp /abs/file --write` (inserts frontmatter in Markdown, a comment envelope in code/config while preserving host bytes, or a `<file>.somnus.yaml` sidecar for any other file type).
+2. **Adopt files the operator wants tracked.** Unmanaged files are invisible to `ls` and `q --text`. Preview adoption with `stamp /abs/file`, then apply with `stamp /abs/file --write` (inserts frontmatter in Markdown, a comment envelope in code, config, and build files while preserving host bytes, `metadata.somnus` in notebooks, or a `<file>.somnus.yaml` sidecar only for formats with no place for it). If the watcher is running (`daemon status`), new files are stamped and in-place edits are recorded as revisions automatically; re-read a file before touching its envelope.
 3. **Validate after edits.** After editing any managed file, run `check /abs/file --level semantic`.
 4. **Close substantial doc work with a health check.** Run `index`, `q --conflicts`, and `stale`.
 

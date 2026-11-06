@@ -1,3 +1,36 @@
+# somnus:metadata:v2
+# somnus:
+#   schema: "somnus://metadata/core/2.0.0"
+#   id: "urn:somnus:artifact:01a19a67-78cd-7487-a906-ac679ac1471f"
+#   revision: 2
+#   title: "MANIFEST"
+#   classification:
+#     category: "engineering"
+#     type: "asset"
+#     role: "informative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-78cd-7487-a906-ac679ac1471f"
+#         aspects: ["content"]
+#   time:
+#     updated_at: "2026-11-06T06:11:51+00:00"
+#   names:
+#     slug: "manifest"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-78cd-7487-a906-ac679ac1471f"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "mixed"
+# somnus:end
 # Publish the toolkit, not the operator workspace or private research.
 include pyproject.toml README.md
 recursive-include src/somnus *.py *.sql

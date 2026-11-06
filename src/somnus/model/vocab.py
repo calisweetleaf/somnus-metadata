@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-80f6-7026-96bc-804acec241bf"
-#   revision: 1
+#   revision: 2
 #   title: "Controlled vocabularies of core schema 2.0.0 (SPEC §5, §7–§15)"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-80f6-7026-96bc-804acec241bf"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T06:11:50+00:00"
 #   names:
 #     slug: "controlled-vocabularies-of-core-schema-2-0-0-spec-5-7-15"
 #   knowledge:
@@ -62,6 +63,7 @@ CAPABILITIES = (
     "somnus-adapter-markdown@1", "somnus-adapter-html-comment@1", "somnus-adapter-hash-comment@1",
     "somnus-adapter-tex@1", "somnus-adapter-slash-comment@1", "somnus-adapter-sql-comment@1",
     "somnus-adapter-block-comment@1", "somnus-adapter-sidecar@1",
+    "somnus-adapter-json-key@1", "somnus-adapter-notebook@1",
 )
 
 VALID_TIME_BASES = ("bounded", "open", "timeless", "unknown")

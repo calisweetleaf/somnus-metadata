@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-8008-7589-8040-372fd8ff4a8f"
-#   revision: 1
+#   revision: 2
 #   title: "Heuristic title and classification inference for somnus stamp"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-8008-7589-8040-372fd8ff4a8f"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T06:11:49+00:00"
 #   names:
 #     slug: "heuristic-title-and-classification-inference-for-somnus-stamp"
 #   knowledge:
@@ -84,7 +85,22 @@ _TYPE_DEFAULTS: dict[str, tuple[str, str, str]] = {
 _SOURCE = {".py", ".pyw", ".sh", ".bash", ".zsh", ".ps1", ".psm1", ".r", ".js", ".mjs", ".cjs", ".jsx", ".ts",
            ".tsx", ".rs", ".c", ".h", ".cc", ".cpp", ".hpp", ".go", ".java", ".kt", ".swift", ".cs", ".sql",
            ".css", ".scss", ".less", ".html", ".htm"}
-_CONFIG = {".toml", ".yaml", ".yml", ".ini", ".cfg", ".psd1", ".xml"}
+_SOURCE |= {".rb", ".rake", ".gemspec", ".pl", ".pm", ".jl", ".ex", ".exs", ".cr", ".nim", ".tcl", ".awk",
+            ".sed", ".fish", ".lua", ".hs", ".elm", ".ada", ".adb", ".ads", ".zig", ".dart", ".scala",
+            ".proto", ".groovy", ".gradle", ".mm", ".sol", ".hx", ".glsl", ".hlsl", ".wgsl", ".cu", ".cuh",
+            ".vue", ".svelte", ".astro", ".mts", ".cts", ".pyi", ".pyx", ".mojo", ".tf", ".hcl", ".nix",
+            ".graphql", ".gql", ".mk", ".cmake", ".xsl", ".xslt", ".dockerfile", ".containerfile"}
+_CONFIG = {".toml", ".yaml", ".yml", ".ini", ".cfg", ".psd1", ".xml", ".conf", ".properties", ".env",
+           ".editorconfig", ".tfvars", ".jsonc", ".json5", ".plist", ".csproj", ".vcxproj", ".resx", ".xsd",
+           ".gitignore", ".gitattributes", ".dockerignore", ".npmignore"}
+_CONFIG_NAMES = {"CODEOWNERS", "MANIFEST.in", "Makefile", "makefile", "GNUmakefile", "CMakeLists.txt", "Dockerfile",
+                 "Containerfile", "Gemfile", "Rakefile", "Vagrantfile", "Brewfile", "Podfile", "Justfile",
+                 "justfile", "Pipfile", "Caddyfile", "Tiltfile", "BUILD", "BUILD.bazel", "WORKSPACE",
+                 "tsconfig.json", "jsconfig.json", "devcontainer.json", ".devcontainer.json", ".eslintrc.json",
+                 ".babelrc", "tslint.json", "package.json", "pyproject.toml", "Cargo.toml", "go.mod"}
+_CONFIG_PREFIXES = ("requirements", "constraints", ".env", "Dockerfile.", "Containerfile.", "tsconfig.",
+                    "jsconfig.", ".git", ".npm", ".yarn", ".prettier", ".eslint", ".flake8", ".pylintrc",
+                    ".coveragerc", ".editorconfig", ".clang-")
 _DATA = {".json", ".csv", ".tsv", ".parquet", ".jsonl", ".ndjson", ".sqlite", ".db"}
 _ASSET = {".png", ".jpg", ".jpeg", ".gif", ".svg", ".pdf", ".docx", ".pptx", ".xlsx", ".zip", ".ico", ".webp"}
 
@@ -104,6 +120,8 @@ def infer_type(path: Path, lines: Sequence[str]) -> str:
     """Infer the artifact type from extension, filename keywords, and content."""
     suffix = path.suffix.lower()
     stem = path.stem.lower()
+    if path.name in _CONFIG_NAMES or path.name.startswith(_CONFIG_PREFIXES):
+        return "configuration"
     if suffix in (".md", ".markdown", ".mdx", ".txt", ".rst"):
         for pattern, kind in _MD_KEYWORDS:
             if re.search(pattern, stem):
@@ -123,6 +141,8 @@ def infer_type(path: Path, lines: Sequence[str]) -> str:
         return "asset"
     if suffix == ".ipynb":
         return "report"
+    if lines and lines[0].startswith("#!"):
+        return "source-code"
     return "asset"
 
 

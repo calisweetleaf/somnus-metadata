@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-8156-75ee-b790-6ee44e372f93"
-#   revision: 1
+#   revision: 2
 #   title: "Full-screen document browser and header editor behind somnus edit"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-8156-75ee-b790-6ee44e372f93"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T06:11:50+00:00"
 #   names:
 #     slug: "full-screen-document-browser-and-header-editor-behind-somnus-edit"
 #   knowledge:
@@ -418,11 +419,27 @@ class BrowserScreen:
         left_w, right_w = split_widths(width, BROWSER_RATIO)
         left = self.list.render(left_w, body_h)
         right = detail_lines(self.list.selected, right_w)[:body_h]
-        lines = [highlight(f"somnus edit: {len(self.list.items)} documents in registry", width)]
+        lines = [highlight(f"somnus edit: {len(self.list.items)} documents in registry{watch_label(self.ctx)}", width)]
         lines.extend(split(left, right, width, BROWSER_RATIO))
         lines.append(self.message)
         lines.append("[/] filter  [enter] edit header  [r] reload  [q] quit")
         return [fit(line, width) for line in lines[:height]]
+
+
+def watch_label(ctx: Any) -> str:
+    """Header suffix with the 24/7 watcher state (empty when unknown)."""
+    try:
+        from somnus.watch import read_status
+
+        data = read_status(ctx.cfg.home)
+    except Exception:  # noqa: BLE001 - the label is decoration; never break the frame
+        return ""
+    if not data:
+        return "  |  watcher: not installed"
+    if not data.get("running"):
+        return "  |  watcher: stopped"
+    c = data.get("counters", {})
+    return f"  |  watcher: live ({c.get('stamped', 0)} stamped, {c.get('revised', 0)} revised)"
 
 
 def main(ctx: Ctx, path: Optional[Path]) -> int:

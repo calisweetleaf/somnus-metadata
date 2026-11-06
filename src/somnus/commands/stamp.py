@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-7f3d-71cd-bef4-805c42c9501a"
-#   revision: 1
+#   revision: 2
 #   title: "somnus stamp: infer and inject a header into unmanaged files"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-7f3d-71cd-bef4-805c42c9501a"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T06:11:48+00:00"
 #   names:
 #     slug: "somnus-stamp-infer-and-inject-a-header-into-unmanaged-files"
 #   knowledge:
@@ -38,8 +39,26 @@ from pathlib import Path
 from typing import Optional
 
 from somnus import document as D
+from somnus.carriers.jsonhost import JSON_KEY, object_members
 from somnus.commands._common import Ctx, check_text, display, inferred_payload, note, unified
 from somnus.output import EXIT_OK, SomnusError, emit
+
+
+def json_inline(host: Path, args, ctx: Ctx) -> bool:
+    """True when a plain ``.json`` host should carry ``"$somnus"`` instead of a sidecar.
+
+    Opt-in per call (``--inline``) or per configuration (``[carriers] json = "key"``);
+    only object documents qualify (arrays and scalars always use a sidecar).
+    """
+    if host.suffix.lower() != ".json":
+        return False
+    if not (getattr(args, "inline", False) or ctx.cfg.json_carrier == "key"):
+        return False
+    try:
+        object_members(host.read_text(encoding="utf-8-sig"), 0)
+    except (OSError, ValueError):
+        return False
+    return True
 
 
 def _plan(path: Path, args, ctx: Ctx) -> Optional[tuple[Path, str, str, dict]]:
@@ -47,6 +66,10 @@ def _plan(path: Path, args, ctx: Ctx) -> Optional[tuple[Path, str, str, dict]]:
     doc = D.load(path)
     if doc.envelope is not None or doc.issues:
         return None
+    if doc.is_sidecar and not doc.meta_path.exists() and json_inline(doc.path, args, ctx):
+        doc = D.as_carrier(doc.path, JSON_KEY)
+        if doc.envelope is not None or doc.issues:
+            return None
     if doc.is_sidecar:
         if doc.meta_path.exists():
             return None

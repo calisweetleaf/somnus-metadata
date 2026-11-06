@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a12ac7-1fd7-7079-a78f-7426391f187d"
-  revision: 5
+  revision: 7
   title: "Somnus Metadata Ratified Decisions D1-D19"
   summary: "Ratified architecture decisions governing SPEC.md and the somnus toolkit."
   classification:
@@ -20,7 +20,7 @@ somnus:
         aspects: ["content", "governance"]
   time:
     created_at: "2026-10-11T11:44:15+00:00"
-    updated_at: "2026-10-31T22:01:36+00:00"
+    updated_at: "2026-11-06T12:35:12+00:00"
   names:
     slug: "somnus-metadata-decisions"
   knowledge:
@@ -34,7 +34,7 @@ somnus:
     body_role: "narrative"
 ---
 
-# Somnus Metadata — Ratified Decisions D1–D19
+# Somnus Metadata — Ratified Decisions D1–D20
 
 These decisions govern [SPEC.md](SPEC.md) and the `somnus` toolkit in `src/somnus/`.
 The operator ratified D1–D15 by approving the implementation plan ([PLAN.md](PLAN.md)),
@@ -66,6 +66,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 | D17 | MCP server as a thin CLI adapter | new | §20 |
 | D18 | Near-duplicate titles are a registry advisory, not a warning code | new | §19.2 |
 | D19 | Full-text search as a derived registry index | new | §18.4, §20 |
+| D20 | Universal embedded carriers and the always-on watcher | new | §17, §18.5, §20 |
 
 ---
 
@@ -348,6 +349,35 @@ consequences. SPEC section numbers are cited where the decision is enforced.
   This is an optional feature under §23. The core schema URI stays
   `somnus://metadata/core/2.0.0` because no artifact field changes.
 
+## D20 — Universal embedded carriers and the always-on watcher
+
+- **Status:** RATIFIED by the operator on 2026-11-06; canonical integration and publication authorized.
+- **Context:** The operator's intent is one full envelope inside every document
+  that can carry it, kept current by a global service that runs continuously; MCP
+  only serves the CLI to agents. The 2.1 implementation routed carriers by file
+  extension alone, so comment-capable hosts with no or unusual extensions
+  (`CODEOWNERS`, `MANIFEST.in`, `Dockerfile`, `.gitignore`, shebang scripts,
+  `.ipynb`, `tsconfig.json`) fell through to `<file>.somnus.yaml` sidecars, and
+  nothing ran between explicit `somnus index` calls. Every in-place edit became an
+  open revision conflict until someone ran `somnus bump`.
+- **Alternatives:** (A) Keep extension routing and document sidecars as normal. (B)
+  Embed metadata in every file, including strict JSON by default. (C) Route by
+  filename, pattern, extension, then shebang; add JSON-tree carriers for notebooks
+  (always) and plain JSON (opt-in); migrate existing sidecars; add a stdlib polling
+  watcher installed as a user service.
+- **Decision:** (C). Routing order and the new carriers are SPEC §17; the watcher is
+  §18.5. Plain `.json` stays a sidecar by default because adding a member changes
+  the host data tree that strict consumers validate; operators opt in per file or
+  per configuration. The watcher stamps only inline-capable hosts by default (never
+  new sidecars), adopts pre-existing files only on request, and records in-place
+  edits as new revisions under actor `somnus-watch` (`revise = "auto"`).
+- **Consequences:** Sidecars remain only for hosts with no comment syntax and no
+  JSON-tree carrier (plain text, CSV, binaries, strict JSON by default) and for
+  multi-binding records. Existing sidecars stay valid; `somnus migrate --inline`
+  moves them. Two new capability IDs: `somnus-adapter-json-key@1` and
+  `somnus-adapter-notebook@1`. No artifact field changes, so the core schema URI
+  stays `somnus://metadata/core/2.0.0`; the package release becomes 2.2.0.
+
 ---
 
 ## Ratification tracker
@@ -358,6 +388,7 @@ consequences. SPEC section numbers are cited where the decision is enforced.
 | D16–D17 | ACCEPTED | Operator selection during the agent-usability review (2026-10-11) |
 | D18 | ACCEPTED | Operator decision on the completion commission (2026-10-23) |
 | D19 | ACCEPTED | Operator direction to add content search to the registry (2026-10-31) |
+| D20 | RATIFIED | Operator direction (2026-11-05), canonical integration and publication approval (2026-11-06) |
 
 Changing a decision requires a new revision of this document (`somnus bump`) and a
 matching SPEC release under §23.

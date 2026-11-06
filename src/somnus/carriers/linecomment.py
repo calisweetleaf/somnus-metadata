@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-7d39-7300-a172-9e6fba2a9f4a"
-#   revision: 1
+#   revision: 2
 #   title: "Comment-prefixed carriers: # , % , // , --  (SPEC §17.3, §17.5)"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-7d39-7300-a172-9e6fba2a9f4a"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T06:11:47+00:00"
 #   names:
 #     slug: "comment-prefixed-carriers-spec-17-3-17-5"
 #   knowledge:
@@ -42,13 +43,15 @@ from somnus.carriers import Envelope, Extraction, Issue, Splice
 _COOKIE = re.compile(r"^[ \t\f]*#.*?coding[:=][ \t]*[-\w.]+")
 _REQUIRES = re.compile(r"^#requires\b", re.IGNORECASE)
 _TEX_MAGIC = re.compile(r"^%\s*!tex\b", re.IGNORECASE)
+_DOCKER_DIRECTIVE = re.compile(r"^#\s*[A-Za-z][A-Za-z0-9]*\s*=")
+_SHEBANG_HOSTS = ("python", "shell", "r", "js", "powershell", "hash", "lua")
 
 
 def preamble_end(host: str, lines: list[str]) -> int:
     """Return the index of the first line after mandatory host preamble lines."""
     i = 0
     n = len(lines)
-    if host in ("python", "shell", "r", "js", "powershell") and n and lines[0].startswith("#!"):
+    if host in _SHEBANG_HOSTS and n and lines[0].startswith("#!"):
         i = 1
     if host == "python":
         if i == 0 and n and _COOKIE.match(lines[0]):
@@ -57,6 +60,10 @@ def preamble_end(host: str, lines: list[str]) -> int:
             i = 2
     elif host == "powershell":
         while i < n and _REQUIRES.match(lines[i]):
+            i += 1
+    elif host == "dockerfile":
+        # BuildKit parser directives (# syntax=, # escape=, # check=) must stay first.
+        while i < n and _DOCKER_DIRECTIVE.match(lines[i]):
             i += 1
     elif host == "tex":
         while i < n and _TEX_MAGIC.match(lines[i]):

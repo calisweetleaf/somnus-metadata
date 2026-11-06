@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-8226-7442-8702-51eb9762b2b5"
-#   revision: 1
+#   revision: 2
 #   title: "Carriers: envelope extraction, insertion, preambles, host preservation (SPEC section 17)"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-8226-7442-8702-51eb9762b2b5"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T06:11:50+00:00"
 #   names:
 #     slug: "carriers-envelope-extraction-insertion-preambles-host-preservation-spec-section"
 #   knowledge:
@@ -110,7 +111,7 @@ class TestDetection(unittest.TestCase):
                 self.assertEqual(carriers.for_path(Path("f" + ext)).name, "markdown")
 
     def test_sidecar_required(self) -> None:
-        for name in ("state.json", "doc.pdf", "img.png", "nb.ipynb", "noext", "x.somnus.yaml", "a.json.somnus.yaml"):
+        for name in ("state.json", "doc.pdf", "img.png", "noext", "x.somnus.yaml", "a.json.somnus.yaml"):
             with self.subTest(name=name):
                 self.assertIsNone(carriers.for_path(Path(name)))
 

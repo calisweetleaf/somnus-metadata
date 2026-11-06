@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-7d80-716b-9aec-7612ca19c965"
-#   revision: 1
+#   revision: 2
 #   title: "Argument parsing and lazy command dispatch for the somnus CLI (SPEC §20)"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-7d80-716b-9aec-7612ca19c965"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T06:11:47+00:00"
 #   names:
 #     slug: "argument-parsing-and-lazy-command-dispatch-for-the-somnus-cli-spec-20"
 #   knowledge:
@@ -89,6 +90,8 @@ def build_parser(commands: Optional[dict[str, argparse.ArgumentParser]] = None) 
     p.add_argument("--write", action="store_true")
     p.add_argument("--type", choices=vocab.TYPES)
     p.add_argument("--title")
+    p.add_argument("--inline", action="store_true",
+                   help="embed in plain .json object files as a leading \"$somnus\" key instead of a sidecar")
 
     p = cmd("check", "validate documents and print diagnostics")
     p.add_argument("paths", nargs="*", metavar="PATH")
@@ -145,9 +148,13 @@ def build_parser(commands: Optional[dict[str, argparse.ArgumentParser]] = None) 
     p.add_argument("--sync", action="store_true", help="register unregistered markers")
     p.add_argument("--write", action="store_true")
 
-    p = cmd("migrate", "upgrade v0.1 documents (dry-run diff unless --write)")
+    p = cmd("migrate", "upgrade v0.1 documents, or move sidecars inline with --inline (dry-run diff unless --write)")
     p.add_argument("paths", nargs="+", metavar="PATH")
     p.add_argument("--write", action="store_true")
+    p.add_argument("--inline", action="store_true",
+                   help="move <file>.somnus.yaml headers into hosts that now have an embedded carrier")
+    p.add_argument("--json-key", dest="json_key", action="store_true",
+                   help="with --inline: also embed plain .json object files as a leading \"$somnus\" key")
 
     p = cmd("stale", "report stale drafts, missing files, near-duplicates, and conflicts")
     p.add_argument("--days", type=int, default=30, metavar="N")
@@ -161,6 +168,25 @@ def build_parser(commands: Optional[dict[str, argparse.ArgumentParser]] = None) 
 
     p = cmd("edit", "terminal UI: document browser, or header editor")
     p.add_argument("path", nargs="?", metavar="PATH")
+
+    p = cmd("watch", "run the always-on watcher in the foreground (stamps and indexes registered roots)")
+    p.add_argument("roots", nargs="*", metavar="ROOT", help="roots to watch (default: every registered root)")
+    p.add_argument("--interval", type=float, metavar="SECONDS", help="poll interval (config watch.interval)")
+    p.add_argument("--settle", type=float, metavar="SECONDS",
+                   help="quiet time before a new file is stamped (config watch.settle)")
+    p.add_argument("--stamp", choices=("off", "inline", "all"),
+                   help="unmanaged files: off = index only, inline = embed where a carrier exists, all = also sidecars")
+    p.add_argument("--adopt", action="store_true", help="also stamp files that were unmanaged before the watcher started")
+    p.add_argument("--revise", choices=("off", "auto"),
+                   help="auto = record in-place edits as new revisions (config watch.revise)")
+    p.add_argument("--once", action="store_true", help="one pass, then exit")
+    p.add_argument("--quiet", action="store_true", help="no per-file log lines")
+
+    p = cmd("daemon", "manage the 24/7 watcher service: status, install, uninstall, stop, once")
+    p.add_argument("action", choices=("status", "install", "uninstall", "stop", "once"), metavar="ACTION",
+                   help="status | install | uninstall | stop | once")
+    p.add_argument("--dry-run", dest="dry_run", action="store_true", help="install/uninstall: print, change nothing")
+    p.add_argument("--adopt", action="store_true", help="once: also stamp files that were already unmanaged")
 
     cmd("mcp", "serve the non-interactive commands as MCP tools over stdio")
     return parser
