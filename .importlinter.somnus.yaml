@@ -1,7 +1,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-7849-76e4-ae2e-e4d6dd7ba419"
-  revision: 1
+  revision: 2
   title: ".importlinter"
   classification:
     category: "engineering"
@@ -16,7 +16,8 @@ somnus:
     scopes:
       - target_ref: "urn:somnus:artifact:01a19a67-7849-76e4-ae2e-e4d6dd7ba419"
         aspects: ["content"]
-  time: {}
+  time:
+    updated_at: "2026-11-06T12:39:37+00:00"
   names:
     slug: "importlinter"
   knowledge:
