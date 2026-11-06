@@ -71,7 +71,7 @@ For editable development from a source checkout, use `pip install -e .` in a vir
 The installed tool works outside this repository; register the project roots you
 want to manage with `somnus init --root /path/to/project`.
 
-Somnus Metadata **2.2.0** implements metadata core **2.0.0** and registry schema **2** (with `somnus q --text` full-text search, the `somnus-metadata` command alias, universal embedded carriers, and the always-on `somnus watch` service).
+Somnus Metadata **2.2.1** (source revision; PyPI currently **2.2.0**) implements metadata core **2.0.0** and registry schema **2** (with `somnus q --text` full-text search, the `somnus-metadata` command alias, universal embedded carriers, and the always-on `somnus watch` service).
 `somnus index` reports unmanaged hosts of every file type, including files that need a new sidecar, without loading unmanaged binary content.
 The material under `archive/v2-proposal/` is historical, not the active release.
 The backend, the terminal UI, the CLI, the always-on watcher, and the stdio MCP adapter share one core. A distributable
