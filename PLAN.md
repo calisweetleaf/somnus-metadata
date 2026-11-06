@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
-  revision: 16
+  revision: 17
   title: "Somnus Metadata — Completion and Operator Integration Plan"
   classification:
     category: "operations"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-06T12:41:13+00:00"
+    updated_at: "2026-11-06T23:17:29+00:00"
   names:
     slug: "somnus-metadata-completion-and-operator-integration-plan"
   knowledge:
@@ -32,6 +32,32 @@ somnus:
     body_role: "narrative"
 ---
 # Somnus Metadata — Completion and Operator Integration Plan
+
+## Supplied revision correction: 2.2.1 (prepared, not published)
+
+On 2026-11-06, independent comparison established that PyPI 2.2.0 exactly matches
+main at 8768811 but omits changes present in the supplied branch ZIP. PR #10
+restores the supplied heartbeat module and its daemon/TUI consumers, and filename
+routing for .importlinter, .pre-commit-config.yaml and .ruff.toml. The unnecessary
+TUI-to-watch import exception is removed. Later cross-platform test repairs are
+retained; metadata core remains 2.0.0.
+
+Verification: 579 unit tests, mypy 56 files, configured Ruff checks, all six import
+contracts, 87.44% coverage, 77/77 installed-package acceptance checks (real SQLite,
+MCP, watcher and POSIX PTY), strict Twine validation of wheel and sdist, and green
+hosted CI and CodeQL on implementation commit d0ee1e0.
+
+Plugin 1.3.0 exactly matches the supplied ZIP; native export and all 28 tests pass.
+It remains private. Issues #2, #3, #4 and #6 were already resolved and are closed:
+D18 removed the undefined warning, registry notes use the TUI status line, real
+POSIX PTY tests exist, and the working documents have valid metadata headers.
+Issue #5 remains the outstanding migration-function refactor.
+
+PyPI 2.2.1 is NOT published: this cloud environment has no publishing credentials,
+and the connected laptop is offline. Complete the existing release runbook with
+the authorized publisher, verify public artifact hashes and a fresh installation,
+then update the README publication status. No tag or GitHub Release was created.
+The expired Factory subscription still blocks wiki refresh.
 
 ## Canonical D20 release — 2026-11-06
 

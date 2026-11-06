@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-7ce9-703e-abd4-42f16c7c1680"
-#   revision: 2
+#   revision: 3
 #   title: "Carrier protocol, registry, and extension-based auto-detection (SPEC §17)"
 #   classification:
 #     category: "engineering"
@@ -18,7 +18,7 @@
 #       - target_ref: "urn:somnus:artifact:01a19a67-7ce9-703e-abd4-42f16c7c1680"
 #         aspects: ["content"]
 #   time:
-#     updated_at: "2026-11-06T06:11:47+00:00"
+#     updated_at: "2026-11-06T08:15:27+00:00"
 #   names:
 #     slug: "carrier-protocol-registry-and-extension-based-auto-detection-spec-17"
 #   knowledge:
@@ -200,7 +200,7 @@ FILENAMES: dict[str, str] = {
     ".gitignore": "hash", ".gitattributes": "hash", ".gitmodules": "hash", ".dockerignore": "hash",
     ".npmignore": "hash", ".prettierignore": "hash", ".eslintignore": "hash", ".hgignore": "hash",
     ".editorconfig": "hash", ".env": "hash", ".flake8": "hash", ".pylintrc": "hash",
-    ".coveragerc": "hash", ".bashrc": "shell", ".bash_profile": "shell", ".profile": "shell",
+    ".coveragerc": "hash", ".importlinter": "hash", ".pre-commit-config.yaml": "yaml", ".ruff.toml": "toml", ".bashrc": "shell", ".bash_profile": "shell", ".profile": "shell",
     ".zshrc": "shell", ".zprofile": "shell", ".inputrc": "hash", ".npmrc": "hash",
     ".yarnrc": "hash", ".condarc": "yaml", ".clang-format": "yaml", ".clang-tidy": "yaml",
     "tsconfig.json": "jsonc", "jsconfig.json": "jsonc", "devcontainer.json": "jsonc",

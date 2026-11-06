@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-7c9e-74d4-9f7e-712091342607"
-  revision: 2
+  revision: 3
   title: "Package release and installation"
   classification:
     category: "engineering"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-7c9e-74d4-9f7e-712091342607"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T04:45:31+00:00"
+    updated_at: "2026-11-06T23:17:28+00:00"
   names:
     slug: "package-release-and-installation"
   knowledge:
@@ -37,7 +37,7 @@ somnus:
 
 - Package index: PyPI, https://pypi.org/project/somnus-metadata/
 - Distribution: somnus-metadata. Python package and console command: somnus.
-- Current source toolkit version: 2.1.0 (registry schema 2, D19); latest published PyPI release: 2.0.0; metadata core is 2.0.0.
+- Current source toolkit version: 2.2.1 (registry schema 2, D20); latest verified PyPI release: 2.2.0; metadata core is 2.0.0.
 - The first 0.1.0 upload was a stale-metadata versioning error, not v1 canon.
 - PyPI project owner observed after publication: somnus.
 - Do not publish as somnus: that PyPI name belongs to an unrelated project.
@@ -55,8 +55,7 @@ somnus edit
 
 Alternative: `pipx install somnus-metadata`. For an existing application venv,
 `python -m pip install somnus-metadata`. MCP clients launch `somnus mcp`.
-The distributable agent plugin remains separate and deferred pending official
-host-agnostic integration materials.
+The agent plugin remains a separate repository, `calisweetleaf/somnus-metadata-plugin`, at 1.3.0.
 
 ## Release procedure
 

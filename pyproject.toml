@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-7c64-76c7-b059-2683252beb45"
-#   revision: 3
+#   revision: 4
 #   title: "Pyproject"
 #   classification:
 #     category: "engineering"
@@ -18,7 +18,7 @@
 #       - target_ref: "urn:somnus:artifact:01a19a67-7c64-76c7-b059-2683252beb45"
 #         aspects: ["content"]
 #   time:
-#     updated_at: "2026-11-06T06:11:46+00:00"
+#     updated_at: "2026-11-06T23:17:28+00:00"
 #   names:
 #     slug: "pyproject"
 #   knowledge:
@@ -37,7 +37,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "somnus-metadata"
-version = "2.2.0"
+version = "2.2.1"
 description = "Universal semantic metadata standard and engineering toolkit"
 readme = "README.md"
 requires-python = ">=3.11"

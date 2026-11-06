@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a1af7c-0a01-706c-8a98-619b5a23d480"
-#   revision: 1
+#   revision: 2
 #   title: "somnus daemon: install, inspect, and stop the 24/7 watcher service (D20)"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a1af7c-0a01-706c-8a98-619b5a23d480"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T08:15:27+00:00"
 #   names:
 #     slug: "somnus-daemon-install-inspect-and-stop-the-24-7-watcher-service-d20"
 #   knowledge:
@@ -41,7 +42,8 @@ import time
 from somnus import service
 from somnus.commands._common import Ctx, note
 from somnus.output import EXIT_INVALID, EXIT_OK, emit
-from somnus.watch import Settings, Watcher, read_status
+from somnus.heartbeat import read_status
+from somnus.watch import Settings, Watcher
 
 
 def _status(ctx: Ctx) -> int:
