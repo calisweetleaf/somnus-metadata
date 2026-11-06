@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-7c9e-74d4-9f7e-712091342607"
-  revision: 2
+  revision: 3
   title: "Package release and installation"
   classification:
     category: "engineering"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-7c9e-74d4-9f7e-712091342607"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-02T04:45:31+00:00"
+    updated_at: "2026-11-06T23:17:28+00:00"
   names:
     slug: "package-release-and-installation"
   knowledge:

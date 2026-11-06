@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a1af7c-0a93-7715-b17d-9eed021e4f98"
-#   revision: 3
+#   revision: 4
 #   title: "Carrier routing beyond extensions, JSON-tree carriers, and inline migration (SPEC §17, D20)"
 #   classification:
 #     category: "engineering"
@@ -18,7 +18,7 @@
 #       - target_ref: "urn:somnus:artifact:01a1af7c-0a93-7715-b17d-9eed021e4f98"
 #         aspects: ["content"]
 #   time:
-#     updated_at: "2026-11-06T12:39:37+00:00"
+#     updated_at: "2026-11-06T23:17:28+00:00"
 #   names:
 #     slug: "carrier-routing-beyond-extensions-json-tree-carriers-and-inline-migration-spec-1"
 #   knowledge:

@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78f9-7428-ad42-b95c245a14e5"
-  revision: 3
+  revision: 4
   title: "somnus-metadata"
   classification:
     category: "context"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78f9-7428-ad42-b95c245a14e5"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-06T06:11:45+00:00"
+    updated_at: "2026-11-06T23:17:28+00:00"
   names:
     slug: "somnus-metadata"
   knowledge:
