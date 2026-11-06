@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-7825-73c9-8512-bcde4a23df59"
-#   revision: 1
+#   revision: 2
 #   title: "Droid Wiki Refresh"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-7825-73c9-8512-bcde4a23df59"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T23:31:18+00:00"
 #   names:
 #     slug: "droid-wiki-refresh"
 #   knowledge:
