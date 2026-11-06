@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-8156-75ee-b790-6ee44e372f93"
-#   revision: 2
+#   revision: 3
 #   title: "Full-screen document browser and header editor behind somnus edit"
 #   classification:
 #     category: "engineering"
@@ -18,7 +18,7 @@
 #       - target_ref: "urn:somnus:artifact:01a19a67-8156-75ee-b790-6ee44e372f93"
 #         aspects: ["content"]
 #   time:
-#     updated_at: "2026-11-06T06:11:50+00:00"
+#     updated_at: "2026-11-06T08:15:27+00:00"
 #   names:
 #     slug: "full-screen-document-browser-and-header-editor-behind-somnus-edit"
 #   knowledge:
@@ -429,7 +429,7 @@ class BrowserScreen:
 def watch_label(ctx: Any) -> str:
     """Header suffix with the 24/7 watcher state (empty when unknown)."""
     try:
-        from somnus.watch import read_status
+        from somnus.heartbeat import read_status
 
         data = read_status(ctx.cfg.home)
     except Exception:  # noqa: BLE001 - the label is decoration; never break the frame

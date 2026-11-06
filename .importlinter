@@ -26,8 +26,6 @@ ignore_imports =
     somnus.commands.mcp -> somnus.mcp
     somnus.model.validate -> somnus.document
     somnus.tui.app -> somnus.commands._common
-    # D20: TUI calls only read_status; watch reuses the authored stamp command.
-    somnus.tui.app -> somnus.watch
 
 [importlinter:contract:entrypoints]
 name = Entrypoint modules (cli, mcp, __main__) are never imported by library code

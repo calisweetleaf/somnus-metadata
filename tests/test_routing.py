@@ -86,7 +86,9 @@ class TestFilenameRouting(TempDirCase):
         for name, expected in (("CODEOWNERS", "hash"), ("MANIFEST.in", "hash"), ("Makefile", "hash"),
                                ("Dockerfile", "dockerfile"), (".gitignore", "hash"), (".env", "hash"),
                                ("Gemfile", "hash"), ("tsconfig.json", "jsonc"), ("CMakeLists.txt", "hash"),
-                               ("Pipfile", "toml"), ("BUILD.bazel", "python")):
+                               ("Pipfile", "toml"), ("BUILD.bazel", "python"),
+                               (".importlinter", "hash"), (".pre-commit-config.yaml", "yaml"),
+                               (".ruff.toml", "toml")):
             with self.subTest(name=name):
                 self.assertEqual(carriers.carrier_name_for(Path(name), sniff=False), expected)
 
