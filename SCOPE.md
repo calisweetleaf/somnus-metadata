@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a7a-db54-7732-bbce-453ddafc4c56"
-  revision: 2
+  revision: 3
   title: "Scope — complete all-file discovery for registry adoption"
   classification:
     category: "engineering"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a7a-db54-7732-bbce-453ddafc4c56"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-06T12:36:38+00:00"
+    updated_at: "2026-11-06T12:41:13+00:00"
   names:
     slug: "scope-complete-all-file-discovery-for-registry-adoption"
   knowledge:
@@ -40,7 +40,9 @@ somnus:
 - Targets: supplied backend source/tests/contract files and sibling plugin 1.3.0.
 - Justification: directly integrate the authorized canonical work into main;
   preserve stdlib-only runtime, project layout and unrelated working-tree state.
-- Follow-up repairs: unused test import and exact SomnusError assertions only.
+- Follow-up repairs: unused test import, exact SomnusError assertions, portable
+  LF/path/launchd fixture assertions, and the precise authored TUI watcher-status
+  cross-link declaration in `.importlinter`. No post-publication runtime changes.
 - PLAN.md and HANDOFF.md own fresh release evidence and deferred diagnostics.
 
 ## Previous engagement — historical

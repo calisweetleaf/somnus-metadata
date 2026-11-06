@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
-  revision: 14
+  revision: 16
   title: "Somnus Metadata — Completion and Operator Integration Plan"
   classification:
     category: "operations"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-06T12:37:42+00:00"
+    updated_at: "2026-11-06T12:41:13+00:00"
   names:
     slug: "somnus-metadata-completion-and-operator-integration-plan"
   knowledge:
@@ -74,7 +74,25 @@ backend `5136ca9` and plugin `5514312`. Remote refs confirm those commits.
 The uploaded wheel matches all **57 runtime files** in current source.
 The GitHub backend push reported the existing required-check bypass while fresh
 hosted checks had not completed; local gates above are independent evidence.
-Hosted CI is pending, not asserted green. No GitHub release/tag was created.
+Plugin hosted CI **42219036607 passed**. Backend hosted CI exposed test-only
+platform assumptions: fixture LF bytes were translated on Windows, pending-path
+assertions did not resolve macOS/Windows aliases, the launchd dry-run expected a
+Linux command string, and a Linux plan assertion hard-coded POSIX separators.
+Commit `298517d` corrects the fixtures/assertions, with no runtime source change.
+It also declares the exact authored TUI -> watcher status-read cross-link in
+`.importlinter`; the watcher reuses stamp commands, just as the previously
+sanctioned TUI -> command-context link does. No blanket exception or layer
+removal was introduced. All **6 import contracts pass**; local statement/branch
+coverage is **87.43%**, above the unchanged **85%** gate. Hosted backend rerun
+**42219373561 passed** on implementation commit `298517d`: Linux Python
+3.11–3.14, macOS/Windows Python 3.11 and 3.14, hooks/coverage, import contracts,
+secret/policy guards and installed CLI acceptance all passed. No GitHub
+release/tag was created.
+
+The separate **Droid Wiki Refresh** workflow fails because the Factory service
+returns **402 Payment Required: Organization does not have an active paid
+subscription**. This external billing boundary is deferred; no workflow was
+disabled and no billing/configuration mutation was attempted.
 
 **Next boundary:** install the published plugin 1.3.0 through the native host
 lifecycle, then prove installed/enabled records and live search. That installation,
