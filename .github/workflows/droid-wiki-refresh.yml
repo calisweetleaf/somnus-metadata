@@ -4,8 +4,36 @@
 #   id: "urn:somnus:artifact:01a19a67-7825-73c9-8512-bcde4a23df59"
 #   revision: 1
 #   title: "Droid Wiki Refresh"
-#   classificati# Factory is no longer an active development environment. Keep the integration
-# available explicitly, without failing every main push on the expired service.
+#   classification:
+#     category: "engineering"
+#     type: "configuration"
+#     role: "normative"
+#     scope: "component"
+#     tags: []
+#   lifecycle:
+#     status: "draft"
+#   authority:
+#     standing: "candidate"
+#     scopes:
+#       - target_ref: "urn:somnus:artifact:01a19a67-7825-73c9-8512-bcde4a23df59"
+#         aspects: ["content"]
+#   time: {}
+#   names:
+#     slug: "droid-wiki-refresh"
+#   knowledge:
+#     coverage: "artifact"
+#     subjects: ["urn:somnus:artifact:01a19a67-7825-73c9-8512-bcde4a23df59"]
+#   access:
+#     visibility: "internal"
+#     allowed_uses: ["archive", "search", "reason"]
+#   ingestion:
+#     disposition: "candidate"
+#     body_role: "configuration"
+# somnus:end
+name: Droid Wiki Refresh
+
+# Factory is no longer an active development environment. Keep this optional
+# integration available manually without failing every main push on billing.
 on:
   workflow_dispatch:
 
