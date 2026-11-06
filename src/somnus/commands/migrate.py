@@ -179,11 +179,8 @@ def convert_directives(lines: list[str], offset: int) -> tuple[list[str], list[d
 # --------------------------------------------------------------------------- header
 
 
-def build_payload(legacy: dict, cfg: Config, path: Path, regions: list[dict], directives: list[dict]) -> dict:
-    """Map a lenient-parsed v0.1 header to a core 2.0.0 payload (SPEC §22 steps 1–8)."""
-    rest = copy.deepcopy(legacy)
-    unmapped: dict[str, Any] = {}
-
+def _migrate_identity(rest: dict, unmapped: dict) -> str:
+    """Map the legacy identity field family, preserving unmapped values."""
     raw_id = rest.pop("id", None)
     if not isinstance(raw_id, str):
         raise MigrationError(1, "legacy header has no 'id'")
@@ -194,7 +191,11 @@ def build_payload(legacy: dict, cfg: Config, path: Path, regions: list[dict], di
     legacy_somnus = rest.pop("somnus", None)
     if legacy_somnus is not None:
         unmapped["somnus"] = legacy_somnus
+    return aid
 
+
+def _migrate_classification(rest: dict, cfg: Config, path: Path, unmapped: dict) -> tuple[dict, str]:
+    """Map the legacy classification field family, preserving unmapped values."""
     cls_in = rest.pop("classification", {}) or {}
     cls_in = cls_in if isinstance(cls_in, dict) else {"value": cls_in}
     type_ = cls_in.pop("type", None)
@@ -227,7 +228,11 @@ def build_payload(legacy: dict, cfg: Config, path: Path, regions: list[dict], di
     classification["tags"] = tags
     if cls_in:
         unmapped.setdefault("classification", {}).update(cls_in)
+    return classification, guess.body_role
 
+
+def _migrate_lifecycle(rest: dict, unmapped: dict) -> tuple[dict, Any]:
+    """Map the legacy lifecycle field family, preserving unmapped values."""
     life_in = rest.pop("lifecycle", {}) or {}
     life_in = life_in if isinstance(life_in, dict) else {"value": life_in}
     status = life_in.pop("status", None)
@@ -239,7 +244,11 @@ def build_payload(legacy: dict, cfg: Config, path: Path, regions: list[dict], di
     reviewed_at = life_in.pop("reviewed_at", None)
     if life_in:
         unmapped.setdefault("lifecycle", {}).update(life_in)
+    return lifecycle, reviewed_at
 
+
+def _migrate_relations(rest: dict, aid: str, lifecycle: dict, unmapped: dict) -> list[dict]:
+    """Map the legacy relations field family, preserving unmapped values."""
     rel_in = rest.pop("relations", {}) or {}
     rel_in = rel_in if isinstance(rel_in, dict) else {"value": rel_in}
     if status == "superseded":
@@ -271,7 +280,11 @@ def build_payload(legacy: dict, cfg: Config, path: Path, regions: list[dict], di
             unmapped.setdefault("relations", {})[bucket] = leftovers
     if rel_in:
         unmapped.setdefault("relations", {}).update(rel_in)
+    return relations
 
+
+def _migrate_time(rest: dict, reviewed_at: Any, unmapped: dict) -> dict:
+    """Map the legacy time field family, preserving unmapped values."""
     time: dict[str, Any] = {}
     for key, value in (("created_at", rest.pop("created_at", None)), ("updated_at", rest.pop("updated_at", None)),
                        ("reviewed_at", reviewed_at)):
@@ -288,7 +301,11 @@ def build_payload(legacy: dict, cfg: Config, path: Path, regions: list[dict], di
                 datetime.fromisoformat(time["created_at"].replace("Z", "+00:00")):
             unmapped.setdefault("time", {})["updated_at"] = time.pop("updated_at")
     ordered_time = {k: time[k] for k in ("created_at", "updated_at", "reviewed_at", "authored_on") if k in time}
+    return ordered_time
 
+
+def _migrate_names(rest: dict, unmapped: dict) -> dict:
+    """Map the legacy names field family, preserving unmapped values."""
     names: dict[str, Any] = {}
     slug = rest.pop("slug", None)
     if isinstance(slug, str) and _KEBAB.match(slug):
@@ -309,7 +326,11 @@ def build_payload(legacy: dict, cfg: Config, path: Path, regions: list[dict], di
         names["aliases"] = aliases
     if bad_aliases:
         unmapped["aliases"] = bad_aliases
+    return names
 
+
+def _migrate_locations(rest: dict, unmapped: dict) -> list[dict]:
+    """Map the legacy locations field family, preserving unmapped values."""
     locations: list[dict] = []
     for key, role in (("location", "primary"), ("origin", "origin")):
         block = rest.pop(key, None)
@@ -331,6 +352,21 @@ def build_payload(legacy: dict, cfg: Config, path: Path, regions: list[dict], di
                     locations.append({"kind": "repository-path", "locator": old, "role": "historical"})
         if block:
             unmapped[key] = block
+    return locations
+
+
+def build_payload(legacy: dict, cfg: Config, path: Path, regions: list[dict], directives: list[dict]) -> dict:
+    """Map a lenient-parsed v0.1 header to a core 2.0.0 payload (SPEC §22 steps 1–8)."""
+    rest = copy.deepcopy(legacy)
+    unmapped: dict[str, Any] = {}
+
+    aid = _migrate_identity(rest, unmapped)
+    classification, body_role = _migrate_classification(rest, cfg, path, unmapped)
+    lifecycle, reviewed_at = _migrate_lifecycle(rest, unmapped)
+    relations = _migrate_relations(rest, aid, lifecycle, unmapped)
+    ordered_time = _migrate_time(rest, reviewed_at, unmapped)
+    names = _migrate_names(rest, unmapped)
+    locations = _migrate_locations(rest, unmapped)
 
     title = rest.pop("title", None)
     if not isinstance(title, str) or not title.strip():
@@ -361,7 +397,7 @@ def build_payload(legacy: dict, cfg: Config, path: Path, regions: list[dict], di
     payload["knowledge"] = knowledge
     d = cfg.defaults
     payload["access"] = {"visibility": d["visibility"], "allowed_uses": list(d["allowed_uses"])}
-    payload["ingestion"] = {"disposition": d["disposition"], "body_role": guess.body_role}
+    payload["ingestion"] = {"disposition": d["disposition"], "body_role": body_role}
     unmapped.update(rest)
     if directives:
         unmapped["directives"] = directives
