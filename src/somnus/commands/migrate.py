@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-7e96-7062-bdf7-68595563304f"
-#   revision: 2
+#   revision: 3
 #   title: "somnus migrate: upgrade v0.1 hybrid documents to core 2.0.0 (SPEC §22)"
 #   classification:
 #     category: "engineering"
@@ -18,7 +18,7 @@
 #       - target_ref: "urn:somnus:artifact:01a19a67-7e96-7062-bdf7-68595563304f"
 #         aspects: ["content"]
 #   time:
-#     updated_at: "2026-11-06T06:11:48+00:00"
+#     updated_at: "2026-11-06T23:30:25+00:00"
 #   names:
 #     slug: "somnus-migrate-upgrade-v0-1-hybrid-documents-to-core-2-0-0-spec-22"
 #   knowledge:

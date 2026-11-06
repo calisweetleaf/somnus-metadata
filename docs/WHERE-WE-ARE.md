@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a1aff0-60c9-76b6-95b0-38b2a057b562"
-  revision: 1
+  revision: 2
   title: "Where somnus-metadata stands"
   classification:
     category: "engineering"
@@ -17,7 +17,8 @@ somnus:
     scopes:
       - target_ref: "urn:somnus:artifact:01a1aff0-60c9-76b6-95b0-38b2a057b562"
         aspects: ["content"]
-  time: {}
+  time:
+    updated_at: "2026-11-06T23:30:25+00:00"
   names:
     slug: "where-somnus-metadata-stands"
   knowledge:
