@@ -251,7 +251,7 @@ def _migrate_relations(rest: dict, aid: str, lifecycle: dict, unmapped: dict) ->
     """Map the legacy relations field family, preserving unmapped values."""
     rel_in = rest.pop("relations", {}) or {}
     rel_in = rel_in if isinstance(rel_in, dict) else {"value": rel_in}
-    if status == "superseded":
+    if lifecycle["status"] == "superseded":
         replacements = [ids.normalize_legacy_ref(r) for r in rel_in.get("superseded_by", []) or []
                         if isinstance(r, str)]
         replacements = [r for r in replacements if ids.is_reference_string(r)]
