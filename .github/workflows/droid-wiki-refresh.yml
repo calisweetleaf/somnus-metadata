@@ -2,7 +2,7 @@
 # somnus:
 #   schema: "somnus://metadata/core/2.0.0"
 #   id: "urn:somnus:artifact:01a19a67-7825-73c9-8512-bcde4a23df59"
-#   revision: 1
+#   revision: 2
 #   title: "Droid Wiki Refresh"
 #   classification:
 #     category: "engineering"
@@ -17,7 +17,8 @@
 #     scopes:
 #       - target_ref: "urn:somnus:artifact:01a19a67-7825-73c9-8512-bcde4a23df59"
 #         aspects: ["content"]
-#   time: {}
+#   time:
+#     updated_at: "2026-11-06T23:31:18+00:00"
 #   names:
 #     slug: "droid-wiki-refresh"
 #   knowledge:
@@ -32,14 +33,10 @@
 # somnus:end
 name: Droid Wiki Refresh
 
+# Factory is no longer an active development environment. Keep this optional
+# integration available manually without failing every main push on billing.
 on:
-  push:
-    branches: [main]
-    # Merging the wiki pull request touches only droid-wiki/; refreshing on
-    # that push would always reopen the pull request, because .wiki-meta.json
-    # records the commit each run was generated from.
-    paths-ignore:
-      - 'droid-wiki/**'
+  workflow_dispatch:
 
 # The job that runs /wiki is read-only: the agent reads the whole repository
 # and the pages restored from the unmerged rolling branch, so it must not be

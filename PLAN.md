@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
-  revision: 17
+  revision: 18
   title: "Somnus Metadata — Completion and Operator Integration Plan"
   classification:
     category: "operations"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-06T23:17:29+00:00"
+    updated_at: "2026-11-06T23:33:04+00:00"
   names:
     slug: "somnus-metadata-completion-and-operator-integration-plan"
   knowledge:
@@ -32,6 +32,27 @@ somnus:
     body_role: "narrative"
 ---
 # Somnus Metadata — Completion and Operator Integration Plan
+
+## Complete v2 integration follow-through: 2026-11-06
+
+PR #11 completes the full archive comparison after PR #10's runtime repair.
+Every supplied file is now accounted for. Five configuration sidecars moved
+inline through the toolkit, preserving IDs and host content; the missing
+WHERE-WE-ARE handoff is restored with current publication status. See
+[docs/INTEGRATION_AUDIT.md](docs/INTEGRATION_AUDIT.md) for the complete disposition.
+
+Issue #5 is addressed: the legacy migration mapper is split by field family,
+with 3,000 differential cases matching ordered payloads/errors and preserving
+caller input. All 579 unit tests pass, coverage is 87.47%, mypy and configured
+Ruff pass, all six import contracts pass, and semantic checks are clean. Final
+wheel/source bytes match and strict Twine checks pass; final hosted validation
+is attached to PR #11. The stale wiki PR #9 is closed because it removes metadata
+headers and describes pre-D20 state. Factory wiki refresh is manual-only.
+
+Publication of 2.2.1 and inspection/cleanup of untracked nested extraction folders
+on the laptop remain blocked by publisher access and the offline laptop. No
+local installation or machine cleanup is claimed. The older entries below
+record their own earlier state and are superseded by this follow-through.
 
 ## Supplied revision correction: 2.2.1 (prepared, not published)
 

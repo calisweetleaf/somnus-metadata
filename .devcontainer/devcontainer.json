@@ -1,3 +1,36 @@
+// somnus:metadata:v2
+// somnus:
+//   schema: "somnus://metadata/core/2.0.0"
+//   id: "urn:somnus:artifact:01a19a67-77a5-704e-841b-1fea9c15bfc0"
+//   revision: 2
+//   title: "Devcontainer"
+//   classification:
+//     category: "research"
+//     type: "dataset"
+//     role: "informative"
+//     scope: "component"
+//     tags: []
+//   lifecycle:
+//     status: "draft"
+//   authority:
+//     standing: "candidate"
+//     scopes:
+//       - target_ref: "urn:somnus:artifact:01a19a67-77a5-704e-841b-1fea9c15bfc0"
+//         aspects: ["content"]
+//   time:
+//     updated_at: "2026-11-06T23:27:16+00:00"
+//   names:
+//     slug: "devcontainer"
+//   knowledge:
+//     coverage: "artifact"
+//     subjects: ["urn:somnus:artifact:01a19a67-77a5-704e-841b-1fea9c15bfc0"]
+//   access:
+//     visibility: "internal"
+//     allowed_uses: ["archive", "search", "reason"]
+//   ingestion:
+//     disposition: "candidate"
+//     body_role: "dataset"
+// somnus:end
 {
   "name": "somnus-metadata (Python 3.11)",
   "image": "mcr.microsoft.com/devcontainers/python:3.11",
