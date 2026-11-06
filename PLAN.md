@@ -2,7 +2,7 @@
 somnus:
   schema: "somnus://metadata/core/2.0.0"
   id: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
-  revision: 13
+  revision: 14
   title: "Somnus Metadata — Completion and Operator Integration Plan"
   classification:
     category: "operations"
@@ -18,7 +18,7 @@ somnus:
       - target_ref: "urn:somnus:artifact:01a19a67-78dc-7498-970f-47643c9ce413"
         aspects: ["content"]
   time:
-    updated_at: "2026-11-06T12:36:37+00:00"
+    updated_at: "2026-11-06T12:37:42+00:00"
   names:
     slug: "somnus-metadata-completion-and-operator-integration-plan"
   knowledge:
@@ -68,6 +68,13 @@ moves, research files, supplied folders and ZIPs remain outside release commits.
 - Initial `python -m build` used a different PATH interpreter without the build
   frontend; `uv build` successfully produced both artifacts. No source fix was
   needed. First lint run found the three test issues above; rerun passes.
+
+Both main branches were committed and pushed with upstream tracking:
+backend `5136ca9` and plugin `5514312`. Remote refs confirm those commits.
+The uploaded wheel matches all **57 runtime files** in current source.
+The GitHub backend push reported the existing required-check bypass while fresh
+hosted checks had not completed; local gates above are independent evidence.
+Hosted CI is pending, not asserted green. No GitHub release/tag was created.
 
 **Next boundary:** install the published plugin 1.3.0 through the native host
 lifecycle, then prove installed/enabled records and live search. That installation,
